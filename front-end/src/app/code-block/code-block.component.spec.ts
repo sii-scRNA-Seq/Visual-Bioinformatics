@@ -12,11 +12,11 @@ describe('CodeBlockComponent', () => {
     TestBed.configureTestingModule({
       declarations: [CodeBlockComponent],
       imports: [MatCardModule],
-      providers: [BlockService]
+      providers: [BlockService],
     });
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
-    component.blockId = 'LoadData'
+    component.blockId = 'LoadData';
     fixture.detectChanges();
   });
 
@@ -25,17 +25,13 @@ describe('CodeBlockComponent', () => {
   });
 
   describe('RemoveBlock', () => {
-
     it ('should remove block when button is clicked', () => {
-      
       const blockService: BlockService = TestBed.inject(BlockService);
-      spyOn(blockService, "removeBlock");
-      const button = fixture.debugElement.query(By.css("button"));
-      button.triggerEventHandler("click", {})
+      spyOn(blockService, 'removeBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith("LoadData");
-
-    })
-  })
-
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('LoadData');
+    });
+  });
 });

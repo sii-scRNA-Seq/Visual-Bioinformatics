@@ -10,7 +10,7 @@ describe('CanvasComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [CanvasComponent],
-      imports: [MatCardModule]
+      imports: [MatCardModule],
     });
     fixture = TestBed.createComponent(CanvasComponent);
     component = fixture.componentInstance;

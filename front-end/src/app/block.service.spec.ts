@@ -16,9 +16,7 @@ describe('BlockService', () => {
   });
 
   describe('AddBlock', () => {
-
-    it('should add a block when called', async() => {
-
+    it('should add a block when called', async () => {
       // Assuming it works
       // Setup
       const blocks = await firstValueFrom(service.blockOnCanvas.pipe(first()));
@@ -33,15 +31,11 @@ describe('BlockService', () => {
       expect(results.length).toBe(1);
       // Check that results has the right block
       expect(results[0].blockId).toBe('LoadData');
-
     });
-
-  })
+  });
 
   describe('RemoveBlock', () => {
-
-    it('should remove a block when called', async() => {
-
+    it('should remove a block when called', async () => {
       // Setup
       service.addBlock('LoadData');
       const blocks = await firstValueFrom(service.blockOnCanvas.pipe(first()));
@@ -53,10 +47,6 @@ describe('BlockService', () => {
       // Assert
       const results = await firstValueFrom(service.blockOnCanvas.pipe(first()));
       expect(results.length).toBe(0);
-
     });
-
-  })
-  
+  });
 });
-

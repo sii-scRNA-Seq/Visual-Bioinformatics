@@ -24,7 +24,7 @@ import { CodeBlockComponent } from './code-block/code-block.component';
     MatCardModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 
 export class AppModule { }

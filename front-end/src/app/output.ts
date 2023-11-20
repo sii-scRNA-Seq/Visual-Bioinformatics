@@ -1,4 +1,4 @@
 export interface Output {
-    title: string;
-    message: string;
+  title: string
+  message: string
 }

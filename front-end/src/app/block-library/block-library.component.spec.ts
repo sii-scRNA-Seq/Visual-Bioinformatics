@@ -12,7 +12,7 @@ describe('BlockLibraryComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [BlockLibraryComponent],
-      imports: [MatCardModule]
+      imports: [MatCardModule],
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);
     component = fixture.componentInstance;
@@ -24,17 +24,13 @@ describe('BlockLibraryComponent', () => {
   });
 
   describe('AddBlock', () => {
-
     it ('should add block when button is clicked', () => {
-      
       const blockService: BlockService = TestBed.inject(BlockService);
-      spyOn(blockService, "addBlock");
-      const button = fixture.debugElement.query(By.css("button"));
-      button.triggerEventHandler("click", {})
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.addBlock).toHaveBeenCalledOnceWith("LoadData");
-
-    })
-
-  })
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('LoadData');
+    });
+  });
 });

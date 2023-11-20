@@ -4,20 +4,18 @@ import { BlockId, BlockService } from '../block.service';
 @Component({
   selector: 'app-code-block',
   templateUrl: './code-block.component.html',
-  styleUrls: ['./code-block.component.css']
+  styleUrls: ['./code-block.component.css'],
 })
 export class CodeBlockComponent {
-
   @Input() blockId!: BlockId;
 
-  @Input() title: string = "";
+  @Input() title = '';
 
   constructor(private blockService: BlockService) { }
 
   removeBlock(): void {
-    this.blockService.removeBlock(this.blockId)
-    console.log(this.title)
-    console.log(this.blockId)
+    this.blockService.removeBlock(this.blockId);
+    console.log(this.title);
+    console.log(this.blockId);
   }
-
 }

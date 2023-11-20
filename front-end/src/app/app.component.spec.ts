@@ -3,20 +3,19 @@ import { AppComponent } from './app.component';
 import { BlockLibraryComponent } from './block-library/block-library.component';
 import { CanvasComponent } from './canvas/canvas.component';
 import { OutputDisplayComponent } from './output-display/output-display.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 
 describe('AppComponent', () => {
-
   beforeEach(() => TestBed.configureTestingModule({
-    declarations: [ 
+    declarations: [
       AppComponent,
       BlockLibraryComponent,
       CanvasComponent,
       OutputDisplayComponent],
-    imports: 
+    imports:
         [HttpClientTestingModule,
-        MatCardModule]
+          MatCardModule],
   }));
 
   it('should create the app', () => {
@@ -24,5 +23,4 @@ describe('AppComponent', () => {
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
-
 });

@@ -12,7 +12,7 @@ describe('OutputDisplayComponent', () => {
     TestBed.configureTestingModule({
       declarations: [OutputDisplayComponent],
       imports: [HttpClientTestingModule,
-        MatCardModule]
+        MatCardModule],
     });
     fixture = TestBed.createComponent(OutputDisplayComponent);
     component = fixture.componentInstance;

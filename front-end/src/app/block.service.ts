@@ -39,10 +39,6 @@ export class BlockService {
         break;
       }
 
-      case "FilterData": {
-        //statements
-        break;
-      }
 
     }
   }
@@ -78,4 +74,4 @@ export interface Block {
   onRun: (block: Block) => Observable<any>
 }
 
-export type BlockId = "" | "LoadData" | "FilterData"
+export type BlockId = "LoadData"

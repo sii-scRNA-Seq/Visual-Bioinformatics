@@ -8,7 +8,7 @@ import { BlockId, BlockService } from '../block.service';
 })
 export class CodeBlockComponent {
 
-  @Input() blockId: BlockId = "";
+  @Input() blockId!: BlockId;
 
   @Input() title: string = "";
 

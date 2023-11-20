@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CanvasComponent } from './canvas.component';
+import { MatCardModule } from '@angular/material/card';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -8,7 +9,8 @@ describe('CanvasComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CanvasComponent]
+      declarations: [CanvasComponent],
+      imports: [MatCardModule]
     });
     fixture = TestBed.createComponent(CanvasComponent);
     component = fixture.componentInstance;

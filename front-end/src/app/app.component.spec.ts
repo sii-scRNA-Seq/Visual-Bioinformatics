@@ -1,10 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { BlockLibraryComponent } from './block-library/block-library.component';
+import { CanvasComponent } from './canvas/canvas.component';
+import { OutputDisplayComponent } from './output-display/output-display.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { MatCardModule } from '@angular/material/card';
 
 describe('AppComponent', () => {
 
   beforeEach(() => TestBed.configureTestingModule({
-    declarations: [AppComponent]
+    declarations: [ 
+      AppComponent,
+      BlockLibraryComponent,
+      CanvasComponent,
+      OutputDisplayComponent],
+    imports: 
+        [HttpClientTestingModule,
+        MatCardModule]
   }));
 
   it('should create the app', () => {
@@ -13,17 +25,4 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'visual-bioinformatics'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('visual-bioinformatics');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('visual-bioinformatics app is running!');
-  });
-  
 });

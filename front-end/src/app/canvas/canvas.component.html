@@ -1,0 +1,12 @@
+<mat-card style="height: calc(95vh - 20px)">
+    <mat-card-header>
+        <mat-card-title>Canvas</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <ul class="no-bullets">
+            <li *ngFor="let block of blockList">
+              <app-code-block [blockId]="block.blockId" [title]="block.title"></app-code-block>
+            </li>
+          </ul>
+    </mat-card-content>
+</mat-card>

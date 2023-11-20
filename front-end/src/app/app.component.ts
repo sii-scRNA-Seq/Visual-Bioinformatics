@@ -1,6 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { OutputService } from './output.service';
-import { Output } from './output'
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -8,20 +6,8 @@ import { Output } from './output'
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent {
   
   title = 'visual-bioinformatics';
-
-  text = '...';
-
-  constructor(private outputService: OutputService) { }
-
-  ngOnInit() {
-    this.getOutputs()
-  }
-
-  getOutputs() {
-    this.outputService.getOutputs().subscribe((data: Output) => this.text = data.title);
-  }
 
 }

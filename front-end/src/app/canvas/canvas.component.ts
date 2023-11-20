@@ -11,7 +11,7 @@ export class CanvasComponent {
   blockList: Block[] = [];
 
   constructor(private blockService: BlockService) {
-    this.blockService.blockOnCanvas.subscribe(
+    this.blockService.blocksOnCanvas.subscribe(
       (res) => { this.blockList = res; },
     );
   }

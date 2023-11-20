@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { BlockLibraryComponent } from './block-library.component';
 import { MatCardModule } from '@angular/material/card';
-import { BlockService } from '../block.service';
 import { By } from '@angular/platform-browser';
+import { BlockLibraryComponent } from './block-library.component';
+import { BlockService } from '../block.service';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;

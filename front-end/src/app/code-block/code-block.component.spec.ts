@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CodeBlockComponent } from './code-block.component';
 import { By } from '@angular/platform-browser';
 import { MatCardModule } from '@angular/material/card';
+import { from } from 'rxjs';
+import { CodeBlockComponent } from './code-block.component';
 import { BlockService } from '../block.service';
 
 describe('CodeBlockComponent', () => {
@@ -16,7 +17,13 @@ describe('CodeBlockComponent', () => {
     });
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
-    component.blockId = 'LoadData';
+    component.block = {
+      blockId: 'LoadData',
+      title: 'Load Data',
+      possibleChildBlocks: [],
+      parameters: {},
+      onRun: () => from(''),
+    };
     fixture.detectChanges();
   });
 

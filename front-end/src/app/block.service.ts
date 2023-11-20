@@ -6,14 +6,14 @@ import { BehaviorSubject, Observable, from } from 'rxjs';
 })
 
 export class BlockService {
-  private readonly blockOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
-  readonly blockOnCanvas: Observable<Block[]> = this.blockOnCanvas$.asObservable();
+  private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
+  readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
   addBlock(id: BlockId): void {
     switch (id) {
       case 'LoadData': {
-        if (this.blockOnCanvas$.getValue().length == 0) {
-          this.blockOnCanvas$.next([{
+        if (this.blocksOnCanvas$.getValue().length == 0) {
+          this.blocksOnCanvas$.next([{
             blockId: 'LoadData',
             title: 'Load Data',
             possibleChildBlocks: [],
@@ -22,16 +22,8 @@ export class BlockService {
           }]);
         }
         else {
-          console.log('You can\'t do that, it\'s wrong');
-          /* this.blockOnCanvas$.next(
-            this.blockOnCanvas$.getValue().concat([{
-              title: "Load Data",
-              blockId: "LoadData",
-              onRun: _ => from(""),
-              possibleChildBlocks: [],
-              parameters: {}
-            }])
-          ) */
+          // Placeholder for action when block cannot be added
+          console.log('You cant do that, its wrong');
         }
         break;
       }
@@ -39,25 +31,16 @@ export class BlockService {
   }
 
   removeBlock(id: BlockId): void {
-    console.log(id);
     const newBlockList: Block[] = [];
-    for (let i = 0; i < this.blockOnCanvas$.getValue().length; i++) {
-      if (this.blockOnCanvas$.getValue()[i].blockId == id) {
-        this.blockOnCanvas$.next(newBlockList);
+    for (let i = 0; i < this.blocksOnCanvas$.getValue().length; i++) {
+      if (this.blocksOnCanvas$.getValue()[i].blockId == id) {
+        this.blocksOnCanvas$.next(newBlockList);
         break;
       }
       else {
-        newBlockList.push(this.blockOnCanvas$.getValue()[i]);
+        newBlockList.push(this.blocksOnCanvas$.getValue()[i]);
       }
     }
-    console.log('Block removed');
-    // Remove the block that called this function
-
-    // Either use blockId if each block can only exist once
-    // Or add new position field and delete that block position
-
-    // Could consider deleting only this block but that requires lots os logic
-    // Easy solution is to delete this and all blocks below
   }
 }
 

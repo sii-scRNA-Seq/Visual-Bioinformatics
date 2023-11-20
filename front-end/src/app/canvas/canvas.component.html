@@ -5,7 +5,7 @@
     <mat-card-content>
         <ul class="no-bullets">
             <li *ngFor="let block of blockList">
-              <app-code-block [blockId]="block.blockId" [title]="block.title"></app-code-block>
+              <app-code-block [block]="block"></app-code-block>
             </li>
           </ul>
     </mat-card-content>

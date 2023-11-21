@@ -1,0 +1,14 @@
+.horizontal-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    min-width: 100%;
+}
+
+.vertical-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    min-height: 100%;
+    align-items: stretch
+}

@@ -25,7 +25,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/custom-theme.scss",
+              "@angular/material/prebuilt-themes/deeppurple-amber.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -88,12 +88,27 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/deeppurple-amber.css",
               "src/styles.css"
             ],
             "scripts": []
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }

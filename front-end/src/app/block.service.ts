@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
+import { OutputService } from './output.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +9,8 @@ import { BehaviorSubject, Observable, from } from 'rxjs';
 export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
+
+  constructor(private outputService: OutputService) { }
 
   addBlock(id: BlockId): void {
     switch (id) {
@@ -41,6 +44,10 @@ export class BlockService {
         newBlockList.push(this.blocksOnCanvas$.getValue()[i]);
       }
     }
+  }
+
+  executeBlocks(): void {
+    this.outputService.executeBlocks();
   }
 }
 

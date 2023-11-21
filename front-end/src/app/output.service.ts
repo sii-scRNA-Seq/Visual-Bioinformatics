@@ -10,6 +10,11 @@ import { Output } from './output';
 export class OutputService {
   constructor(private http: HttpClient) { }
 
+  executeBlocks(): void {
+    console.log("Executing")
+    // Execute code and display result on output-display
+  }
+
   getOutputs(): Observable<Output> {
     return this.http.get<Output>('http://127.0.0.1:5000/');
   }

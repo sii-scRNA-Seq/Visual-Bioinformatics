@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { CanvasComponent } from './canvas.component';
+import { BlockService } from '../block.service';
+import { By } from '@angular/platform-browser';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -9,7 +12,10 @@ describe('CanvasComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [CanvasComponent],
-      imports: [MatCardModule],
+      imports: [
+        HttpClientTestingModule,
+        MatCardModule,
+      ],
     });
     fixture = TestBed.createComponent(CanvasComponent);
     component = fixture.componentInstance;
@@ -18,5 +24,16 @@ describe('CanvasComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('Run blocks', () => {
+    it ('should execute blocks when button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'executeBlocks');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.executeBlocks).toHaveBeenCalled;
+    });
   });
 });

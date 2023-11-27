@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { from } from 'rxjs';
 import { CodeBlockComponent } from './code-block.component';
 import { BlockService } from '../block.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -12,7 +13,10 @@ describe('CodeBlockComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [CodeBlockComponent],
-      imports: [MatCardModule],
+      imports: [
+        HttpClientTestingModule,
+        MatCardModule,
+      ],
       providers: [BlockService],
     });
     fixture = TestBed.createComponent(CodeBlockComponent);

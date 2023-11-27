@@ -11,13 +11,19 @@ import { Output } from './../output';
 export class OutputDisplayComponent implements OnInit {
   text = '...';
 
-  constructor(private outputService: OutputService) { }
+  outputs: Output[] = [];
+
+  constructor(private outputService: OutputService) {
+    this.outputService.outputs.subscribe(
+      (res) => { this.outputs = res; },
+    );
+  }
 
   ngOnInit() {
     this.getOutputs();
   }
 
   getOutputs() {
-    this.outputService.getOutputs().subscribe((data: Output) => this.text = data.title);
+    this.outputService.getOutputs().subscribe((data: Output) => this.text = data.text);
   }
 }

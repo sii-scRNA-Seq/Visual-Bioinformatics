@@ -1,4 +1,4 @@
 export interface Output {
-  title: string
-  message: string
+  text: string
+  other: string
 }

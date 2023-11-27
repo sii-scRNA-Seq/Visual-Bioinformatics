@@ -47,6 +47,8 @@ export class BlockService {
   }
 
   executeBlocks(): void {
+    // Possibly do some preprocessing first?
+    // Will need to pass blocksOnCanvas
     this.outputService.executeBlocks();
   }
 }

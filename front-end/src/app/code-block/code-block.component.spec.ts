@@ -22,7 +22,7 @@ describe('CodeBlockComponent', () => {
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
     component.block = {
-      blockId: 'LoadData',
+      blockId: 'loaddata',
       title: 'Load Data',
       possibleChildBlocks: [],
       parameters: {},
@@ -42,7 +42,7 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('LoadData');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('loaddata');
     });
   });
 });

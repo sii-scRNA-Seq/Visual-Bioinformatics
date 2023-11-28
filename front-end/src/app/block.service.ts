@@ -14,10 +14,10 @@ export class BlockService {
 
   addBlock(id: BlockId): void {
     switch (id) {
-      case 'LoadData': {
+      case 'loaddata': {
         if (this.blocksOnCanvas$.getValue().length == 0) {
           this.blocksOnCanvas$.next([{
-            blockId: 'LoadData',
+            blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: [],
             parameters: {},
@@ -47,9 +47,12 @@ export class BlockService {
   }
 
   executeBlocks(): void {
-    // Possibly do some preprocessing first?
-    // Will need to pass blocksOnCanvas
-    this.outputService.executeBlocks();
+    this.outputService.resetOutputs();
+    for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
+      const id = this.blocksOnCanvas$.getValue()[0].blockId;
+      console.log(id);
+      this.outputService.executeBlock(id);
+    }
   }
 }
 
@@ -61,4 +64,4 @@ export interface Block {
   onRun: (block: Block) => Observable<unknown>
 }
 
-export type BlockId = 'LoadData';
+export type BlockId = 'loaddata';

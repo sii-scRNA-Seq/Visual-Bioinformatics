@@ -33,7 +33,7 @@ describe('BlockLibraryComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.addBlock).toHaveBeenCalledOnceWith('LoadData');
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('loaddata');
     });
   });
 });

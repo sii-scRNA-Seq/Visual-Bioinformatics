@@ -22,10 +22,10 @@ describe('BlockService', () => {
 
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
-      service.addBlock('LoadData');
+      service.addBlock('loaddata');
       const results = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(results.length).toBe(1);
-      expect(results[0].blockId).toBe('LoadData');
+      expect(results[0].blockId).toBe('loaddata');
 
     });
   });
@@ -33,10 +33,10 @@ describe('BlockService', () => {
   describe('RemoveBlock', () => {
     it('should remove a block when called', async () => {
 
-      service.addBlock('LoadData');
+      service.addBlock('loaddata');
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(1);
-      service.removeBlock('LoadData');
+      service.removeBlock('loaddata');
       const results = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(results.length).toBe(0);
 

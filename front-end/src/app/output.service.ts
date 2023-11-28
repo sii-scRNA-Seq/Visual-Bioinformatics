@@ -13,20 +13,18 @@ export class OutputService {
 
   constructor(private http: HttpClient) { }
 
-  executeBlocks(): void {
-    const output: Output = {
-      text: '',
-      other: ''
-    };
-    this.http.get<Output>('http://127.0.0.1:5000/loaddata/').subscribe((o: Output) => {
+  resetOutputs(): void {
+    this.outputs$.next([]);
+  }
+  
+  executeBlock(id: string): void {
+    const output: Output = {text: '', other: ''};
+    this.http.get<Output>('http://127.0.0.1:5000/'+id+'/').subscribe((o: Output) => {
       output.text = o.text;
       output.other = o.other;
     });
-    this.outputs$.next([output]);
-    // Execute code and display result on output-display
-  }
-
-  getOutputs(): Observable<Output> {
-    return this.http.get<Output>('http://127.0.0.1:5000/');
+    const outputs = this.outputs$.getValue();
+    outputs.push(output);
+    this.outputs$.next(outputs);
   }
 }

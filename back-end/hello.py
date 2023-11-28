@@ -18,7 +18,7 @@ def get_data():
 @app.route('/loaddata/')
 def loaddata():
     adata = sc.read_10x_mtx(
-    'C:/Users/rober/OneDrive/Desktop/Bioinformatics Project/scanpy-tutorials-master/data/filtered_gene_bc_matrices/hg19/',
+    'data/filtered_gene_bc_matrices/hg19/',
     var_names='gene_symbols', cache=True) 
     adata.var_names_make_unique()
     message = {

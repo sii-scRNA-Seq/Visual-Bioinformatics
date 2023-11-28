@@ -50,7 +50,6 @@ export class BlockService {
     this.outputService.resetOutputs();
     for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
       const id = this.blocksOnCanvas$.getValue()[0].blockId;
-      console.log(id);
       this.outputService.executeBlock(id);
     }
   }

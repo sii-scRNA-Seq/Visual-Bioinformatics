@@ -33,7 +33,7 @@ describe('CanvasComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.executeBlocks).toHaveBeenCalled;
+      expect(blockService.executeBlocks).toHaveBeenCalledTimes(1);
     });
   });
 });

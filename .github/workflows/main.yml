@@ -1,0 +1,11 @@
+on:
+  push
+
+jobs:
+  build:
+    steps:
+      - run: |
+          cd front-end
+          ng lint
+          ng test
+          ng build

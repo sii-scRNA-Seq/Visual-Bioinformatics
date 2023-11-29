@@ -1,0 +1,3 @@
+run: ng lint
+run: ng test
+run: ng build

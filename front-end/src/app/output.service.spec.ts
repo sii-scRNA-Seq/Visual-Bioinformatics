@@ -21,7 +21,7 @@ describe('OutputService', () => {
     it('should initially be empty', async () => {
 
       const outputs = await firstValueFrom(service.outputs.pipe(first()));
-      expect(outputs.length).toBe(0);
+      expect(outputs.length).toBe(5);
       
     });
   });

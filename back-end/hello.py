@@ -7,22 +7,17 @@ import scanpy as sc
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/')
-def get_data():
-    data = {
-        'text': 'Hello, World!',
-        'other': "You can't see this bit"
-    }
-    return jsonify(data)
+data = {
+    'pbmc3k': None
+}
 
 @app.route('/loaddata/')
 def loaddata():
-    adata = sc.read_10x_mtx(
-    'data/filtered_gene_bc_matrices/hg19/',
-    var_names='gene_symbols', cache=True) 
-    adata.var_names_make_unique()
+    if data['pbmc3k'] is None:
+        data['pbmc3k'] = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True) 
+        data['pbmc3k'].var_names_make_unique()
     message = {
-        'text': str(adata),
+        'text': str(data['pbmc3k']),
         'other': ''
     }
     return jsonify(message)

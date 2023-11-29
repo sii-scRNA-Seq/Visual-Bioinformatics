@@ -18,6 +18,15 @@ describe('BlockService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('BlockOnCanvas', () => {
+    it('should initially be empty', async () => {
+
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+
+    });
+  });
+
   describe('AddBlock', () => {
     it('should add a block when called', async () => {
 
@@ -46,6 +55,7 @@ describe('BlockService', () => {
 
   describe('ExecuteBlocks', () => {
     it('should result in a call of outputService.executeBlock for each block on the canvas', async () => {
+      
       const outputService: OutputService = TestBed.inject(OutputService);
       spyOn(outputService, 'executeBlock');
       const blocks0 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
@@ -61,6 +71,7 @@ describe('BlockService', () => {
     });
 
     it('should result in a call of outputService.resetOutputs', async () => {
+      
       const outputService: OutputService = TestBed.inject(OutputService);
       spyOn(outputService, 'resetOutputs');
       service.executeBlocks();
@@ -68,5 +79,4 @@ describe('BlockService', () => {
 
     });
   });
-
 });

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { Output } from './output';
+import { BlockId } from './block.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,14 +18,10 @@ export class OutputService {
     this.outputs$.next([]);
   }
   
-  executeBlock(id: string): void {
-    const output: Output = {text: '', other: ''};
-    this.http.get<Output>('http://127.0.0.1:5000/'+id+'/').subscribe((o: Output) => {
-      output.text = o.text;
-      output.other = o.other;
-    });
+  async executeBlock(id: BlockId): Promise<void> {    
+    const outputResponse: Output = await firstValueFrom(this.http.get<Output>('http://127.0.0.1:5000/'+id+'/'));
     const outputs = this.outputs$.getValue();
-    outputs.push(output);
+    outputs.push(outputResponse);
     this.outputs$.next(outputs);
   }
 }

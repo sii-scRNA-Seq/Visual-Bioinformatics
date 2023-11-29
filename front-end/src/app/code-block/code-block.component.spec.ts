@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { from } from 'rxjs';
 import { CodeBlockComponent } from './code-block.component';
 import { BlockService } from '../block.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -12,13 +13,16 @@ describe('CodeBlockComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [CodeBlockComponent],
-      imports: [MatCardModule],
+      imports: [
+        HttpClientTestingModule,
+        MatCardModule,
+      ],
       providers: [BlockService],
     });
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
     component.block = {
-      blockId: 'LoadData',
+      blockId: 'loaddata',
       title: 'Load Data',
       possibleChildBlocks: [],
       parameters: {},
@@ -38,7 +42,7 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('LoadData');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('loaddata');
     });
   });
 });

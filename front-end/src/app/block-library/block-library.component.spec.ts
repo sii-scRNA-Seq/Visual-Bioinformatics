@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { By } from '@angular/platform-browser';
 import { BlockLibraryComponent } from './block-library.component';
 import { BlockService } from '../block.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -11,7 +12,10 @@ describe('BlockLibraryComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [BlockLibraryComponent],
-      imports: [MatCardModule],
+      imports: [
+        HttpClientTestingModule,
+        MatCardModule,
+      ],
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);
     component = fixture.componentInstance;
@@ -29,7 +33,7 @@ describe('BlockLibraryComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.addBlock).toHaveBeenCalledOnceWith('LoadData');
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('loaddata');
     });
   });
 });

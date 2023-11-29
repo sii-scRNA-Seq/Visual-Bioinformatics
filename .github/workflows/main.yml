@@ -1,11 +1,20 @@
 on:
-  push
+  [push, pull_request]
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front-end
     steps:
-      - run: |
-          cd front-end
-          ng lint
-          ng test
-          ng build
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm run lint
+      - run: npm run test -- --watch=false --browsers=ChromeHeadless
+      - run: npm run build
+      

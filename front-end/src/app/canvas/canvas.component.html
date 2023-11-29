@@ -7,6 +7,7 @@
             <li *ngFor="let block of blockList">
               <app-code-block [block]="block"></app-code-block>
             </li>
-          </ul>
+        </ul>
+        <button (click)='executeBlocks()'>Run</button>
     </mat-card-content>
 </mat-card>

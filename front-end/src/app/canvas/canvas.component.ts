@@ -15,4 +15,8 @@ export class CanvasComponent {
       (res) => { this.blockList = res; },
     );
   }
+
+  executeBlocks() {
+    this.blockService.executeBlocks();
+  }
 }

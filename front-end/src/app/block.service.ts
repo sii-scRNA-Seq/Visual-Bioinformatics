@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
+import { OutputService } from './output.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,12 +10,14 @@ export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
+  constructor(private outputService: OutputService) { }
+
   addBlock(id: BlockId): void {
     switch (id) {
-      case 'LoadData': {
+      case 'loaddata': {
         if (this.blocksOnCanvas$.getValue().length == 0) {
           this.blocksOnCanvas$.next([{
-            blockId: 'LoadData',
+            blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: [],
             parameters: {},
@@ -42,6 +45,14 @@ export class BlockService {
       }
     }
   }
+
+  executeBlocks(): void {
+    this.outputService.resetOutputs();
+    for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
+      const id = this.blocksOnCanvas$.getValue()[0].blockId;
+      this.outputService.executeBlock(id);
+    }
+  }
 }
 
 export interface Block {
@@ -52,4 +63,4 @@ export interface Block {
   onRun: (block: Block) => Observable<unknown>
 }
 
-export type BlockId = 'LoadData';
+export type BlockId = 'loaddata';

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { OutputService } from './../output.service';
 import { Output } from './../output';
 
@@ -8,16 +8,12 @@ import { Output } from './../output';
   styleUrls: ['./output-display.component.css'],
 })
 
-export class OutputDisplayComponent implements OnInit {
-  text = '...';
+export class OutputDisplayComponent {
+  outputs: Output[] = [];
 
-  constructor(private outputService: OutputService) { }
-
-  ngOnInit() {
-    this.getOutputs();
-  }
-
-  getOutputs() {
-    this.outputService.getOutputs().subscribe((data: Output) => this.text = data.title);
+  constructor(private outputService: OutputService) {
+    this.outputService.outputs.subscribe(
+      (res) => { this.outputs = res; },
+    );
   }
 }

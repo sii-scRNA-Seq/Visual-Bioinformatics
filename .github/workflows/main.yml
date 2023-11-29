@@ -7,7 +7,9 @@ jobs:
 
     steps:
       - run: |
-          cd Visual-Bioinformatics/front-end
+          cd ..
+          cd ..
+          cd front-end
           ng lint
           ng test
           ng build

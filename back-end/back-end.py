@@ -3,12 +3,15 @@ from flask_cors import CORS
 import numpy as np
 import pandas as pd
 import scanpy as sc
+import copy
+sc.settings.verbosity = 3
 
 app = Flask(__name__)
 CORS(app)
 
 data = {
-    'pbmc3k': None
+    'pbmc3k': None,
+    'filtered' : None
 }
 
 @app.route('/loaddata/')
@@ -18,6 +21,17 @@ def loaddata():
         data['pbmc3k'].var_names_make_unique()
     message = {
         'text': str(data['pbmc3k']),
+        'other': ''
+    }
+    return jsonify(message)
+
+@app.route('/basicfiltering/<int:min_genes>/<int:min_cells>/')
+def basicfiltering(min_genes, min_cells):
+    data['filtered'] = copy.copy(data['pbmc3k'])
+    sc.pp.filter_cells(data['filtered'], min_genes = min_genes)
+    sc.pp.filter_genes(data['filtered'], min_cells = min_cells)
+    message = {
+        'text': str(data['filtered']),
         'other': ''
     }
     return jsonify(message)

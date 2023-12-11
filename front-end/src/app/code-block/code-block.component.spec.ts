@@ -25,7 +25,7 @@ describe('CodeBlockComponent', () => {
       blockId: 'loaddata',
       title: 'Load Data',
       possibleChildBlocks: [],
-      parameters: {},
+      parameters: [],
       onRun: () => from(''),
     };
     fixture.detectChanges();

@@ -1,7 +1,8 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { OutputService } from './output.service';
-import { first, firstValueFrom } from 'rxjs';
+import { first, firstValueFrom, from } from 'rxjs';
+import { Block } from './block.service';
 
 describe('OutputService', () => {
   let service: OutputService;
@@ -28,9 +29,15 @@ describe('OutputService', () => {
 
   describe('Execute Block', () => {
     it('should add a response to outputs array', fakeAsync(() => {
-
+      const block: Block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [],
+        onRun: () => from(''),
+      };
       const mockHttp = TestBed.inject(HttpTestingController);
-      service.executeBlock('loaddata').then(async () => {
+      service.executeBlock(block).then(async () => {
         const outputs = await firstValueFrom(service.outputs);
         expect(outputs).toEqual([{text: 'Hello', other: 'World'}]);
       });

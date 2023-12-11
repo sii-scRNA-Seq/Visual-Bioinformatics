@@ -8,6 +8,7 @@ import { CanvasComponent } from './canvas/canvas.component';
 import { OutputDisplayComponent } from './output-display/output-display.component';
 import { MatCardModule } from '@angular/material/card';
 import { CodeBlockComponent } from './code-block/code-block.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { CodeBlockComponent } from './code-block/code-block.component';
     BrowserAnimationsModule,
     HttpClientModule,
     MatCardModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

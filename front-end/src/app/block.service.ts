@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { OutputService } from './output.service';
+import { Parameter } from './parameter';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +21,30 @@ export class BlockService {
             blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: [],
-            parameters: {},
+            parameters: [],
             onRun: () => from(''),
           }]);
+        }
+        else {
+          // Placeholder for action when block cannot be added
+          console.log('You cant do that, its wrong');
+        }
+        break;
+      }
+      case 'basicfiltering': {  
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'loaddata') {
+          const temp = this.blocksOnCanvas$.getValue();
+          temp.push({
+            blockId: 'basicfiltering',
+            title: 'Basic Filtering',
+            possibleChildBlocks: [],
+            parameters: [
+              {name: 'Minimum Cells Per Gene', value: 200},
+              {name: 'Minimum Genes Per Cell', value: 3}
+            ],
+            onRun: () => from(''),
+          });
+          this.blocksOnCanvas$.next(temp);
         }
         else {
           // Placeholder for action when block cannot be added
@@ -49,8 +71,7 @@ export class BlockService {
   executeBlocks(): void {
     this.outputService.resetOutputs();
     for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      const id = this.blocksOnCanvas$.getValue()[0].blockId;
-      this.outputService.executeBlock(id);
+      this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
     }
   }
 }
@@ -59,8 +80,8 @@ export interface Block {
   blockId: BlockId
   title: string
   possibleChildBlocks: BlockId[]
-  parameters: Record<string, unknown>
+  parameters: Parameter[]
   onRun: (block: Block) => Observable<unknown>
 }
 
-export type BlockId = 'loaddata';
+export type BlockId = 'loaddata' | 'basicfiltering';

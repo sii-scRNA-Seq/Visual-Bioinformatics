@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { Output } from './output';
-import { BlockId } from './block.service';
+import { Block } from './block.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +18,12 @@ export class OutputService {
     this.outputs$.next([]);
   }
   
-  async executeBlock(id: BlockId): Promise<void> {    
-    const outputResponse: Output = await firstValueFrom(this.http.get<Output>('http://127.0.0.1:5000/'+id+'/'));
+  async executeBlock(block: Block): Promise<void> {
+    let url = 'http://127.0.0.1:5000/' + block.blockId + '/';
+    for (let i=0; i < block.parameters.length; i++) {
+      url = url + block.parameters[i].value + '/';
+    }
+    const outputResponse: Output = await firstValueFrom(this.http.get<Output>(url));
     const outputs = this.outputs$.getValue();
     outputs.push(outputResponse);
     this.outputs$.next(outputs);

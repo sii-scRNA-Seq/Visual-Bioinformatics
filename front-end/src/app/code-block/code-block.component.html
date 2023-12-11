@@ -4,6 +4,11 @@
         <button (click)="removeBlock()">Remove</button>
     </mat-card-header>
     <mat-card-content>
-        <p>This is a code block</p>
+        <ul class="no-bullets">
+            <li *ngFor="let parameter of block.parameters">
+                {{parameter.name}}
+                <input id="value" [(ngModel)]="parameter.value" placeholder="paramter.value">
+            </li>
+        </ul>
     </mat-card-content>
 </mat-card>

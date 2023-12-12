@@ -25,11 +25,11 @@ def loaddata():
     }
     return jsonify(message)
 
-@app.route('/basicfiltering/<int:min_genes>/<int:min_cells>/')
+@app.route('/basicfiltering/<min_genes>/<min_cells>/')
 def basicfiltering(min_genes, min_cells):
     data['filtered'] = copy.copy(data['pbmc3k'])
-    sc.pp.filter_cells(data['filtered'], min_genes = min_genes)
-    sc.pp.filter_genes(data['filtered'], min_cells = min_cells)
+    sc.pp.filter_cells(data['filtered'], min_genes = int(min_genes))
+    sc.pp.filter_genes(data['filtered'], min_cells = int(min_cells))
     message = {
         'text': str(data['filtered']),
         'other': ''

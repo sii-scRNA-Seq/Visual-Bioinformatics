@@ -23,9 +23,18 @@ export class OutputService {
     for (let i=0; i < block.parameters.length; i++) {
       url = url + block.parameters[i].value + '/';
     }
-    const outputResponse: Output = await firstValueFrom(this.http.get<Output>(url));
-    const outputs = this.outputs$.getValue();
-    outputs.push(outputResponse);
-    this.outputs$.next(outputs);
+    var outputResponse: Output = {text: '', other: ''};
+    try {
+      outputResponse = await firstValueFrom(this.http.get<Output>(url));
+    } catch(e) {
+        outputResponse = {
+          text: 'Our servers are not available to complete this request. Please try again. If the issue persists, ...',
+          other: ''
+        }
+    } finally {
+      const outputs = this.outputs$.getValue();
+      outputs.push(outputResponse);
+      this.outputs$.next(outputs);
+    }
   }
 }

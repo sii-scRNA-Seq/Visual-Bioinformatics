@@ -9,6 +9,7 @@ import { OutputDisplayComponent } from './output-display/output-display.componen
 import { MatCardModule } from '@angular/material/card';
 import { CodeBlockComponent } from './code-block/code-block.component';
 import { FormsModule } from '@angular/forms';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { FormsModule } from '@angular/forms';
     HttpClientModule,
     MatCardModule,
     FormsModule,
+    MatSnackBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

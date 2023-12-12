@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { OutputService } from './output.service';
 import { Parameter } from './parameter';
 
@@ -11,7 +12,7 @@ export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
-  constructor(private outputService: OutputService) { }
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
   addBlock(id: BlockId): void {
     switch (id) {
@@ -26,8 +27,7 @@ export class BlockService {
           }]);
         }
         else {
-          // Placeholder for action when block cannot be added
-          console.log('You cant do that, its wrong');
+          this.snackBar.open('Load Data block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -47,8 +47,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(temp);
         }
         else {
-          // Placeholder for action when block cannot be added
-          console.log('You cant do that, its wrong');
+          this.snackBar.open('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

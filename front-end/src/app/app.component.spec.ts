@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { BlockLibraryComponent } from './block-library/block-library.component';
 import { CanvasComponent } from './canvas/canvas.component';
 import { OutputDisplayComponent } from './output-display/output-display.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('AppComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({
@@ -17,6 +18,7 @@ describe('AppComponent', () => {
     imports: [
       HttpClientTestingModule,
       MatCardModule,
+      MatSnackBarModule,
     ],
   }));
 

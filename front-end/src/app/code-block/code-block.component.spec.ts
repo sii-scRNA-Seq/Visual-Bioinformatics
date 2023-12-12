@@ -5,6 +5,7 @@ import { from } from 'rxjs';
 import { CodeBlockComponent } from './code-block.component';
 import { BlockService } from '../block.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -16,6 +17,7 @@ describe('CodeBlockComponent', () => {
       imports: [
         HttpClientTestingModule,
         MatCardModule,
+        MatSnackBarModule,
       ],
       providers: [BlockService],
     });

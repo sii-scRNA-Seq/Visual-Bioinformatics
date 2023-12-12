@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { BlockLibraryComponent } from './block-library.component';
 import { BlockService } from '../block.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -15,6 +16,7 @@ describe('BlockLibraryComponent', () => {
       imports: [
         HttpClientTestingModule,
         MatCardModule,
+        MatSnackBarModule,
       ],
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);

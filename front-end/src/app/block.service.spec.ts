@@ -3,13 +3,17 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { first, firstValueFrom } from 'rxjs';
 import { BlockService } from './block.service';
 import { OutputService } from './output.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('BlockService', () => {
   let service: BlockService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+      ],
     });
     service = TestBed.inject(BlockService);
   });

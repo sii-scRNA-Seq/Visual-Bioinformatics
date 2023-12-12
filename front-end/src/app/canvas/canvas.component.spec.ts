@@ -4,6 +4,7 @@ import { CanvasComponent } from './canvas.component';
 import { BlockService } from '../block.service';
 import { By } from '@angular/platform-browser';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -15,6 +16,7 @@ describe('CanvasComponent', () => {
       imports: [
         HttpClientTestingModule,
         MatCardModule,
+        MatSnackBarModule,
       ],
     });
     fixture = TestBed.createComponent(CanvasComponent);

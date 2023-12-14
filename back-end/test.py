@@ -10,12 +10,7 @@ def app():
     app.config.update({
         "TESTING": True,
     })
-
-    # other setup can go here
-
     yield app
-
-    # clean up / reset resources here
 
 
 @pytest.fixture()
@@ -26,6 +21,7 @@ def client(app):
 @pytest.fixture()
 def runner(app):
     return app.test_cli_runner()
+
 
 @patch('scanpy.read_10x_mtx')
 def test_loaddata(mock, client):
@@ -38,8 +34,8 @@ def test_loaddata(mock, client):
     }
     assert json.loads(response.data) == message
 
-def test_basicfiltering(client):
 
+def test_basicfiltering(client):
     response = client.get('/basicfiltering/1/1/')
     assert response.status_code == 406
     message = {

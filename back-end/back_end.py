@@ -8,18 +8,33 @@ import scanpy as sc
 import copy
 sc.settings.verbosity = 3
 
-##app = Flask(__name__)
-##CORS(app)
 
 def create_app():
     
     app = Flask(__name__)
     CORS(app)
-  
+
     data = {
         'pbmc3k': None,
         'filtered' : None
     }
+
+    class IncorrectOrderException(werkzeug.exceptions.HTTPException):
+        code = 406
+        description = 'The blocks you have executed are not a valid order. Please check the order and try again.'
+
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        response = e.get_response()
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        response.content_type = "application/json"
+        return response
+
+    app.register_error_handler(IncorrectOrderException, handle_exception)
 
     @app.route('/loaddata/')
     def loaddata():
@@ -46,28 +61,11 @@ def create_app():
             }
             return jsonify(message)
     
-    class IncorrectOrderException(werkzeug.exceptions.HTTPException):
-        code = 406
-        description = 'The blocks you have executed are not a valid order. Please check the order and try again.'
-
-    def handle_exception(e):
-        """Return JSON instead of HTML for HTTP errors."""
-        response = e.get_response()
-        response.data = json.dumps({
-            "code": e.code,
-            "name": e.name,
-            "description": e.description,
-        })
-        response.content_type = "application/json"
-        return response
-
-    app.register_error_handler(IncorrectOrderException, handle_exception)
-
     return app
+
 
 app = create_app()
 
 if __name__ == '__main__':
 
     app.run()
-

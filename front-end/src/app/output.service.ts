@@ -28,7 +28,7 @@ export class OutputService {
       outputResponse = await firstValueFrom(this.http.get<Output>(url));
     } catch(e) {
       outputResponse = {
-        text: 'Our servers are not available to complete this request. Please try again. If the issue persists, ...',
+        text: 'The blocks you have executed are not a valid order. Please check the order and try again.',
         other: ''
       };
     } finally {

@@ -1,5 +1,5 @@
 import json
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import werkzeug.exceptions
 import numpy as np
@@ -35,8 +35,9 @@ def create_app():
         return response
 
     app.register_error_handler(IncorrectOrderException, handle_exception)
+    app.register_error_handler(werkzeug.exceptions.BadRequest, handle_exception)
 
-    @app.route('/loaddata/')
+    @app.route('/loaddata')
     def loaddata():
         if data['pbmc3k'] is None:
             data['pbmc3k'] = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True) 
@@ -47,11 +48,16 @@ def create_app():
         }
         return jsonify(message)
 
-    @app.route('/basicfiltering/<min_genes>/<min_cells>/')
-    def basicfiltering(min_genes, min_cells):
-        if data['pbmc3k'] is None:
+    @app.route('/basicfiltering')
+    def basicfiltering():
+        invalid_params = getInvalidParameters(['min_genes','min_cells'])
+        if invalid_params != []:
+            raise werkzeug.exceptions.BadRequest('Missing parameters: ' + str(invalid_params))
+        elif data['pbmc3k'] is None:
             raise IncorrectOrderException()
         else:
+            min_genes = request.args.get('min_genes')
+            min_cells = request.args.get('min_cells')
             data['filtered'] = copy.copy(data['pbmc3k'])
             sc.pp.filter_cells(data['filtered'], min_genes = int(min_genes))
             sc.pp.filter_genes(data['filtered'], min_cells = int(min_cells))
@@ -61,6 +67,13 @@ def create_app():
             }
             return jsonify(message)
     
+    def getInvalidParameters(params):
+        invalid_params = []
+        for param in params:
+            if request.args.get(param) is None:
+                invalid_params.append(param)
+        return invalid_params
+
     return app
 
 

@@ -3,7 +3,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     defaults:
       run:
         working-directory: back-end
@@ -17,9 +17,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest
+          pip install Flask
+          pip install Flask-Cors
           pip install scanpy
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov
-          pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+          pytest test.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
           

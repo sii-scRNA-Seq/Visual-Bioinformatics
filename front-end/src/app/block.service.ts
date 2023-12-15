@@ -39,8 +39,8 @@ export class BlockService {
             title: 'Basic Filtering',
             possibleChildBlocks: [],
             parameters: [
-              {name: 'Minimum Cells Per Gene', value: 200},
-              {name: 'Minimum Genes Per Cell', value: 3}
+              {key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
+              {key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
             ],
             onRun: () => from(''),
           });

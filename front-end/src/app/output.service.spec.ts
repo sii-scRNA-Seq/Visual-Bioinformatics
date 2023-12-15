@@ -3,13 +3,17 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { OutputService } from './output.service';
 import { first, firstValueFrom, from } from 'rxjs';
 import { Block } from './block.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('OutputService', () => {
   let service: OutputService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+      ],
     });
     service = TestBed.inject(OutputService);
   });
@@ -42,7 +46,7 @@ describe('OutputService', () => {
         expect(outputs).toEqual([{text: 'Hello', other: 'World'}]);
       });
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata/');
+      const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata');
       expect(req.request.method).toBe('GET');
       req.flush({text: 'Hello', other: 'World'});
       mockHttp.verify();  

@@ -6,7 +6,7 @@
     <mat-card-content>
         <ul class="no-bullets">
             <li *ngFor="let parameter of block.parameters">
-                {{parameter.name}}
+                {{parameter.text}}
                 <input id="value" [(ngModel)]="parameter.value" placeholder="paramter.value">
             </li>
         </ul>

@@ -24,7 +24,6 @@ def create_app():
         description = 'The blocks you have executed are not a valid order. Please check the order and try again.'
 
     def handle_exception(e):
-        """Return JSON instead of HTML for HTTP errors."""
         response = e.get_response()
         response.data = json.dumps({
             "code": e.code,

@@ -1,4 +1,5 @@
 export interface Parameter {
-  name: string
+  key: string
+  text: string
   value: number
 }

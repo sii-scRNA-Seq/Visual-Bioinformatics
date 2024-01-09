@@ -29,13 +29,22 @@ describe('BlockLibraryComponent', () => {
   });
 
   describe('AddBlock', () => {
-    it ('should add block when button is clicked', () => {
+    it ('should add Load Data block when button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'addBlock');
-      const button = fixture.debugElement.query(By.css('button'));
+      const button = fixture.debugElement.query(By.css('#loaddata'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('loaddata');
+    });
+
+    it ('should add Basic Filtering block when button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#basicfiltering'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('basicfiltering');
     });
   });
 });

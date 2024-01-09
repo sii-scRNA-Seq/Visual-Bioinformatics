@@ -23,14 +23,6 @@ describe('CodeBlockComponent', () => {
     });
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
-    component.block = {
-      blockId: 'loaddata',
-      title: 'Load Data',
-      possibleChildBlocks: [],
-      parameters: [],
-      onRun: () => from(''),
-    };
-    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -38,13 +30,40 @@ describe('CodeBlockComponent', () => {
   });
 
   describe('RemoveBlock', () => {
-    it ('should remove block when button is clicked', () => {
+    it ('should be called with loaddata when Load Data block is removed', () => {
+      component.block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [],
+        onRun: () => from(''),
+      };
+      fixture.detectChanges();
+
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'removeBlock');
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.removeBlock).toHaveBeenCalledOnceWith('loaddata');
+    });
+
+    it ('should be called with basicfiltering when Basic Filtering block is removed', () => {
+      component.block = {
+        blockId: 'basicfiltering',
+        title: 'Basic Filtering',
+        possibleChildBlocks: [],
+        parameters: [],
+        onRun: () => from(''),
+      };
+      fixture.detectChanges();
+
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'removeBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('basicfiltering');
     });
   });
 });

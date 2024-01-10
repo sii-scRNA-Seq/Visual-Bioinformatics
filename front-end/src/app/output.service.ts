@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
-import { Output } from './output';
-import { Block } from './block.service';
+import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { Block } from './block.service';
+import { Output } from './output';
 
 @Injectable({
   providedIn: 'root',

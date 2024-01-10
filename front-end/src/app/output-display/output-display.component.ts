@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { OutputService } from './../output.service';
+
 import { Output } from './../output';
+import { OutputService } from './../output.service';
 
 @Component({
   selector: 'app-output-display',
@@ -9,11 +10,11 @@ import { Output } from './../output';
 })
 
 export class OutputDisplayComponent {
-  outputs: Output[] = [];
+  outputList: Output[] = [];
 
   constructor(private outputService: OutputService) {
     this.outputService.outputs.subscribe(
-      (res) => { this.outputs = res; },
+      (res) => { this.outputList = res; },
     );
   }
 }

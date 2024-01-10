@@ -1,9 +1,10 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { OutputService } from './output.service';
+import { fakeAsync, tick, TestBed } from '@angular/core/testing';
 import { first, firstValueFrom, from } from 'rxjs';
-import { Block } from './block.service';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+
+import { Block } from './block.service';
+import { OutputService } from './output.service';
 
 describe('OutputService', () => {
   let service: OutputService;
@@ -22,16 +23,14 @@ describe('OutputService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('Outputs', () => {
+  describe('outputs', () => {
     it('should initially be empty', async () => {
-
       const outputs = await firstValueFrom(service.outputs.pipe(first()));
       expect(outputs.length).toBe(0);
-      
     });
   });
 
-  describe('Execute Block', () => {
+  describe('executeBlock', () => {
     it('should add a response to outputs array', fakeAsync(() => {
       const block: Block = {
         blockId: 'loaddata',
@@ -50,7 +49,6 @@ describe('OutputService', () => {
       expect(req.request.method).toBe('GET');
       req.flush({text: 'Hello', other: 'World'});
       mockHttp.verify();  
-
     }));
   }); 
 });

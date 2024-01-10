@@ -1,6 +1,7 @@
+import { BehaviorSubject, from, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { OutputService } from './output.service';
 import { Parameter } from './parameter';
 

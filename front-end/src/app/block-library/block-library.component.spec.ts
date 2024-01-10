@@ -1,10 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
 import { By } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { BlockLibraryComponent } from './block-library.component';
 import { BlockService } from '../block.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -28,8 +29,8 @@ describe('BlockLibraryComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('AddBlock', () => {
-    it ('should add Load Data block when button is clicked', () => {
+  describe('Adding Blocks From Library', () => {
+    it ('should call blockService.addBlock with loaddata when add button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'addBlock');
       const button = fixture.debugElement.query(By.css('#loaddata'));
@@ -38,7 +39,7 @@ describe('BlockLibraryComponent', () => {
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('loaddata');
     });
 
-    it ('should add Basic Filtering block when button is clicked', () => {
+    it ('should call blockService.addBlock with basicfiltering when add button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'addBlock');
       const button = fixture.debugElement.query(By.css('#basicfiltering'));

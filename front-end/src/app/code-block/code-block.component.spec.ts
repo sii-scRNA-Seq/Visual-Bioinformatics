@@ -1,11 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { MatCardModule } from '@angular/material/card';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { from } from 'rxjs';
-import { CodeBlockComponent } from './code-block.component';
-import { BlockService } from '../block.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+
+import { BlockService } from '../block.service';
+import { CodeBlockComponent } from './code-block.component';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -29,8 +30,8 @@ describe('CodeBlockComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('RemoveBlock', () => {
-    it ('should be called with loaddata when Load Data block is removed', () => {
+  describe('Removing Blocks', () => {
+    it ('blockService.removeBlock should be called with loaddata when remove button is clicked', () => {
       component.block = {
         blockId: 'loaddata',
         title: 'Load Data',
@@ -48,7 +49,7 @@ describe('CodeBlockComponent', () => {
       expect(blockService.removeBlock).toHaveBeenCalledOnceWith('loaddata');
     });
 
-    it ('should be called with basicfiltering when Basic Filtering block is removed', () => {
+    it ('blockService.removeBlock should be called with basicfiltering when remove button is clicked', () => {
       component.block = {
         blockId: 'basicfiltering',
         title: 'Basic Filtering',

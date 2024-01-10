@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { OutputDisplayComponent } from './output-display.component';
+import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+
+import { OutputDisplayComponent } from './output-display.component';
 
 describe('OutputDisplayComponent', () => {
   let component: OutputDisplayComponent;

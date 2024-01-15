@@ -2,8 +2,8 @@ import { BehaviorSubject, from, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { Block, BlockId } from './block.interface';
 import { OutputService } from './output.service';
-import { Parameter } from './parameter';
 
 @Injectable({
   providedIn: 'root',
@@ -75,13 +75,3 @@ export class BlockService {
     }
   }
 }
-
-export interface Block {
-  blockId: BlockId
-  title: string
-  possibleChildBlocks: BlockId[]
-  parameters: Parameter[]
-  onRun: (block: Block) => Observable<unknown>
-}
-
-export type BlockId = 'loaddata' | 'basicfiltering';

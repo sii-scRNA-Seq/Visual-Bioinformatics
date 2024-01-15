@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
-import { BlockId, BlockService } from '../block.service';
+import { BlockId } from '../block.interface';
+import { BlockService } from '../block.service';
 
 @Component({
   selector: 'app-block-library',

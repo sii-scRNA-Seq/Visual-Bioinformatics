@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
-import { Block, BlockService } from '../block.service';
+import { Block } from '../block.interface';
+import { BlockService } from '../block.service';
 
 @Component({
   selector: 'app-canvas',

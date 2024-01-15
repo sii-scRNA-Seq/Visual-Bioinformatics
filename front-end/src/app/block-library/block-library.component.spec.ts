@@ -33,7 +33,7 @@ describe('BlockLibraryComponent', () => {
     it ('should call blockService.addBlock with loaddata when add button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'addBlock');
-      const button = fixture.debugElement.query(By.css('#loaddata'));
+      const button = fixture.debugElement.query(By.css('#load-data'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('loaddata');
@@ -42,7 +42,7 @@ describe('BlockLibraryComponent', () => {
     it ('should call blockService.addBlock with basicfiltering when add button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'addBlock');
-      const button = fixture.debugElement.query(By.css('#basicfiltering'));
+      const button = fixture.debugElement.query(By.css('#basic-filtering'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('basicfiltering');

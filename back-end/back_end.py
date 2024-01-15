@@ -1,17 +1,24 @@
-import json
 from flask import Flask, jsonify, request
+from flask_caching import Cache
 from flask_cors import CORS
-import werkzeug.exceptions
+import copy
+import json
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import copy
+import werkzeug.exceptions
 sc.settings.verbosity = 3
 
 
 def create_app():
-    
+
+    #config = {
+    #    "CACHE_TYPE": "SimpleCache",
+    #    "CACHE_DEFAULT_TIMEOUT": 300
+    #}
     app = Flask(__name__)
+    #app.config.from_mapping(config)
+    #cache = Cache(app)
     CORS(app)
 
     data = {
@@ -43,12 +50,14 @@ def create_app():
             data['pbmc3k'].var_names_make_unique()
         message = {
             'text': str(data['pbmc3k']),
-            'other': ''
         }
         return jsonify(message)
 
     @app.route('/basicfiltering')
     def basicfiltering():
+        #cache.set("yourmum", "yourmum")
+        #print(cache.get("yourmum"))
+
         invalid_params = getInvalidParameters(['min_genes','min_cells'])
         if invalid_params != []:
             raise werkzeug.exceptions.BadRequest('Missing parameters: ' + str(invalid_params))
@@ -62,7 +71,6 @@ def create_app():
             sc.pp.filter_genes(data['filtered'], min_cells = int(min_cells))
             message = {
                 'text': str(data['filtered']),
-                'other': ''
             }
             return jsonify(message)
     

@@ -3,7 +3,7 @@ import { first, firstValueFrom, from } from 'rxjs';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { Block } from './block.service';
+import { Block } from './block.interface';
 import { OutputService } from './output.service';
 
 describe('OutputService', () => {
@@ -42,12 +42,12 @@ describe('OutputService', () => {
       const mockHttp = TestBed.inject(HttpTestingController);
       service.executeBlock(block).then(async () => {
         const outputs = await firstValueFrom(service.outputs);
-        expect(outputs).toEqual([{text: 'Hello', other: 'World'}]);
+        expect(outputs).toEqual([{text: 'Hello World'}]);
       });
       tick();
       const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata');
       expect(req.request.method).toBe('GET');
-      req.flush({text: 'Hello', other: 'World'});
+      req.flush({text: 'Hello World'});
       mockHttp.verify();  
     }));
   }); 

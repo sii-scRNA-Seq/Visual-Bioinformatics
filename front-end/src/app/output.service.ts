@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Block } from './block.service';
+import { Block } from './block.interface';
 import { Output } from './output';
 
 @Injectable({
@@ -27,11 +27,11 @@ export class OutputService {
     for (let i=0; i < block.parameters.length; i++) {
       params[ block.parameters[i].key ] = block.parameters[i].value;
     }
-    let outputResponse: Output = {text: '', other: ''};
+    let outputResponse: Output = {text: ''};
     try {
       outputResponse = await firstValueFrom(this.http.get<Output>(url, {params: params}));
     } catch(e) {
-      outputResponse = {text: '', other: ''};
+      outputResponse = {text: ''};
       this.snackBar.open('Not a valid order, please check the blocks and try again', 'Close', { duration: 5000 });
     } finally {
       const outputs = this.outputs$.getValue();

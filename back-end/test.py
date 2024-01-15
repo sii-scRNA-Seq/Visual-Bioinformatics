@@ -40,8 +40,7 @@ def test_loaddata_AnnDataIsLoadedCorrectly(mock, client):
     response = client.get('/loaddata')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 5 × 3",
-            'other': ''
+            'text': "AnnData object with n_obs × n_vars = 5 × 3"
     }
     assert json.loads(response.data) == message
 
@@ -65,8 +64,7 @@ def test_basicfiltering_FilterGenesWorks(mock, client):
     response = client.get('/basicfiltering?min_genes=0&min_cells=1')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'",
-            'other': ''
+            'text': "AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
     }
     assert json.loads(response.data) == message
 
@@ -79,8 +77,7 @@ def test_basicfiltering_FilterCellsWorks(mock, client):
     response = client.get('/basicfiltering?min_genes=1&min_cells=0')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'",
-            'other': ''
+            'text': "AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'"
     }
     assert json.loads(response.data) == message
 
@@ -93,8 +90,7 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
     response = client.get('/basicfiltering?min_genes=1&min_cells=1')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'",
-            'other': ''
+            'text': "AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
     }
     assert json.loads(response.data) == message
 

@@ -27,5 +27,10 @@ jobs:
         shell: bash
         run: |
           conda install pip
+          pip install Flask
+          pip install Flask-Cors
+          pip install scanpy
+          pip install scipy
+          pip install pytest
           pip install pytest pytest-cov
           pytest test.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html

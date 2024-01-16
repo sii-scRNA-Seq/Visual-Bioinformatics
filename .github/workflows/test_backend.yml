@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-20.04
     defaults:
       run:
+        shell: bash -el {0}
         working-directory: back-end
     steps:
       - uses: actions/checkout@v2

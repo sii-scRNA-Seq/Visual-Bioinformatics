@@ -22,6 +22,7 @@ jobs:
       - name: Run pytest
         shell: bash
         run: |
+          conda init
           conda activate visual-bioinformatics
           conda install pip
           pip install Flask

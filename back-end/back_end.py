@@ -44,7 +44,7 @@ def create_app():
     app.register_error_handler(werkzeug.exceptions.BadRequest, handle_exception)
 
     @app.route('/loaddata')
-    def loaddata():
+    def load_data():
         if data['pbmc3k'] is None:
             data['pbmc3k'] = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True) 
             data['pbmc3k'].var_names_make_unique()
@@ -54,11 +54,11 @@ def create_app():
         return jsonify(message)
 
     @app.route('/basicfiltering')
-    def basicfiltering():
+    def basic_filtering():
         #cache.set("yourmum", "yourmum")
         #print(cache.get("yourmum"))
 
-        invalid_params = getInvalidParameters(['min_genes','min_cells'])
+        invalid_params = get_invalid_parameters(['min_genes','min_cells'])
         if invalid_params != []:
             raise werkzeug.exceptions.BadRequest('Missing parameters: ' + str(invalid_params))
         elif data['pbmc3k'] is None:
@@ -74,7 +74,7 @@ def create_app():
             }
             return jsonify(message)
     
-    def getInvalidParameters(params):
+    def get_invalid_parameters(params):
         invalid_params = []
         for param in params:
             if request.args.get(param) is None:

@@ -8,17 +8,24 @@ jobs:
       run:
         working-directory: back-end
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: '3.8.0'
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: visual-bioinformatics
           environment-file: back-end/environment.yml
           python-version: 3.8
           auto-activate-base: false
-      - run: |
+      - shell: bash
+        run: |
+          conda info
+          conda list
+      - name: Run pytest
+        shell: bash
+        run: |
+          conda install pip
           pip install pytest pytest-cov
           pytest test.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html

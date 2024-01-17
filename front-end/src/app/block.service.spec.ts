@@ -1,6 +1,6 @@
 import { first, firstValueFrom } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { BlockService } from './block.service';
@@ -8,6 +8,7 @@ import { OutputService } from './output.service';
 
 describe('BlockService', () => {
   let service: BlockService;
+  let snackBar: MatSnackBar;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -17,6 +18,7 @@ describe('BlockService', () => {
       ],
     });
     service = TestBed.inject(BlockService);
+    snackBar = TestBed.inject(MatSnackBar);
   });
 
   it('should be created', () => {
@@ -31,7 +33,7 @@ describe('BlockService', () => {
   });
 
   describe('addBlock', () => {
-    it('should add the given block when called', async () => {
+    it('should add the given block when the ordering is valid', async () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       service.addBlock('loaddata');
@@ -42,6 +44,14 @@ describe('BlockService', () => {
       const results2 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(results2.length).toBe(2);
       expect(results2[1].blockId).toBe('basicfiltering');
+    });
+
+    it('should open snack bar when ordering is not valid', async() => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      const spy = spyOn(snackBar, 'open');
+      service.addBlock('basicfiltering');
+      expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
     });
   });
 

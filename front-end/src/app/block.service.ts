@@ -68,10 +68,10 @@ export class BlockService {
     }
   }
 
-  executeBlocks(): void {
+  async executeBlocks(): Promise<void> {
     this.outputService.resetOutputs();
     for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
+      await this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
     }
   }
 }

@@ -121,7 +121,7 @@ describe('BlockService', () => {
       service.addBlock('basicfiltering');
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(2);
-      service.executeBlocks();
+      await service.executeBlocks();
       expect(outputService.executeBlock).toHaveBeenCalledTimes(2);
     });
   });

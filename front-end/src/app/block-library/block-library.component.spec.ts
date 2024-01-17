@@ -1,9 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
 import { By } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { BlockLibraryComponent } from './block-library.component';
 import { BlockService } from '../block.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -15,6 +17,7 @@ describe('BlockLibraryComponent', () => {
       imports: [
         HttpClientTestingModule,
         MatCardModule,
+        MatSnackBarModule,
       ],
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);
@@ -26,14 +29,23 @@ describe('BlockLibraryComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('AddBlock', () => {
-    it ('should add block when button is clicked', () => {
+  describe('Adding Blocks From Library', () => {
+    it ('should call blockService.addBlock with loaddata when add button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'addBlock');
-      const button = fixture.debugElement.query(By.css('button'));
+      const button = fixture.debugElement.query(By.css('#load-data'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('loaddata');
+    });
+
+    it ('should call blockService.addBlock with basicfiltering when add button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#basic-filtering'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('basicfiltering');
     });
   });
 });

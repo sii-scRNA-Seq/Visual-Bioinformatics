@@ -1,9 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
-import { CanvasComponent } from './canvas.component';
-import { BlockService } from '../block.service';
 import { By } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
+import { BlockService } from '../block.service';
+import { CanvasComponent } from './canvas.component';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -15,6 +17,7 @@ describe('CanvasComponent', () => {
       imports: [
         HttpClientTestingModule,
         MatCardModule,
+        MatSnackBarModule,
       ],
     });
     fixture = TestBed.createComponent(CanvasComponent);
@@ -26,8 +29,8 @@ describe('CanvasComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Run blocks', () => {
-    it ('should execute blocks when button is clicked', () => {
+  describe('Running blocks', () => {
+    it ('should call blockService.executeBlocks when run button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'executeBlocks');
       const button = fixture.debugElement.query(By.css('button'));

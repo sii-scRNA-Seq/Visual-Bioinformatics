@@ -1,6 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { TestBed } from '@angular/core/testing';
+
 import { AppComponent } from './app.component';
 import { BlockLibraryComponent } from './block-library/block-library.component';
 import { CanvasComponent } from './canvas/canvas.component';
@@ -17,6 +19,7 @@ describe('AppComponent', () => {
     imports: [
       HttpClientTestingModule,
       MatCardModule,
+      MatSnackBarModule,
     ],
   }));
 

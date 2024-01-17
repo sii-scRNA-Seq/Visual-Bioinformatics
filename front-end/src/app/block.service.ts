@@ -1,5 +1,8 @@
+import { BehaviorSubject, from, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { Block, BlockId } from './block.interface';
 import { OutputService } from './output.service';
 
 @Injectable({
@@ -10,7 +13,7 @@ export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
-  constructor(private outputService: OutputService) { }
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
   addBlock(id: BlockId): void {
     switch (id) {
@@ -20,13 +23,32 @@ export class BlockService {
             blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: [],
-            parameters: {},
+            parameters: [],
             onRun: () => from(''),
           }]);
         }
         else {
-          // Placeholder for action when block cannot be added
-          console.log('You cant do that, its wrong');
+          this.snackBar.open('Load Data block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'basicfiltering': {  
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'loaddata') {
+          const temp = this.blocksOnCanvas$.getValue();
+          temp.push({
+            blockId: 'basicfiltering',
+            title: 'Basic Filtering',
+            possibleChildBlocks: [],
+            parameters: [
+              {key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
+              {key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
+            ],
+            onRun: () => from(''),
+          });
+          this.blocksOnCanvas$.next(temp);
+        }
+        else {
+          this.snackBar.open('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -46,21 +68,10 @@ export class BlockService {
     }
   }
 
-  executeBlocks(): void {
+  async executeBlocks(): Promise<void> {
     this.outputService.resetOutputs();
     for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      const id = this.blocksOnCanvas$.getValue()[0].blockId;
-      this.outputService.executeBlock(id);
+      await this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
     }
   }
 }
-
-export interface Block {
-  blockId: BlockId
-  title: string
-  possibleChildBlocks: BlockId[]
-  parameters: Record<string, unknown>
-  onRun: (block: Block) => Observable<unknown>
-}
-
-export type BlockId = 'loaddata';

@@ -12,13 +12,13 @@ sc.settings.verbosity = 3
 
 def create_app():
 
-    #config = {
-    #    "CACHE_TYPE": "SimpleCache",
-    #    "CACHE_DEFAULT_TIMEOUT": 300
-    #}
+    config = {
+        "CACHE_TYPE": "SimpleCache",
+        "CACHE_DEFAULT_TIMEOUT": 300
+    }
     app = Flask(__name__)
-    #app.config.from_mapping(config)
-    #cache = Cache(app)
+    app.config.from_mapping(config)
+    cache = Cache(app)
     CORS(app)
 
     data = {
@@ -55,8 +55,8 @@ def create_app():
 
     @app.route('/basicfiltering')
     def basic_filtering():
-        #cache.set("yourmum", "yourmum")
-        #print(cache.get("yourmum"))
+        cache.set("yourmum", "yourmum")
+        print(cache.get("yourmum"))
 
         invalid_params = get_invalid_parameters(['min_genes','min_cells'])
         if invalid_params != []:

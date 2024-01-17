@@ -27,7 +27,11 @@ def runner(app):
 
 
 def get_AnnData():
-    counts = csr_matrix(np.array([[0,1,2],[0,3,4],[0,5,6],[0,7,8],[0,0,0]]))
+    counts = csr_matrix(np.array([[0, 1, 2],
+                                  [0, 3, 4],
+                                  [0, 5, 6],
+                                  [0, 7, 8],
+                                  [0, 0, 0]]))
     adata = anndata.AnnData(counts)
     adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
     adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars)]
@@ -51,46 +55,50 @@ def test_basicfiltering_WarnsUserWhenLoadDataHasNotBeenCalled(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+        "description": ('The blocks you have executed are not a valid order. '
+                        'Please check the order and try again.'),
     }
     assert json.loads(response.data) == message
 
 
 @patch('scanpy.read_10x_mtx')
 def test_basicfiltering_FilterGenesWorks(mock, client):
-    ## TODO: Refactor tests to use cache rather than calling loaddata
+    # TODO: Refactor tests to use cache rather than calling loaddata
     mock.return_value = get_AnnData()
     client.get('/loaddata')
     response = client.get('/basicfiltering?min_genes=0&min_cells=1')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
+            'text': ("AnnData object with n_obs × n_vars = 5 × 2\n    "
+                     "obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
 
 
 @patch('scanpy.read_10x_mtx')
 def test_basicfiltering_FilterCellsWorks(mock, client):
-    ## TODO: Refactor tests to use cache rather than calling loaddata
+    # TODO: Refactor tests to use cache rather than calling loaddata
     mock.return_value = get_AnnData()
     client.get('/loaddata')
     response = client.get('/basicfiltering?min_genes=1&min_cells=0')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'"
+            'text': ("AnnData object with n_obs × n_vars = 4 × 3\n    "
+                     "obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
 
 
 @patch('scanpy.read_10x_mtx')
 def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
-    ## TODO: Refactor tests to use cache rather than calling loaddata
+    # TODO: Refactor tests to use cache rather than calling loaddata
     mock.return_value = get_AnnData()
     client.get('/loaddata')
     response = client.get('/basicfiltering?min_genes=1&min_cells=1')
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
+            'text': ("AnnData object with n_obs × n_vars = 4 × 2\n    "
+                     "obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
 

@@ -6,6 +6,7 @@ import json
 import numpy as np
 import pandas as pd
 import scanpy as sc
+import uuid
 import werkzeug.exceptions as we
 sc.settings.verbosity = 3
 
@@ -14,7 +15,7 @@ def create_app():
 
     config = {
         "CACHE_TYPE": "SimpleCache",
-        "CACHE_DEFAULT_TIMEOUT": 300
+        "CACHE_DEFAULT_TIMEOUT": 3*24*60*60
     }
     app = Flask(__name__)
     app.config.from_mapping(config)
@@ -44,6 +45,24 @@ def create_app():
     app.register_error_handler(IncorrectOrderException, handle_exception)
     app.register_error_handler(we.BadRequest, handle_exception)
 
+    @app.route('/useridisvalid')
+    def user_id_is_valid():
+        user_id = request.args.get('user_id')
+        message = {
+            'text': str(cache.get(user_id) is not None)
+        }
+        return jsonify(message)
+
+    @app.route('/createuserid')
+    def create_user_id():
+        user_id = str(uuid.uuid4())
+        cache.set(user_id, {})
+        print(cache.get(user_id))
+        message = {
+            'text': user_id
+        }
+        return jsonify(message)
+
     @app.route('/loaddata')
     def load_data():
         if data['pbmc3k'] is None:
@@ -59,9 +78,6 @@ def create_app():
 
     @app.route('/basicfiltering')
     def basic_filtering():
-        cache.set("yourmum", "yourmum")
-        print(cache.get("yourmum"))
-
         invalid_params = get_invalid_parameters(['min_genes', 'min_cells'])
         if invalid_params != []:
             raise we.BadRequest('Missing parameters: ' + str(invalid_params))

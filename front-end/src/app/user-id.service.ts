@@ -1,27 +1,22 @@
-import { firstValueFrom } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 
-import { Output } from './output';
+import { ClientService } from './client.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserIdService {
+  private readonly userId$: BehaviorSubject<string | null> = new BehaviorSubject<string | null> (null);
+  readonly userId: Observable<string | null> = this.userId$.asObservable();
 
-  private userId = '';
-
-  constructor(private http: HttpClient) { 
+  constructor(private clientService: ClientService) { 
     this.setUserId();
   }
 
   async setUserId(): Promise<void> {
-    const id = localStorage.getItem('userId') || '';
-    const url = 'http://127.0.0.1:5000/getuserid';
-    type Params = {[key: string] : string};
-    const params: Params = {'user_id' : id};
-    const response: Output = await firstValueFrom(this.http.get<Output>(url, {params: params}));
-    this.userId = response.text;
-    localStorage.setItem('userId', this.userId);
+    const userId = await this.clientService.getUserId(localStorage.getItem('userId') || '');
+    localStorage.setItem('userId', userId);
+    this.userId$.next(userId);
   }
 }

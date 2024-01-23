@@ -24,7 +24,6 @@ def create_app():
 
     data = {
         'pbmc3k': None,
-        'filtered': None
     }
 
     class IncorrectOrderException(we.HTTPException):
@@ -50,7 +49,10 @@ def create_app():
         user_id = request.args.get('user_id')
         if cache.get(user_id) is None:
             user_id = str(uuid.uuid4())
-            cache.set(user_id, {})
+            cache.set(user_id, {
+                'basic_filtering': (None, None)
+                # TODO: Reset cache
+            })
         message = {
             'text': user_id
         }
@@ -77,13 +79,20 @@ def create_app():
         elif data['pbmc3k'] is None:
             raise IncorrectOrderException()
         else:
-            min_genes = request.args.get('min_genes')
-            min_cells = request.args.get('min_cells')
-            data['filtered'] = copy.copy(data['pbmc3k'])
-            sc.pp.filter_cells(data['filtered'], min_genes=int(min_genes))
-            sc.pp.filter_genes(data['filtered'], min_cells=int(min_cells))
+            user_id = request.args.get('user_id')
+            min_genes = int(request.args.get('min_genes'))
+            min_cells = int(request.args.get('min_cells'))
+            if cache.get(user_id)['basic_filtering'][0] != (min_genes,
+                                                            min_cells):
+                filtered_data = copy.copy(data['pbmc3k'])
+                sc.pp.filter_cells(filtered_data, min_genes=min_genes)
+                sc.pp.filter_genes(filtered_data, min_cells=min_cells)
+                cache.set(user_id, {
+                    'basic_filtering': ((min_genes, min_cells), filtered_data)
+                    # TODO: Reset cache
+                })
             message = {
-                'text': str(data['filtered']),
+                'text': str(cache.get(user_id)['basic_filtering'][1]),
             }
             return jsonify(message)
 

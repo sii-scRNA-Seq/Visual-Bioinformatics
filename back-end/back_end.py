@@ -45,19 +45,12 @@ def create_app():
     app.register_error_handler(IncorrectOrderException, handle_exception)
     app.register_error_handler(we.BadRequest, handle_exception)
 
-    @app.route('/useridisvalid')
-    def user_id_is_valid():
+    @app.route('/getuserid')
+    def get_user_id():
         user_id = request.args.get('user_id')
-        message = {
-            'text': str(cache.get(user_id) is not None)
-        }
-        return jsonify(message)
-
-    @app.route('/createuserid')
-    def create_user_id():
-        user_id = str(uuid.uuid4())
-        cache.set(user_id, {})
-        print(cache.get(user_id))
+        if cache.get(user_id) is None:
+            user_id = str(uuid.uuid4())
+            cache.set(user_id, {})
         message = {
             'text': user_id
         }

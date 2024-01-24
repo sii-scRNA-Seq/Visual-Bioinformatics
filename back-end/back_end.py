@@ -63,8 +63,8 @@ def create_app():
     def load_data():
         user_id = request.args.get('user_id')
         if user_id is None or user_id == '':
-            raise we.BadRequest('Not a valid user_id')  
-        else:      
+            raise we.BadRequest('Not a valid user_id')
+        else:
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
                     'basic_filtering': (None, None)

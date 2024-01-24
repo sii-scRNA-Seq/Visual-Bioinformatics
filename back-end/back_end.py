@@ -44,42 +44,51 @@ def create_app():
     @app.route('/getuserid')
     def get_user_id():
         user_id = request.args.get('user_id')
-        if user_id == '':
-            user_id = str(uuid.uuid4())
-        if user_cache.get(user_id) is None:
-            user_cache.set(user_id, {
-                'basic_filtering': (None, None)
-                # TODO: Reset cache
-            })
-        message = {
-            'text': user_id
-        }
-        return jsonify(message)
+        if user_id is None:
+            raise we.BadRequest('Not a valid user_id')
+        else:
+            if user_id == '':
+                user_id = str(uuid.uuid4())
+            if user_cache.get(user_id) is None:
+                user_cache.set(user_id, {
+                    'basic_filtering': (None, None)
+                    # TODO: Reset cache
+                })
+            message = {
+                'text': user_id
+            }
+            return jsonify(message)
 
     @app.route('/loaddata')
     def load_data():
         user_id = request.args.get('user_id')
-        if user_cache.get(user_id) is None:
-            user_cache.set(user_id, {
-                'basic_filtering': (None, None)
-                # TODO: Reset cache
-            })
-        if raw_data_cache.get('pbmc3k') is None:
-            data = sc.read_10x_mtx(
-                'data/filtered_gene_bc_matrices/hg19/',
-                var_names='gene_symbols',
-                cache=True)
-            data.var_names_make_unique()
-            raw_data_cache.set('pbmc3k', data)
-        message = {
-            'text': str(raw_data_cache.get('pbmc3k')),
-        }
-        return jsonify(message)
+        if user_id is None or user_id == '':
+            raise we.BadRequest('Not a valid user_id')  
+        else:      
+            if user_cache.get(user_id) is None:
+                user_cache.set(user_id, {
+                    'basic_filtering': (None, None)
+                    # TODO: Reset cache
+                })
+            if raw_data_cache.get('pbmc3k') is None:
+                data = sc.read_10x_mtx(
+                    'data/filtered_gene_bc_matrices/hg19/',
+                    var_names='gene_symbols',
+                    cache=True)
+                data.var_names_make_unique()
+                raw_data_cache.set('pbmc3k', data)
+            message = {
+                'text': str(raw_data_cache.get('pbmc3k')),
+            }
+            return jsonify(message)
 
     @app.route('/basicfiltering')
     def basic_filtering():
+        user_id = request.args.get('user_id')
         invalid_params = get_invalid_parameters(['min_genes', 'min_cells'])
-        if invalid_params != []:
+        if user_id is None or user_id == '' or user_cache.get(user_id) is None:
+            raise we.BadRequest('Not a valid user_id')
+        elif invalid_params != []:
             raise we.BadRequest('Missing parameters: ' + str(invalid_params))
         elif raw_data_cache.get('pbmc3k') is None:
             raise IncorrectOrderException()

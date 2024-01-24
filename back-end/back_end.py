@@ -19,12 +19,9 @@ def create_app():
     }
     app = Flask(__name__)
     app.config.from_mapping(config)
-    cache = Cache(app)
+    user_cache = Cache(app)
+    raw_data_cache = Cache(app)
     CORS(app)
-
-    data = {
-        'pbmc3k': None,
-    }
 
     class IncorrectOrderException(we.HTTPException):
         code = 406
@@ -47,9 +44,10 @@ def create_app():
     @app.route('/getuserid')
     def get_user_id():
         user_id = request.args.get('user_id')
-        if cache.get(user_id) is None:
+        if user_id == '':
             user_id = str(uuid.uuid4())
-            cache.set(user_id, {
+        if user_cache.get(user_id) is None:
+            user_cache.set(user_id, {
                 'basic_filtering': (None, None)
                 # TODO: Reset cache
             })
@@ -60,14 +58,21 @@ def create_app():
 
     @app.route('/loaddata')
     def load_data():
-        if data['pbmc3k'] is None:
-            data['pbmc3k'] = sc.read_10x_mtx(
+        user_id = request.args.get('user_id')
+        if user_cache.get(user_id) is None:
+            user_cache.set(user_id, {
+                'basic_filtering': (None, None)
+                # TODO: Reset cache
+            })
+        if raw_data_cache.get('pbmc3k') is None:
+            data = sc.read_10x_mtx(
                 'data/filtered_gene_bc_matrices/hg19/',
                 var_names='gene_symbols',
                 cache=True)
-            data['pbmc3k'].var_names_make_unique()
+            data.var_names_make_unique()
+            raw_data_cache.set('pbmc3k', data)
         message = {
-            'text': str(data['pbmc3k']),
+            'text': str(raw_data_cache.get('pbmc3k')),
         }
         return jsonify(message)
 
@@ -76,23 +81,23 @@ def create_app():
         invalid_params = get_invalid_parameters(['min_genes', 'min_cells'])
         if invalid_params != []:
             raise we.BadRequest('Missing parameters: ' + str(invalid_params))
-        elif data['pbmc3k'] is None:
+        elif raw_data_cache.get('pbmc3k') is None:
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
             min_genes = int(request.args.get('min_genes'))
             min_cells = int(request.args.get('min_cells'))
-            if cache.get(user_id)['basic_filtering'][0] != (min_genes,
-                                                            min_cells):
-                filtered_data = copy.copy(data['pbmc3k'])
+            if user_cache.get(user_id)['basic_filtering'][0] != (min_genes,
+                                                                 min_cells):
+                filtered_data = copy.copy(raw_data_cache.get('pbmc3k'))
                 sc.pp.filter_cells(filtered_data, min_genes=min_genes)
                 sc.pp.filter_genes(filtered_data, min_cells=min_cells)
-                cache.set(user_id, {
+                user_cache.set(user_id, {
                     'basic_filtering': ((min_genes, min_cells), filtered_data)
                     # TODO: Reset cache
                 })
             message = {
-                'text': str(cache.get(user_id)['basic_filtering'][1]),
+                'text': str(user_cache.get(user_id)['basic_filtering'][1]),
             }
             return jsonify(message)
 

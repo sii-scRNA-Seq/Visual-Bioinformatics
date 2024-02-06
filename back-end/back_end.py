@@ -16,9 +16,9 @@ def create_app():
     config = {
         "CACHE_TYPE": "FileSystemCache",
         "CACHE_DEFAULT_TIMEOUT": 3*24*60*60,
-        "CACHE_IGNORE_ERRORS": False, # Default
+        "CACHE_IGNORE_ERRORS": False,  # Default
         "CACHE_DIR": 'back-end-cache',
-        "CACHE_THRESHOLD": 500, # Default
+        "CACHE_THRESHOLD": 500,        # Default
     }
     app = Flask(__name__)
     app.config.from_mapping(config)

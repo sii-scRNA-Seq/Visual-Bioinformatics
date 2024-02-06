@@ -17,7 +17,7 @@ export class OutputService {
 
   private userId: string | null = null;
 
-  constructor(private http: HttpClient, private snackBar: MatSnackBar, private userIdService: UserIdService) {
+  constructor(private http: HttpClient, private userIdService: UserIdService, private snackBar: MatSnackBar) {
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },
     );

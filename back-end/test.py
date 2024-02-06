@@ -52,8 +52,19 @@ def test_getuserid_WarnsUserWhenUserIdIsNone(client):
 @patch('uuid.uuid4')
 def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, client):
     mock.return_value = 'bob'
-    response = client.get('/getuserid', query_string = {
+    response = client.get('/getuserid', query_string={
         'user_id': ''
+    })
+    assert response.status_code == 200
+    message = {
+            'text': 'bob'
+    }
+    assert json.loads(response.data) == message
+
+
+def test_getuserid_ReturnsGivenUserId(client):
+    response = client.get('/getuserid', query_string={
+        'user_id': 'bob'
     })
     assert response.status_code == 200
     message = {
@@ -74,7 +85,7 @@ def test_loaddata_WarnsUserWhenUserIdIsNone(client):
 
 
 def test_loaddata_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/loaddata', query_string = {
+    response = client.get('/loaddata', query_string={
         'user_id': ''
     })
     assert response.status_code == 400
@@ -89,7 +100,7 @@ def test_loaddata_WarnsUserWhenUserIdIsEmpty(client):
 @patch('scanpy.read_10x_mtx')
 def test_loaddata_AnnDataIsLoadedCorrectly(mock, client):
     mock.return_value = get_AnnData()
-    response = client.get('/loaddata', query_string = {
+    response = client.get('/loaddata', query_string={
         'user_id': 'bob'
     })
     assert response.status_code == 200
@@ -111,7 +122,7 @@ def test_basicfiltering_WarnsUserWhenUserIdIsNone(client):
 
 
 def test_basicfiltering_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/basicfiltering', query_string = {
+    response = client.get('/basicfiltering', query_string={
         'user_id': ''
     })
     assert response.status_code == 400
@@ -124,8 +135,7 @@ def test_basicfiltering_WarnsUserWhenUserIdIsEmpty(client):
 
 
 def test_basicfiltering_WarnsUserWhenUserIdIsNotInCache(client):
-    # TODO: Assert not in cache already?
-    response = client.get('/basicfiltering', query_string = {
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob'
     })
     assert response.status_code == 400
@@ -138,11 +148,10 @@ def test_basicfiltering_WarnsUserWhenUserIdIsNotInCache(client):
 
 
 def test_basicfiltering_WarnsUserWhenMinGenesIsMissing(client):
-    # TODO: Add bob to cache without using getuserid
-    client.get('/getuserid', query_string = {
+    client.get('/getuserid', query_string={
         'user_id': 'bob'
     })
-    response = client.get('basicfiltering', query_string = {
+    response = client.get('basicfiltering', query_string={
         'user_id': 'bob',
         'min_cells': 0
     })
@@ -156,11 +165,10 @@ def test_basicfiltering_WarnsUserWhenMinGenesIsMissing(client):
 
 
 def test_basicfiltering_WarnsUserWhenMinCellsIsMissing(client):
-    # TODO: Add bob to cache without using getuserid
-    client.get('/getuserid', query_string = {
+    client.get('/getuserid', query_string={
         'user_id': 'bob'
     })
-    response = client.get('basicfiltering', query_string = {
+    response = client.get('basicfiltering', query_string={
         'user_id': 'bob',
         'min_genes': 0
     })
@@ -174,11 +182,10 @@ def test_basicfiltering_WarnsUserWhenMinCellsIsMissing(client):
 
 
 def test_basicfiltering_WarnsUserWhenMinGenesAndMinCellsAreMissing(client):
-    # TODO: Add bob to cache without using getuserid
-    client.get('/getuserid', query_string = {
+    client.get('/getuserid', query_string={
         'user_id': 'bob'
     })
-    response = client.get('basicfiltering', query_string = {
+    response = client.get('basicfiltering', query_string={
         'user_id': 'bob'
     })
     assert response.status_code == 400
@@ -191,11 +198,10 @@ def test_basicfiltering_WarnsUserWhenMinGenesAndMinCellsAreMissing(client):
 
 
 def test_basicfiltering_WarnsUserWhenRawDataHasNotBeenLoaded(client):
-    # TODO: Add bob to cache without using getuserid
-    client.get('/getuserid', query_string = {
+    client.get('/getuserid', query_string={
         'user_id': 'bob'
     })
-    response = client.get('/basicfiltering', query_string = {
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob',
         'min_genes': 1,
         'min_cells': 1
@@ -212,13 +218,11 @@ def test_basicfiltering_WarnsUserWhenRawDataHasNotBeenLoaded(client):
 
 @patch('scanpy.read_10x_mtx')
 def test_basicfiltering_FilterGenesWorks(mock, client):
-    # TODO: Refactor tests to use cache rather than calling loaddata
-    # TODO: Check value added to cache
     mock.return_value = get_AnnData()
-    response = client.get('/loaddata', query_string = {
+    client.get('/loaddata', query_string={
         'user_id': 'bob'
     })
-    response = client.get('/basicfiltering', query_string = {
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob',
         'min_genes': 0,
         'min_cells': 1
@@ -233,13 +237,11 @@ def test_basicfiltering_FilterGenesWorks(mock, client):
 
 @patch('scanpy.read_10x_mtx')
 def test_basicfiltering_FilterCellsWorks(mock, client):
-    # TODO: Refactor tests to use cache rather than calling loaddata
-    # TODO: Check value added to cache
     mock.return_value = get_AnnData()
-    response = client.get('/loaddata', query_string = {
+    client.get('/loaddata', query_string={
         'user_id': 'bob'
     })
-    response = client.get('/basicfiltering', query_string = {
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob',
         'min_genes': 1,
         'min_cells': 0
@@ -254,13 +256,11 @@ def test_basicfiltering_FilterCellsWorks(mock, client):
 
 @patch('scanpy.read_10x_mtx')
 def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
-    # TODO: Refactor tests to use cache rather than calling loaddata
-    # TODO: Check value added to cache
     mock.return_value = get_AnnData()
-    response = client.get('/loaddata', query_string = {
+    client.get('/loaddata', query_string={
         'user_id': 'bob'
     })
-    response = client.get('/basicfiltering', query_string = {
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob',
         'min_genes': 1,
         'min_cells': 1
@@ -271,3 +271,24 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
                      "obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
+
+
+@patch('scanpy.read_10x_mtx')
+def test_basicfiltering_UsesExistingDataForSameParameters(mock_loaddata, client):
+    mock_loaddata.return_value = get_AnnData()
+    client.get('/loaddata', query_string={
+        'user_id': 'bob'
+    })
+    with patch('scanpy.pp.filter_cells') as mock_fc, patch('scanpy.pp.filter_genes') as mock_fg:
+        client.get('/basicfiltering', query_string={
+            'user_id': 'bob',
+            'min_genes': 1,
+            'min_cells': 1
+        })
+        client.get('/basicfiltering', query_string={
+            'user_id': 'bob',
+            'min_genes': 1,
+            'min_cells': 1
+        })
+        mock_fc.assert_called_once()
+        mock_fg.assert_called_once()

@@ -41,13 +41,11 @@ export class OutputService {
       let outputResponse: Output = { text: '' };
       try {
         outputResponse = await firstValueFrom(this.http.get<Output>(url, { params: params }));
-      } catch (e) {
-        outputResponse = { text: '' };
-        this.snackBar.open('Not a valid order, please check the blocks and try again', 'Close', { duration: 5000 });
-      } finally {
         const outputs = this.outputs$.getValue();
         outputs.push(outputResponse);
         this.outputs$.next(outputs);
+      } catch (e) {
+        this.snackBar.open('Not a valid order, please check the blocks and try again', 'Close', { duration: 5000 });
       }
     }
   }

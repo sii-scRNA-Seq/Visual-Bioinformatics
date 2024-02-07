@@ -9,7 +9,7 @@ from scipy.sparse import csr_matrix
 
 @pytest.fixture()
 def app():
-    app = create_app()
+    app = create_app(test_mode = True)
     app.config.update({
         "TESTING": True,
     })

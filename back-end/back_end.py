@@ -141,6 +141,14 @@ def create_app(test_mode=False):
                 'text': str(user_cache.get(user_id)['qc_plots'][1]),
             }
             return jsonify(message)
+        
+    @app.route('/qcfiltering')
+    def qc_filtering():
+        # TODO: Implement this
+        message = {
+            'text': 'Implement this',
+        }
+        return jsonify(message)
 
     def get_invalid_parameters(params):
         invalid_params = []

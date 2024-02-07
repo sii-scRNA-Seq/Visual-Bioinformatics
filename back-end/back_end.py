@@ -10,12 +10,13 @@ import uuid
 import werkzeug.exceptions as we
 sc.settings.verbosity = 3
 
+THREE_DAYS = 3*24*60*60
 
 def create_app():
 
     config = {
         "CACHE_TYPE": "SimpleCache",
-        "CACHE_DEFAULT_TIMEOUT": 3*24*60*60,
+        "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
     }
     app = Flask(__name__)
     app.config.from_mapping(config)

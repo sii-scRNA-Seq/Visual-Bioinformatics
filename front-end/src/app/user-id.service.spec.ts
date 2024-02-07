@@ -14,7 +14,7 @@ describe('UserIdService', () => {
       imports: [ 
         HttpClientTestingModule,
         MatSnackBarModule,
-       ]
+      ]
     });
     service = TestBed.inject(UserIdService);
   });

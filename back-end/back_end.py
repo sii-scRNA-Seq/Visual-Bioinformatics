@@ -52,7 +52,7 @@ def create_app():
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
                     'basic_filtering': (None, None)
-                    # TODO: Reset cache
+                    # Reset cache
                 })
             message = {
                 'text': user_id
@@ -68,7 +68,7 @@ def create_app():
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
                     'basic_filtering': (None, None)
-                    # TODO: Reset cache
+                    # Reset cache
                 })
             if raw_data_cache.get('pbmc3k') is None:
                 data = sc.read_10x_mtx(
@@ -103,7 +103,7 @@ def create_app():
                 sc.pp.filter_genes(filtered_data, min_cells=min_cells)
                 user_cache.set(user_id, {
                     'basic_filtering': ((min_genes, min_cells), filtered_data)
-                    # TODO: Reset cache
+                    # Reset cache
                 })
             message = {
                 'text': str(user_cache.get(user_id)['basic_filtering'][1]),

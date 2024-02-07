@@ -23,7 +23,7 @@ describe('UserIdService', () => {
     it('should call client with local storage userId if it exists', async () => {
       spyOn(localStorage, 'getItem').and.returnValue('mock_user_id');
       const clientService: ClientService = TestBed.inject(ClientService);
-      const clientServiceSpy = spyOn(clientService, 'getUserId')
+      const clientServiceSpy = spyOn(clientService, 'getUserId');
       await service.setUserId();
       expect(clientServiceSpy).toHaveBeenCalledOnceWith('mock_user_id');
     });
@@ -31,7 +31,7 @@ describe('UserIdService', () => {
     it('should call client with empty string if local storage userId does not exist', async () => {
       spyOn(localStorage, 'getItem').and.returnValue(null);
       const clientService: ClientService = TestBed.inject(ClientService);
-      const clientServiceSpy = spyOn(clientService, 'getUserId')
+      const clientServiceSpy = spyOn(clientService, 'getUserId');
       await service.setUserId();
       expect(clientServiceSpy).toHaveBeenCalledOnceWith('');
     });

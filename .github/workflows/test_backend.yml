@@ -19,4 +19,5 @@ jobs:
       - run: |
           conda info
           conda list
+          pep8 back_end.py
           pytest test.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html

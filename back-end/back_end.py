@@ -6,29 +6,37 @@ import json
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import werkzeug.exceptions
+import uuid
+import werkzeug.exceptions as we
 sc.settings.verbosity = 3
+THREE_DAYS = 3*24*60*60
 
 
-def create_app():
+def create_app(test_mode=False):
 
-    #config = {
-    #    "CACHE_TYPE": "SimpleCache",
-    #    "CACHE_DEFAULT_TIMEOUT": 300
-    #}
+    if test_mode:
+        config = {
+            "CACHE_TYPE": "SimpleCache",
+            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+        }
+    else:
+        config = {
+            "CACHE_TYPE": "FileSystemCache",
+            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+            "CACHE_IGNORE_ERRORS": False,  # Default
+            "CACHE_DIR": 'back-end-cache',
+            "CACHE_THRESHOLD": 500,        # Default
+        }
     app = Flask(__name__)
-    #app.config.from_mapping(config)
-    #cache = Cache(app)
+    app.config.from_mapping(config)
+    user_cache = Cache(app)
+    raw_data_cache = Cache(app)
     CORS(app)
 
-    data = {
-        'pbmc3k': None,
-        'filtered' : None
-    }
-
-    class IncorrectOrderException(werkzeug.exceptions.HTTPException):
+    class IncorrectOrderException(we.HTTPException):
         code = 406
-        description = 'The blocks you have executed are not a valid order. Please check the order and try again.'
+        description = ('The blocks you have executed are not a valid order. '
+                       'Please check the order and try again.')
 
     def handle_exception(e):
         response = e.get_response()
@@ -41,39 +49,77 @@ def create_app():
         return response
 
     app.register_error_handler(IncorrectOrderException, handle_exception)
-    app.register_error_handler(werkzeug.exceptions.BadRequest, handle_exception)
+    app.register_error_handler(we.BadRequest, handle_exception)
+
+    @app.route('/getuserid')
+    def get_user_id():
+        user_id = request.args.get('user_id')
+        if user_id is None:
+            raise we.BadRequest('Not a valid user_id')
+        else:
+            if user_id == '':
+                user_id = str(uuid.uuid4())
+            if user_cache.get(user_id) is None:
+                user_cache.set(user_id, {
+                    'basic_filtering': (None, None)
+                    # Reset cache
+                })
+            message = {
+                'text': user_id
+            }
+            return jsonify(message)
 
     @app.route('/loaddata')
     def load_data():
-        if data['pbmc3k'] is None:
-            data['pbmc3k'] = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True) 
-            data['pbmc3k'].var_names_make_unique()
-        message = {
-            'text': str(data['pbmc3k']),
-        }
-        return jsonify(message)
+        user_id = request.args.get('user_id')
+        if user_id is None or user_id == '':
+            raise we.BadRequest('Not a valid user_id')
+        else:
+            if user_cache.get(user_id) is None:
+                user_cache.set(user_id, {
+                    'basic_filtering': (None, None)
+                    # Reset cache
+                })
+            if raw_data_cache.get('pbmc3k') is None:
+                data = sc.read_10x_mtx(
+                    'data/filtered_gene_bc_matrices/hg19/',
+                    var_names='gene_symbols',
+                    cache=True)
+                data.var_names_make_unique()
+                raw_data_cache.set('pbmc3k', data)
+            message = {
+                'text': str(raw_data_cache.get('pbmc3k')),
+            }
+            return jsonify(message)
 
     @app.route('/basicfiltering')
     def basic_filtering():
-        #cache.set("yourmum", "yourmum")
-        #print(cache.get("yourmum"))
-
-        invalid_params = get_invalid_parameters(['min_genes','min_cells'])
-        if invalid_params != []:
-            raise werkzeug.exceptions.BadRequest('Missing parameters: ' + str(invalid_params))
-        elif data['pbmc3k'] is None:
+        user_id = request.args.get('user_id')
+        invalid_params = get_invalid_parameters(['min_genes', 'min_cells'])
+        if user_id is None or user_id == '' or user_cache.get(user_id) is None:
+            raise we.BadRequest('Not a valid user_id')
+        elif invalid_params != []:
+            raise we.BadRequest('Missing parameters: ' + str(invalid_params))
+        elif raw_data_cache.get('pbmc3k') is None:
             raise IncorrectOrderException()
         else:
-            min_genes = request.args.get('min_genes')
-            min_cells = request.args.get('min_cells')
-            data['filtered'] = copy.copy(data['pbmc3k'])
-            sc.pp.filter_cells(data['filtered'], min_genes = int(min_genes))
-            sc.pp.filter_genes(data['filtered'], min_cells = int(min_cells))
+            user_id = request.args.get('user_id')
+            min_genes = int(request.args.get('min_genes'))
+            min_cells = int(request.args.get('min_cells'))
+            if user_cache.get(user_id)['basic_filtering'][0] != (min_genes,
+                                                                 min_cells):
+                filtered_data = copy.copy(raw_data_cache.get('pbmc3k'))
+                sc.pp.filter_cells(filtered_data, min_genes=min_genes)
+                sc.pp.filter_genes(filtered_data, min_cells=min_cells)
+                user_cache.set(user_id, {
+                    'basic_filtering': ((min_genes, min_cells), filtered_data)
+                    # Reset cache
+                })
             message = {
-                'text': str(data['filtered']),
+                'text': str(user_cache.get(user_id)['basic_filtering'][1]),
             }
             return jsonify(message)
-    
+
     def get_invalid_parameters(params):
         invalid_params = []
         for param in params:

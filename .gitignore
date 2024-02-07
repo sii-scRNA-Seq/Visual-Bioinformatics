@@ -2,3 +2,4 @@ back-end/data/filtered_gene_bc_matrices/hg19/matrix.mtx
 back-end/cache/data-filtered_gene_bc_matrices-hg19-matrix.h5ad
 back-end/__pycache__/back_end.cpython-38.pyc
 back-end/__pycache__/test.cpython-38-pytest-7.4.3.pyc
+back-end/back-end-cache

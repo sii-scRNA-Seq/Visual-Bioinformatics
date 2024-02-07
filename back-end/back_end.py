@@ -12,12 +12,21 @@ sc.settings.verbosity = 3
 THREE_DAYS = 3*24*60*60
 
 
-def create_app():
+def create_app(test_mode=False):
 
-    config = {
-        "CACHE_TYPE": "SimpleCache",
-        "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
-    }
+    if test_mode:
+        config = {
+            "CACHE_TYPE": "SimpleCache",
+            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+        }
+    else:
+        config = {
+            "CACHE_TYPE": "FileSystemCache",
+            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+            "CACHE_IGNORE_ERRORS": False,  # Default
+            "CACHE_DIR": 'back-end-cache',
+            "CACHE_THRESHOLD": 500,        # Default
+        }
     app = Flask(__name__)
     app.config.from_mapping(config)
     user_cache = Cache(app)

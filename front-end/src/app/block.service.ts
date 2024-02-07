@@ -32,7 +32,7 @@ export class BlockService {
         }
         break;
       }
-      case 'basicfiltering': {  
+      case 'basicfiltering': {
         if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'loaddata') {
           const temp = this.blocksOnCanvas$.getValue();
           temp.push({
@@ -49,6 +49,43 @@ export class BlockService {
         }
         else {
           this.snackBar.open('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'qcplots': {
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'basicfiltering') {
+          const temp = this.blocksOnCanvas$.getValue();
+          temp.push({
+            blockId: 'qcplots',
+            title: 'Quality Control Plots',
+            possibleChildBlocks: [],
+            parameters: [],
+            onRun: () => from(''),
+          });
+          this.blocksOnCanvas$.next(temp);
+        }
+        else {
+          this.snackBar.open('Quality Control Plots block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'qcfiltering': {
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'qcplots') {
+          const temp = this.blocksOnCanvas$.getValue();
+          temp.push({
+            blockId: 'qcfiltering',
+            title: 'Quality Control Filtering',
+            possibleChildBlocks: [],
+            parameters: [
+              {key: 'n_genes_by_counts', text: 'n_genes_by_counts', value: 2500},
+              {key: 'pct_counts_mt', text: 'pct_counts_mt', value: 5}
+            ],
+            onRun: () => from(''),
+          });
+          this.blocksOnCanvas$.next(temp);
+        }
+        else {
+          this.snackBar.open('Quality Control Filtering block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

@@ -10,7 +10,6 @@ import { UserIdService } from './user-id.service';
 @Injectable({
   providedIn: 'root',
 })
-
 export class OutputService {
   private readonly outputs$: BehaviorSubject<Output[]> = new BehaviorSubject<Output[]> ([]);
   readonly outputs: Observable<Output[]> = this.outputs$.asObservable();
@@ -38,9 +37,8 @@ export class OutputService {
       for (let i = 0; i < block.parameters.length; i++) {
         params[block.parameters[i].key] = block.parameters[i].value;
       }
-      let outputResponse: Output = { text: '' };
       try {
-        outputResponse = await firstValueFrom(this.http.get<Output>(url, { params: params }));
+        const outputResponse: Output = await firstValueFrom(this.http.get<Output>(url, { params: params }));
         const outputs = this.outputs$.getValue();
         outputs.push(outputResponse);
         this.outputs$.next(outputs);

@@ -1,8 +1,8 @@
+import { fakeAsync, tick, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BackendHttpClient } from './backend-http.client';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('BackendHttpClient', () => {
   let service: BackendHttpClient;
@@ -36,6 +36,7 @@ describe('BackendHttpClient', () => {
     }));
 
     it('should open snack bar if the response is an error', fakeAsync(async () => {
+      // HELP ME
       const mockHttp = TestBed.inject(HttpTestingController);
       const spy = spyOn(snackBar, 'open');
       service.getUserId('').then(async () => {

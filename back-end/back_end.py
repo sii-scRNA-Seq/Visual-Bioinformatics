@@ -62,7 +62,7 @@ def create_app(test_mode=False):
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
                     'basic_filtering': (None, None)
-                    # Reset cache
+                    # TODO: Reset cache
                 })
             message = {
                 'text': user_id
@@ -78,7 +78,7 @@ def create_app(test_mode=False):
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
                     'basic_filtering': (None, None)
-                    # Reset cache
+                    # TODO: Reset cache
                 })
             if raw_data_cache.get('pbmc3k') is None:
                 data = sc.read_10x_mtx(
@@ -113,10 +113,34 @@ def create_app(test_mode=False):
                 sc.pp.filter_genes(filtered_data, min_cells=min_cells)
                 user_cache.set(user_id, {
                     'basic_filtering': ((min_genes, min_cells), filtered_data)
-                    # Reset cache
+                    # TODO: Reset cache
                 })
             message = {
                 'text': str(user_cache.get(user_id)['basic_filtering'][1]),
+            }
+            return jsonify(message)
+
+    @app.route('/qcplots')
+    def qc_plots():
+        user_id = request.args.get('user_id')
+        if user_id is None or user_id == '' or user_cache.get(user_id) is None:
+            raise we.BadRequest('Not a valid user_id')
+        elif user_cache.get(user_id)['basic_filtering'][1] is None:
+            raise IncorrectOrderException()
+        else:
+            user_id = request.args.get('user_id')
+            if user_cache.get(user_id)['qc_plots'][0] != ():
+                calculated_data = copy.copy(user_cache.get(user_id)['basic_filtering'][1])
+                calculated_data.var['mt'] = calculated_data.var_names.str.startswith('MT-')
+                sc.pp.calculate_qc_metrics(calculated_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+                # sc.pl.violin(calculated_data, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
+                user_cache.set(user_id, {
+                    'basic_filtering': user_cache.get(user_id)['basic_filtering'],
+                    'qc_plots': ((), calculated_data)
+                    # Reset cache
+                })
+            message = {
+                'text': str(user_cache.get(user_id)['qc_plots'][1]),
             }
             return jsonify(message)
 

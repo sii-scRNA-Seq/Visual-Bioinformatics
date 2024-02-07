@@ -8,7 +8,7 @@ export interface Block {
   onRun: (block: Block) => Observable<unknown>
 }
 
-export type BlockId = 'loaddata' | 'basicfiltering';
+export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering';
 
 export interface Parameter {
   key: string

@@ -9,7 +9,7 @@ import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
 sc.settings.verbosity = 3
-THREE_DAYS = 3*24*60*60
+THREE_DAYS = 3 * 24 * 60 * 60
 
 
 def create_app(test_mode=False):
@@ -35,8 +35,7 @@ def create_app(test_mode=False):
 
     class IncorrectOrderException(we.HTTPException):
         code = 406
-        description = ('The blocks you have executed are not a valid order. '
-                       'Please check the order and try again.')
+        description = ('The blocks you have executed are not a valid order. Please check the order and try again.')
 
     def handle_exception(e):
         response = e.get_response()
@@ -61,8 +60,9 @@ def create_app(test_mode=False):
                 user_id = str(uuid.uuid4())
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
-                    'basic_filtering': (None, None)
-                    # TODO: Reset cache
+                    'basic_filtering': (None, None),
+                    'qc_plots': (None, None),
+                    # Reset cache
                 })
             message = {
                 'text': user_id
@@ -77,14 +77,12 @@ def create_app(test_mode=False):
         else:
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
-                    'basic_filtering': (None, None)
-                    # TODO: Reset cache
+                    'basic_filtering': (None, None),
+                    'qc_plots': (None, None),
+                    # Reset cache
                 })
             if raw_data_cache.get('pbmc3k') is None:
-                data = sc.read_10x_mtx(
-                    'data/filtered_gene_bc_matrices/hg19/',
-                    var_names='gene_symbols',
-                    cache=True)
+                data = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True)
                 data.var_names_make_unique()
                 raw_data_cache.set('pbmc3k', data)
             message = {
@@ -106,14 +104,14 @@ def create_app(test_mode=False):
             user_id = request.args.get('user_id')
             min_genes = int(request.args.get('min_genes'))
             min_cells = int(request.args.get('min_cells'))
-            if user_cache.get(user_id)['basic_filtering'][0] != (min_genes,
-                                                                 min_cells):
-                filtered_data = copy.copy(raw_data_cache.get('pbmc3k'))
-                sc.pp.filter_cells(filtered_data, min_genes=min_genes)
-                sc.pp.filter_genes(filtered_data, min_cells=min_cells)
+            if user_cache.get(user_id)['basic_filtering'][0] != (min_genes, min_cells):
+                new_adata = copy.copy(raw_data_cache.get('pbmc3k'))
+                sc.pp.filter_cells(new_adata, min_genes=min_genes)
+                sc.pp.filter_genes(new_adata, min_cells=min_cells)
                 user_cache.set(user_id, {
-                    'basic_filtering': ((min_genes, min_cells), filtered_data)
-                    # TODO: Reset cache
+                    'basic_filtering': ((min_genes, min_cells), new_adata),
+                    'qc_plots': (None, None),
+                    # Reset cache
                 })
             message = {
                 'text': str(user_cache.get(user_id)['basic_filtering'][1]),
@@ -130,13 +128,13 @@ def create_app(test_mode=False):
         else:
             user_id = request.args.get('user_id')
             if user_cache.get(user_id)['qc_plots'][0] != ():
-                calculated_data = copy.copy(user_cache.get(user_id)['basic_filtering'][1])
-                calculated_data.var['mt'] = calculated_data.var_names.str.startswith('MT-')
-                sc.pp.calculate_qc_metrics(calculated_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
-                # sc.pl.violin(calculated_data, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
+                new_adata = copy.copy(user_cache.get(user_id)['basic_filtering'][1])
+                new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
+                sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+                # sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
                 user_cache.set(user_id, {
                     'basic_filtering': user_cache.get(user_id)['basic_filtering'],
-                    'qc_plots': ((), calculated_data)
+                    'qc_plots': ((), new_adata),
                     # Reset cache
                 })
             message = {

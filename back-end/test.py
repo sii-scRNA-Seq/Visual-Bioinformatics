@@ -9,7 +9,7 @@ from scipy.sparse import csr_matrix
 
 @pytest.fixture()
 def app():
-    app = create_app(test_mode = True)
+    app = create_app(test_mode=True)
     app.config.update({
         "TESTING": True,
     })
@@ -57,7 +57,7 @@ def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, client):
     })
     assert response.status_code == 200
     message = {
-            'text': 'bob'
+        'text': 'bob'
     }
     assert json.loads(response.data) == message
 
@@ -68,7 +68,7 @@ def test_getuserid_ReturnsGivenUserId(client):
     })
     assert response.status_code == 200
     message = {
-            'text': 'bob'
+        'text': 'bob'
     }
     assert json.loads(response.data) == message
 
@@ -105,7 +105,7 @@ def test_loaddata_AnnDataIsLoadedCorrectly(mock, client):
     })
     assert response.status_code == 200
     message = {
-            'text': "AnnData object with n_obs × n_vars = 5 × 3"
+        'text': "AnnData object with n_obs × n_vars = 5 × 3"
     }
     assert json.loads(response.data) == message
 
@@ -210,8 +210,7 @@ def test_basicfiltering_WarnsUserWhenRawDataHasNotBeenLoaded(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": ('The blocks you have executed are not a valid order. '
-                        'Please check the order and try again.'),
+        "description": ('The blocks you have executed are not a valid order. Please check the order and try again.'),
     }
     assert json.loads(response.data) == message
 
@@ -229,8 +228,7 @@ def test_basicfiltering_FilterGenesWorks(mock, client):
     })
     assert response.status_code == 200
     message = {
-            'text': ("AnnData object with n_obs × n_vars = 5 × 2\n    "
-                     "obs: 'n_genes'\n    var: 'n_cells'")
+        'text': ("AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
 
@@ -248,8 +246,7 @@ def test_basicfiltering_FilterCellsWorks(mock, client):
     })
     assert response.status_code == 200
     message = {
-            'text': ("AnnData object with n_obs × n_vars = 4 × 3\n    "
-                     "obs: 'n_genes'\n    var: 'n_cells'")
+        'text': ("AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
 
@@ -267,8 +264,7 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
     })
     assert response.status_code == 200
     message = {
-            'text': ("AnnData object with n_obs × n_vars = 4 × 2\n    "
-                     "obs: 'n_genes'\n    var: 'n_cells'")
+        'text': ("AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'")
     }
     assert json.loads(response.data) == message
 

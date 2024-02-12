@@ -22,7 +22,7 @@ export class BlockService {
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
-            possibleChildBlocks: [],
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [],
             onRun: () => from(''),
           }]);
@@ -33,12 +33,12 @@ export class BlockService {
         break;
       }
       case 'basicfiltering': {
-        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'loaddata') {
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
           const temp = this.blocksOnCanvas$.getValue();
           temp.push({
             blockId: 'basicfiltering',
             title: 'Basic Filtering',
-            possibleChildBlocks: [],
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [
               {key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
               {key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
@@ -53,12 +53,12 @@ export class BlockService {
         break;
       }
       case 'qcplots': {
-        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'basicfiltering') {
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.possibleChildBlocks.indexOf('qcplots') > -1) {
           const temp = this.blocksOnCanvas$.getValue();
           temp.push({
             blockId: 'qcplots',
             title: 'Quality Control Plots',
-            possibleChildBlocks: [],
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [],
             onRun: () => from(''),
           });
@@ -70,12 +70,12 @@ export class BlockService {
         break;
       }
       case 'qcfiltering': {
-        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'qcplots') {
+        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           const temp = this.blocksOnCanvas$.getValue();
           temp.push({
             blockId: 'qcfiltering',
             title: 'Quality Control Filtering',
-            possibleChildBlocks: [],
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [
               {key: 'n_genes_by_counts', text: 'n_genes_by_counts', value: 2500},
               {key: 'pct_counts_mt', text: 'pct_counts_mt', value: 5}

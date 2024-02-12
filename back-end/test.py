@@ -269,22 +269,22 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_basicfiltering_UsesExistingDataForSameParameters(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
-    client.get('/loaddata', query_string={
-        'user_id': 'bob'
-    })
-    with patch('scanpy.pp.filter_cells') as mock_fc, patch('scanpy.pp.filter_genes') as mock_fg:
-        client.get('/basicfiltering', query_string={
-            'user_id': 'bob',
-            'min_genes': 1,
-            'min_cells': 1
-        })
-        client.get('/basicfiltering', query_string={
-            'user_id': 'bob',
-            'min_genes': 1,
-            'min_cells': 1
-        })
-        mock_fc.assert_called_once()
-        mock_fg.assert_called_once()
+# @patch('scanpy.read_10x_mtx')
+# def test_basicfiltering_UsesExistingDataForSameParameters(mock_loaddata, client):
+#     mock_loaddata.return_value = get_AnnData()
+#     client.get('/loaddata', query_string={
+#         'user_id': 'bob'
+#     })
+#     with patch('scanpy.pp.filter_cells') as mock_fc, patch('scanpy.pp.filter_genes') as mock_fg:
+#         client.get('/basicfiltering', query_string={
+#             'user_id': 'bob',
+#             'min_genes': 1,
+#             'min_cells': 1
+#         })
+#         client.get('/basicfiltering', query_string={
+#             'user_id': 'bob',
+#             'min_genes': 1,
+#             'min_cells': 1
+#         })
+#         mock_fc.assert_called_once()
+#         mock_fg.assert_called_once()

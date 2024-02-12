@@ -60,9 +60,7 @@ def create_app(test_mode=False):
                 user_id = str(uuid.uuid4())
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
-                    'basic_filtering': (None, None),
-                    'qc_plots': (None, None),
-                    # Reset cache
+                    'working_data': None
                 })
             message = {
                 'text': user_id
@@ -75,18 +73,21 @@ def create_app(test_mode=False):
         if user_id is None or user_id == '':
             raise we.BadRequest('Not a valid user_id')
         else:
-            if user_cache.get(user_id) is None:
-                user_cache.set(user_id, {
-                    'basic_filtering': (None, None),
-                    'qc_plots': (None, None),
-                    # Reset cache
-                })
+            # if user_cache.get(user_id) is None:
+            #     user_cache.set(user_id, {
+            #         'basic_filtering': (None, None),
+            #         'qc_plots': (None, None),
+            #         # Reset cache
+            #     })
             if raw_data_cache.get('pbmc3k') is None:
                 data = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True)
                 data.var_names_make_unique()
                 raw_data_cache.set('pbmc3k', data)
+            user_cache.set(user_id, {
+                'working_data': copy.copy(raw_data_cache.get('pbmc3k')),
+            })
             message = {
-                'text': str(raw_data_cache.get('pbmc3k')),
+                'text': str(user_cache.get(user_id)['working_data']),
             }
             return jsonify(message)
 
@@ -98,23 +99,20 @@ def create_app(test_mode=False):
             raise we.BadRequest('Not a valid user_id')
         elif invalid_params != []:
             raise we.BadRequest('Missing parameters: ' + str(invalid_params))
-        elif raw_data_cache.get('pbmc3k') is None:
+        elif user_cache.get(user_id)["working_data"] is None:
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
             min_genes = int(request.args.get('min_genes'))
             min_cells = int(request.args.get('min_cells'))
-            if user_cache.get(user_id)['basic_filtering'][0] != (min_genes, min_cells):
-                new_adata = copy.copy(raw_data_cache.get('pbmc3k'))
-                sc.pp.filter_cells(new_adata, min_genes=min_genes)
-                sc.pp.filter_genes(new_adata, min_cells=min_cells)
-                user_cache.set(user_id, {
-                    'basic_filtering': ((min_genes, min_cells), new_adata),
-                    'qc_plots': (None, None),
-                    # Reset cache
-                })
+            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            sc.pp.filter_cells(new_adata, min_genes=min_genes)
+            sc.pp.filter_genes(new_adata, min_cells=min_cells)
+            user_cache.set(user_id, {
+                'working_data': new_adata,
+            })
             message = {
-                'text': str(user_cache.get(user_id)['basic_filtering'][1]),
+                'text': str(user_cache.get(user_id)['working_data']),
             }
             return jsonify(message)
 
@@ -123,32 +121,48 @@ def create_app(test_mode=False):
         user_id = request.args.get('user_id')
         if user_id is None or user_id == '' or user_cache.get(user_id) is None:
             raise we.BadRequest('Not a valid user_id')
-        elif user_cache.get(user_id)['basic_filtering'][1] is None:
+        elif user_cache.get(user_id)["working_data"] is None:
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-            if user_cache.get(user_id)['qc_plots'][0] != ():
-                new_adata = copy.copy(user_cache.get(user_id)['basic_filtering'][1])
-                new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
-                sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
-                # sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
-                user_cache.set(user_id, {
-                    'basic_filtering': user_cache.get(user_id)['basic_filtering'],
-                    'qc_plots': ((), new_adata),
-                    # Reset cache
-                })
+            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
+            sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+            # sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
+            user_cache.set(user_id, {
+                'working_data': new_adata,
+            })
             message = {
-                'text': str(user_cache.get(user_id)['qc_plots'][1]),
+                'text': str(user_cache.get(user_id)['working_data']),
             }
             return jsonify(message)
 
     @app.route('/qcfiltering')
     def qc_filtering():
-        # TODO: Implement this
-        message = {
-            'text': 'Implement this',
-        }
-        return jsonify(message)
+        user_id = request.args.get('user_id')
+        invalid_params = get_invalid_parameters(['n_genes_by_counts', 'pct_counts_mt'])
+        if user_id is None or user_id == '' or user_cache.get(user_id) is None:
+            raise we.BadRequest('Not a valid user_id')
+        elif invalid_params != []:
+            raise we.BadRequest('Missing parameters: ' + str(invalid_params))
+        elif user_cache.get(user_id)["working_data"] is None:
+            raise IncorrectOrderException()
+        else:
+            user_id = request.args.get('user_id')
+            n_genes_by_counts = int(request.args.get('n_genes_by_counts'))
+            pct_counts_mt = int(request.args.get('pct_counts_mt'))
+            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
+            sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+            new_adata = new_adata[new_adata.obs.n_genes_by_counts < n_genes_by_counts, :]
+            new_adata = new_adata[new_adata.obs.pct_counts_mt < pct_counts_mt, :]
+            user_cache.set(user_id, {
+                'working_data': new_adata,
+            })
+            message = {
+                'text': str(user_cache.get(user_id)['working_data']),
+            }
+            return jsonify(message)
 
     def get_invalid_parameters(params):
         invalid_params = []

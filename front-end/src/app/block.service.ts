@@ -77,8 +77,8 @@ export class BlockService {
             title: 'Quality Control Filtering',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [
-              {key: 'n_genes_by_counts', text: 'n_genes_by_counts', value: 2500},
-              {key: 'pct_counts_mt', text: 'pct_counts_mt', value: 5}
+              {key: 'n_genes_by_counts', text: 'Maximum Total Gene Count', value: 2500},
+              {key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
             ],
             onRun: () => from(''),
           });

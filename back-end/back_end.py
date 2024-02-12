@@ -6,9 +6,11 @@ import json
 import numpy as np
 import pandas as pd
 import scanpy as sc
+from matplotlib import pyplot as plt
 import uuid
 import werkzeug.exceptions as we
 sc.settings.verbosity = 3
+plt.switch_backend('agg')
 THREE_DAYS = 3 * 24 * 60 * 60
 
 
@@ -128,7 +130,7 @@ def create_app(test_mode=False):
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
-            # sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
+            sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False, save="violin.png")
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })

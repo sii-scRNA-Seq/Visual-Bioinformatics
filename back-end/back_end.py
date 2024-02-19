@@ -1,18 +1,17 @@
-import base64
 from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
+from matplotlib import pyplot as plt
+import base64
+import codecs
 import copy
+import io
 import json
 import numpy as np
 import pandas as pd
 import scanpy as sc
-from matplotlib import pyplot as plt
 import uuid
 import werkzeug.exceptions as we
-import codecs
-import io
-
 sc.settings.verbosity = 3
 plt.switch_backend('agg')
 THREE_DAYS = 3 * 24 * 60 * 60
@@ -137,6 +136,7 @@ def create_app(test_mode=False):
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })
+            plt.rcParams['font.size'] = 18
             sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False)
             my_stringIObytes = io.BytesIO()
             plt.savefig(my_stringIObytes, format='png')

@@ -1,10 +1,10 @@
 import pytest
-from back_end import create_app
+from scipy.sparse import csr_matrix
 from unittest.mock import patch
 import anndata
-import numpy as np
 import json
-from scipy.sparse import csr_matrix
+import numpy as np
+from back_end import create_app
 
 
 @pytest.fixture()
@@ -26,16 +26,25 @@ def runner(app):
     return app.test_cli_runner()
 
 
-def get_AnnData():
-    counts = csr_matrix(np.array([[0, 1, 2],
-                                  [0, 3, 4],
-                                  [0, 5, 6],
-                                  [0, 7, 8],
-                                  [0, 0, 0]]))
-    adata = anndata.AnnData(counts)
-    adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
-    adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars)]
-    # adata.var_names[-1] = "MT-Gene", give one cell really high count in that column.
+def get_AnnData(qc_filtering=False):
+    if qc_filtering is False:
+        counts = csr_matrix(np.array([[0, 1, 2],
+                                      [0, 3, 4],
+                                      [0, 5, 6],
+                                      [0, 7, 8],
+                                      [0, 0, 0]]))
+        adata = anndata.AnnData(counts)
+        adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
+        adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars)]
+    else:
+        counts = csr_matrix(np.array([[0, 1, 2, 0],
+                                      [0, 3, 4, 1],
+                                      [0, 5, 6, 2],
+                                      [0, 1, 1, 98],
+                                      [1, 1, 1, 1]]))
+        adata = anndata.AnnData(counts)
+        adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
+        adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars - 1)] + ["MT-Gene"]
     return adata
 
 
@@ -211,7 +220,7 @@ def test_basicfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": ('The blocks you have executed are not a valid order. Please check the order and try again.'),
+        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
     }
     assert json.loads(response.data) == message
 
@@ -229,7 +238,7 @@ def test_basicfiltering_FilterGenesWorks(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': ("AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'")
+        'text': "AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
     }
     assert json.loads(response.data) == message
 
@@ -247,7 +256,7 @@ def test_basicfiltering_FilterCellsWorks(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': ("AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'")
+        'text': "AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'"
     }
     assert json.loads(response.data) == message
 
@@ -265,7 +274,7 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': ("AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'")
+        'text': "AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
     }
     assert json.loads(response.data) == message
 
@@ -339,25 +348,35 @@ def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": ('The blocks you have executed are not a valid order. Please check the order and try again.'),
+        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
     }
     assert json.loads(response.data) == message
 
 
-# @patch('scanpy.read_10x_mtx')
-# def test_qcplots_ReturnsCorrectString(mock, client):
-#     mock.return_value = get_AnnData()
-#     client.get('/loaddata', query_string={
-#         'user_id': 'bob'
-#     })
-#     response = client.get('/qcplots', query_string={
-#         'user_id': 'bob',
-#     })
-#     assert response.status_code == 200
-#     message = {
-#         'text': ("AnnData object with n_obs × n_vars = 5 × 3\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'")
-#     }
-#     assert json.loads(response.data) == message
+@patch('scanpy.read_10x_mtx')
+def test_qcplots_CallsScanpyViolin(mock_loaddata, client):
+    mock_loaddata.return_value = get_AnnData()
+    client.get('/loaddata', query_string={
+        'user_id': 'bob'
+    })
+    with patch('scanpy.pl.violin') as mock:
+        client.get('/qcplots', query_string={
+            'user_id': 'bob',
+        })
+        mock.assert_called_once()
+
+
+@patch('scanpy.read_10x_mtx')
+def test_qcplots_ReturnsCorrectString(mock, client):
+    mock.return_value = get_AnnData()
+    client.get('/loaddata', query_string={
+        'user_id': 'bob'
+    })
+    response = client.get('/qcplots', query_string={
+        'user_id': 'bob',
+    })
+    assert response.status_code == 200
+    assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"
 
 
 def test_qcfiltering_WarnsUserWhenUserIdIsNone(client):
@@ -460,24 +479,60 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": ('The blocks you have executed are not a valid order. Please check the order and try again.'),
+        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
     }
     assert json.loads(response.data) == message
 
 
-# @patch('scanpy.read_10x_mtx')
-# @patch('scanpy.pp.calculate_qc_metrics')
-# def test_qcfiltering_NGenesByCountsAndPctCountsMtWork(mocker, mock_loaddata, client):
-#     mock_loaddata.return_value = get_AnnData()
-#     client.get('/loaddata', query_string={
-#         'user_id': 'bob'
-#     })
-#     #with patch('scanpy.pp.calculate_qc_metrics', wraps=sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)) as mock_qc:
-#     spy = mocker.spy('scanpy.pp.calculate_qc_metrics')
-#     response = client.get('/qcfiltering', query_string={
-#         'user_id': 'bob',
-#         'n_genes_by_counts': 1,
-#         'pct_counts_mt': 1
-#     })
-#     assert response.status_code == 200
-#     spy.assert_called_once()
+@patch('scanpy.read_10x_mtx')
+def test_qcfiltering_NGenesByCountsWorks(mock_loaddata, client):
+    mock_loaddata.return_value = get_AnnData(qc_filtering=True)
+    client.get('/loaddata', query_string={
+        'user_id': 'bob'
+    })
+    response = client.get('/qcfiltering', query_string={
+        'user_id': 'bob',
+        'n_genes_by_counts': 4,
+        'pct_counts_mt': 100
+    })
+    assert response.status_code == 200
+    message = {
+        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+    }
+    assert json.loads(response.data) == message
+
+
+@patch('scanpy.read_10x_mtx')
+def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
+    mock_loaddata.return_value = get_AnnData(qc_filtering=True)
+    client.get('/loaddata', query_string={
+        'user_id': 'bob'
+    })
+    response = client.get('/qcfiltering', query_string={
+        'user_id': 'bob',
+        'n_genes_by_counts': 5,
+        'pct_counts_mt': 95
+    })
+    assert response.status_code == 200
+    message = {
+        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+    }
+    assert json.loads(response.data) == message
+
+
+@patch('scanpy.read_10x_mtx')
+def test_qcfiltering_NGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
+    mock_loaddata.return_value = get_AnnData(qc_filtering=True)
+    client.get('/loaddata', query_string={
+        'user_id': 'bob'
+    })
+    response = client.get('/qcfiltering', query_string={
+        'user_id': 'bob',
+        'n_genes_by_counts': 4,
+        'pct_counts_mt': 95
+    })
+    assert response.status_code == 200
+    message = {
+        'text': "View of AnnData object with n_obs × n_vars = 3 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+    }
+    assert json.loads(response.data) == message

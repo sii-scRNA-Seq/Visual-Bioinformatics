@@ -16,11 +16,11 @@ export class OutputDisplayComponent {
   constructor(private outputService: OutputService, sanitizer: DomSanitizer) {
     this.outputService.outputs.subscribe(
       (res) => { 
-        this.outputList = res.map(out => {
-          if (out.text) {
-            return out;
-          } else if (out.img) {
-            const imageString = out.img as string;
+        this.outputList = res.map(output => {
+          if (output.text) {
+            return output;
+          } else if (output.img) {
+            const imageString = output.img as string;
             let fixedData = imageString.substring(2, imageString.length-3);
             fixedData = fixedData.replace(/\\n/g, '');
             const objectURL = 'data:image/png;base64,' + fixedData;
@@ -29,7 +29,7 @@ export class OutputDisplayComponent {
               img: newImg
             }; 
           } else {
-            return out;
+            return output;
           }
         }); 
       }

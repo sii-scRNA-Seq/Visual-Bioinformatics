@@ -22,7 +22,7 @@ describe('OutputService', () => {
       ], 
       providers: [
         { provide: UserIdService, useClass: MockUserIdService }
-      ]
+      ],
     });
     service = TestBed.inject(OutputService);
     snackBar = TestBed.inject(MatSnackBar);

@@ -30,13 +30,12 @@ describe('BackendHttpClient', () => {
       tick();
       const req = mockHttp.expectOne('http://127.0.0.1:5000/getuserid?user_id=input_id');
       expect(req.request.method).toBe('GET');
-      req.flush({text: 'output_id'});
+      req.flush({user_id: 'output_id'});
       mockHttp.verify();
       expect(await return_value).toBe('output_id');
     }));
 
     it('should open snack bar if the response is an error', fakeAsync(async () => {
-      // HELP ME
       const mockHttp = TestBed.inject(HttpTestingController);
       const spy = spyOn(snackBar, 'open');
       service.getUserId('').then(async () => {

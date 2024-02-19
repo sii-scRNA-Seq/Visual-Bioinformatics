@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
@@ -9,6 +10,9 @@ import scanpy as sc
 from matplotlib import pyplot as plt
 import uuid
 import werkzeug.exceptions as we
+import codecs
+import io
+
 sc.settings.verbosity = 3
 plt.switch_backend('agg')
 THREE_DAYS = 3 * 24 * 60 * 60
@@ -65,7 +69,7 @@ def create_app(test_mode=False):
                     'working_data': None
                 })
             message = {
-                'text': user_id
+                'user_id': user_id
             }
             return jsonify(message)
 
@@ -130,12 +134,15 @@ def create_app(test_mode=False):
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
-            sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False, save="violin.png")
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })
+            sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False)
+            my_stringIObytes = io.BytesIO()
+            plt.savefig(my_stringIObytes, format='png')
+            my_stringIObytes.seek(0)
             message = {
-                'text': str(user_cache.get(user_id)['working_data']),
+                'img': str(codecs.encode(my_stringIObytes.read(), 'base64'))
             }
             return jsonify(message)
 

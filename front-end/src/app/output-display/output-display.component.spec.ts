@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
-import { from } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -45,7 +44,6 @@ describe('OutputDisplayComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const outputService: OutputService = TestBed.inject(OutputService);
       outputService.executeBlock(block);
@@ -58,7 +56,6 @@ describe('OutputDisplayComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const outputService: OutputService = TestBed.inject(OutputService);
       const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');

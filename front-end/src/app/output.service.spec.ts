@@ -1,6 +1,6 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { fakeAsync, tick, TestBed } from '@angular/core/testing';
-import { first, firstValueFrom, from } from 'rxjs';
+import { first, firstValueFrom } from 'rxjs';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -48,7 +48,6 @@ describe('OutputService', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const userIdService: UserIdService = TestBed.inject(UserIdService);
       userIdService.setUserId();
@@ -72,7 +71,6 @@ describe('OutputService', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const userIdService: UserIdService = TestBed.inject(UserIdService);
       userIdService.setUserId();
@@ -94,7 +92,6 @@ describe('OutputService', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const spy = spyOn(snackBar, 'open');
       service.executeBlock(block).then(async () => {
@@ -108,7 +105,6 @@ describe('OutputService', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const userIdService: UserIdService = TestBed.inject(UserIdService);
       userIdService.setUserId();

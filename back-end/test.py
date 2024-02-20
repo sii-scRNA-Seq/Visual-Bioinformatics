@@ -161,7 +161,7 @@ def test_basicfiltering_WarnsUserWhenMinGenesIsMissing(client):
     client.get('/getuserid', query_string={
         'user_id': 'bob'
     })
-    response = client.get('basicfiltering', query_string={
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob',
         'min_cells': 0
     })
@@ -178,7 +178,7 @@ def test_basicfiltering_WarnsUserWhenMinCellsIsMissing(client):
     client.get('/getuserid', query_string={
         'user_id': 'bob'
     })
-    response = client.get('basicfiltering', query_string={
+    response = client.get('/basicfiltering', query_string={
         'user_id': 'bob',
         'min_genes': 0
     })
@@ -313,7 +313,7 @@ def test_qcplots_WarnsUserWhenUserIdIsNone(client):
 
 def test_qcplots_WarnsUserWhenUserIdIsEmpty(client):
     response = client.get('/qcplots', query_string={
-        'user_id': ''
+        'user_id': '',
     })
     assert response.status_code == 400
     message = {
@@ -326,7 +326,7 @@ def test_qcplots_WarnsUserWhenUserIdIsEmpty(client):
 
 def test_qcplots_WarnsUserWhenUserIdIsNotInCache(client):
     response = client.get('/qcplots', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     assert response.status_code == 400
     message = {
@@ -339,7 +339,7 @@ def test_qcplots_WarnsUserWhenUserIdIsNotInCache(client):
 
 def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
     client.get('/getuserid', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     response = client.get('/qcplots', query_string={
         'user_id': 'bob',
@@ -354,23 +354,24 @@ def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
 
 
 @patch('scanpy.read_10x_mtx')
-def test_qcplots_CallsScanpyViolin(mock_loaddata, client):
+def test_qcplots_CallsScanpyFunctions(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData()
     client.get('/loaddata', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
-    with patch('scanpy.pl.violin') as mock:
+    with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pl.violin') as mock2:
         client.get('/qcplots', query_string={
             'user_id': 'bob',
         })
-        mock.assert_called_once()
+        mock1.assert_called_once()
+        mock2.assert_called_once()
 
 
 @patch('scanpy.read_10x_mtx')
 def test_qcplots_ReturnsCorrectString(mock, client):
     mock.return_value = get_AnnData()
     client.get('/loaddata', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     response = client.get('/qcplots', query_string={
         'user_id': 'bob',
@@ -392,7 +393,7 @@ def test_qcfiltering_WarnsUserWhenUserIdIsNone(client):
 
 def test_qcfiltering_WarnsUserWhenUserIdIsEmpty(client):
     response = client.get('/qcfiltering', query_string={
-        'user_id': ''
+        'user_id': '',
     })
     assert response.status_code == 400
     message = {
@@ -405,7 +406,7 @@ def test_qcfiltering_WarnsUserWhenUserIdIsEmpty(client):
 
 def test_qcfiltering_WarnsUserWhenUserIdIsNotInCache(client):
     response = client.get('/qcfiltering', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     assert response.status_code == 400
     message = {
@@ -418,11 +419,11 @@ def test_qcfiltering_WarnsUserWhenUserIdIsNotInCache(client):
 
 def test_basicfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
     client.get('/getuserid', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('qcfiltering', query_string={
         'user_id': 'bob',
-        'pct_counts_mt': 0
+    })
+    response = client.get('/qcfiltering', query_string={
+        'user_id': 'bob',
+        'pct_counts_mt': 0,
     })
     assert response.status_code == 400
     message = {
@@ -435,11 +436,11 @@ def test_basicfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
 
 def test_basicfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
     client.get('/getuserid', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 0
+    })
+    response = client.get('/qcfiltering', query_string={
+        'user_id': 'bob',
+        'n_genes_by_counts': 0,
     })
     assert response.status_code == 400
     message = {
@@ -452,10 +453,10 @@ def test_basicfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
 
 def test_qcfiltering_WarnsUserWhenNGenesByCountsAndPctCountsMtAreMissing(client):
     client.get('/getuserid', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
-    response = client.get('qcfiltering', query_string={
-        'user_id': 'bob'
+    response = client.get('/qcfiltering', query_string={
+        'user_id': 'bob',
     })
     assert response.status_code == 400
     message = {
@@ -468,12 +469,12 @@ def test_qcfiltering_WarnsUserWhenNGenesByCountsAndPctCountsMtAreMissing(client)
 
 def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     client.get('/getuserid', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
         'n_genes_by_counts': 1,
-        'pct_counts_mt': 1
+        'pct_counts_mt': 1,
     })
     assert response.status_code == 406
     message = {
@@ -488,12 +489,12 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
 def test_qcfiltering_NGenesByCountsWorks(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/loaddata', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
         'n_genes_by_counts': 4,
-        'pct_counts_mt': 100
+        'pct_counts_mt': 100,
     })
     assert response.status_code == 200
     message = {
@@ -506,12 +507,12 @@ def test_qcfiltering_NGenesByCountsWorks(mock_loaddata, client):
 def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/loaddata', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
         'n_genes_by_counts': 5,
-        'pct_counts_mt': 95
+        'pct_counts_mt': 95,
     })
     assert response.status_code == 200
     message = {
@@ -524,15 +525,141 @@ def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
 def test_qcfiltering_NGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/loaddata', query_string={
-        'user_id': 'bob'
+        'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
         'n_genes_by_counts': 4,
-        'pct_counts_mt': 95
+        'pct_counts_mt': 95,
     })
     assert response.status_code == 200
     message = {
         'text': "View of AnnData object with n_obs × n_vars = 3 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
     }
     assert json.loads(response.data) == message
+
+
+def test_variablegenes_WarnsUserWhenUserIdIsNone(client):
+    response = client.get('/variablegenes')
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Not a valid user_id',
+    }
+    assert json.loads(response.data) == message
+
+
+def test_variablegenes_WarnsUserWhenUserIdIsEmpty(client):
+    response = client.get('/variablegenes', query_string={
+        'user_id': '',
+    })
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Not a valid user_id',
+    }
+    assert json.loads(response.data) == message
+
+
+def test_variablegenes_WarnsUserWhenUserIdIsNotInCache(client):
+    response = client.get('/variablegenes', query_string={
+        'user_id': 'bob',
+    })
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Not a valid user_id',
+    }
+    assert json.loads(response.data) == message
+
+
+def test_variablegenes_WarnsUserWhenMinMeanAndMaxMeanAreMissing(client):
+    client.get('/getuserid', query_string={
+        'user_id': 'bob',
+    })
+    response = client.get('/variablegenes', query_string={
+        'user_id': 'bob',
+        'min_disp': 0,
+    })
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Missing parameters: [\'min_mean\', \'max_mean\']',
+    }
+    assert json.loads(response.data) == message
+
+
+def test_variablegenes_WarnsUserWhenMinDispIsMissing(client):
+    client.get('/getuserid', query_string={
+        'user_id': 'bob',
+    })
+    response = client.get('/variablegenes', query_string={
+        'user_id': 'bob',
+        'min_mean': 0,
+        'max_mean': 0,
+    })
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Missing parameters: [\'min_disp\']',
+    }
+    assert json.loads(response.data) == message
+
+
+def test_variablegenes_WarnsUserWhenNoDataIsInUserCache(client):
+    client.get('/getuserid', query_string={
+        'user_id': 'bob',
+    })
+    response = client.get('/variablegenes', query_string={
+        'user_id': 'bob',
+        'min_mean': 0,
+        'max_mean': 0,
+        'min_disp': 0,
+    })
+    assert response.status_code == 406
+    message = {
+        "code": 406,
+        "name": 'Not Acceptable',
+        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+    }
+    assert json.loads(response.data) == message
+
+
+@patch('scanpy.read_10x_mtx')
+def test_variablegenes_CallsScanpyFunctions(mock_loaddata, client):
+    mock_loaddata.return_value = get_AnnData()
+    client.get('/loaddata', query_string={
+        'user_id': 'bob',
+    })
+    with patch('scanpy.pp.normalize_total') as mock1, patch('scanpy.pp.log1p') as mock2, patch('scanpy.pp.highly_variable_genes') as mock3, patch('scanpy.pl.highly_variable_genes') as mock4:
+        client.get('/variablegenes', query_string={
+            'user_id': 'bob',
+            'min_mean': 0,
+            'max_mean': 0,
+            'min_disp': 0,
+        })
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+        mock3.assert_called_once()
+        mock4.assert_called_once()
+
+
+@patch('scanpy.read_10x_mtx')
+def test_variablegenes_ReturnsCorrectString(mock, client):
+    mock.return_value = get_AnnData()
+    client.get('/loaddata', query_string={
+        'user_id': 'bob',
+    })
+    response = client.get('/variablegenes', query_string={
+        'user_id': 'bob',
+        'min_mean': 0,
+        'max_mean': 0,
+        'min_disp': 0,
+    })
+    assert response.status_code == 200
+    assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"

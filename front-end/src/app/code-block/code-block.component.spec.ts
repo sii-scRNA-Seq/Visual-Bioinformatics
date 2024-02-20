@@ -1,6 +1,5 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { from } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -37,7 +36,6 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       fixture.detectChanges();
       const blockService: BlockService = TestBed.inject(BlockService);
@@ -54,7 +52,6 @@ describe('CodeBlockComponent', () => {
         title: 'Basic Filtering',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       fixture.detectChanges();
       const blockService: BlockService = TestBed.inject(BlockService);
@@ -71,7 +68,6 @@ describe('CodeBlockComponent', () => {
         title: 'Quality Control Plots',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       fixture.detectChanges();
       const blockService: BlockService = TestBed.inject(BlockService);
@@ -88,7 +84,6 @@ describe('CodeBlockComponent', () => {
         title: 'Quality Control Filtering',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       fixture.detectChanges();
       const blockService: BlockService = TestBed.inject(BlockService);
@@ -97,6 +92,22 @@ describe('CodeBlockComponent', () => {
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.removeBlock).toHaveBeenCalledOnceWith('qcfiltering');
+    });
+
+    it ('blockService.removeBlock should be called with variablegenes when remove button is clicked', () => {
+      component.block = {
+        blockId: 'variablegenes',
+        title: 'Identify Highly Variable Genes',
+        possibleChildBlocks: [],
+        parameters: [],
+      };
+      fixture.detectChanges();
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'removeBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('variablegenes');
     });
   });
 });

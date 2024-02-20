@@ -61,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "visual-bioinformatics:build:production"
+              "buildTarget": "visual-bioinformatics:build:production"
             },
             "development": {
-              "browserTarget": "visual-bioinformatics:build:development"
+              "buildTarget": "visual-bioinformatics:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,7 +72,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "visual-bioinformatics:build"
+            "buildTarget": "visual-bioinformatics:build"
           }
         },
         "test": {

@@ -1,6 +1,7 @@
 <mat-card style="height: calc(95vh - 20px)">
     <mat-card-header>
-        <mat-card-title>Canvas</mat-card-title>
+        <mat-card-title class="component-title">Canvas</mat-card-title>
+        <button class="run-button" (click)='executeBlocks()'>Run</button>
     </mat-card-header>
     <mat-card-content>
         <ul class="no-bullets">
@@ -8,6 +9,5 @@
               <app-code-block [block]="block"></app-code-block>
             </li>
         </ul>
-        <button (click)='executeBlocks()'>Run</button>
     </mat-card-content>
 </mat-card>

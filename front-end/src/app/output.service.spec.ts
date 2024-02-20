@@ -39,6 +39,32 @@ describe('OutputService', () => {
     });
   });
 
+  describe('resetOutputs', () => {
+    it('should set the outputs list to be empty', fakeAsync(async () => {
+      let outputs = await firstValueFrom(service.outputs.pipe(first()));
+      expect(outputs.length).toBe(0);
+      const block: Block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [],
+        onRun: () => from(''),
+      };
+      const userIdService: UserIdService = TestBed.inject(UserIdService);
+      userIdService.setUserId();
+      const mockHttp = TestBed.inject(HttpTestingController);
+      service.executeBlock(block);
+      const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata?user_id=mock_user_id');
+      req.flush({text: 'Hello World'});
+      tick();
+      outputs = await firstValueFrom(service.outputs.pipe(first()));
+      expect(outputs.length).toBe(1);
+      service.resetOutputs();
+      outputs = await firstValueFrom(service.outputs.pipe(first()));
+      expect(outputs.length).toBe(0);
+    }));
+  });
+
   describe('executeBlock', () => {
     it('should add a response to outputs array when it receives a valid response', fakeAsync(() => {
       const block: Block = {

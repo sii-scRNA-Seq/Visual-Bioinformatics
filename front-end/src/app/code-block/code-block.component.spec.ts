@@ -40,7 +40,6 @@ describe('CodeBlockComponent', () => {
         onRun: () => from(''),
       };
       fixture.detectChanges();
-
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'removeBlock');
       const button = fixture.debugElement.query(By.css('button'));
@@ -58,13 +57,46 @@ describe('CodeBlockComponent', () => {
         onRun: () => from(''),
       };
       fixture.detectChanges();
-
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'removeBlock');
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.removeBlock).toHaveBeenCalledOnceWith('basicfiltering');
+    });
+
+    it ('blockService.removeBlock should be called with qcplots when remove button is clicked', () => {
+      component.block = {
+        blockId: 'qcplots',
+        title: 'Quality Control Plots',
+        possibleChildBlocks: [],
+        parameters: [],
+        onRun: () => from(''),
+      };
+      fixture.detectChanges();
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'removeBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('qcplots');
+    });
+
+    it ('blockService.removeBlock should be called with qcfiltering when remove button is clicked', () => {
+      component.block = {
+        blockId: 'qcfiltering',
+        title: 'Quality Control Filtering',
+        possibleChildBlocks: [],
+        parameters: [],
+        onRun: () => from(''),
+      };
+      fixture.detectChanges();
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'removeBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('qcfiltering');
     });
   });
 });

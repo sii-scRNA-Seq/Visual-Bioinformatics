@@ -33,20 +33,46 @@ describe('BlockService', () => {
   });
 
   describe('addBlock', () => {
-    it('should add the given block when the ordering is valid', async () => {
+    it('should add the given block when the ordering is valid 1', async () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       service.addBlock('loaddata');
-      const results1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(results1.length).toBe(1);
-      expect(results1[0].blockId).toBe('loaddata');
       service.addBlock('basicfiltering');
-      const results2 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(results2.length).toBe(2);
-      expect(results2[1].blockId).toBe('basicfiltering');
+      service.addBlock('qcplots');
+      service.addBlock('qcfiltering');
+      const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(result.length).toBe(4);
+      expect(result[0].blockId).toBe('loaddata');
+      expect(result[1].blockId).toBe('basicfiltering');
+      expect(result[2].blockId).toBe('qcplots');
+      expect(result[3].blockId).toBe('qcfiltering');
     });
 
-    it('should open snack bar when ordering is not valid', async() => {
+    it('should add the given block when the ordering is valid 2', async () => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      service.addBlock('loaddata');
+      service.addBlock('qcfiltering');
+      service.addBlock('qcplots');
+      service.addBlock('basicfiltering');
+      const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(result.length).toBe(4);
+      expect(result[0].blockId).toBe('loaddata');
+      expect(result[1].blockId).toBe('qcfiltering');
+      expect(result[2].blockId).toBe('qcplots');
+      expect(result[3].blockId).toBe('basicfiltering');
+    });
+
+    it('should open snack bar when ordering is not valid 1', async() => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      const spy = spyOn(snackBar, 'open');
+      service.addBlock('loaddata');
+      service.addBlock('loaddata');
+      expect(spy).toHaveBeenCalledOnceWith('Load Data block cannot be added', 'Close', { duration: 5000 });
+    });
+    
+    it('should open snack bar when ordering is not valid 2', async() => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');

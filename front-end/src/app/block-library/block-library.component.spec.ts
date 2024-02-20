@@ -47,5 +47,23 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('basicfiltering');
     });
+
+    it ('should call blockService.addBlock with qcplots when add button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#qc-plots'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('qcplots');
+    });
+
+    it ('should call blockService.addBlock with qcfiltering when add button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#qc-filtering'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('qcfiltering');
+    });
   });
 });

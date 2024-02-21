@@ -33,7 +33,7 @@ describe('BlockService', () => {
   });
 
   describe('addBlock', () => {
-    it('should add the given block when the ordering is valid 1', async () => {
+    it('should add the given block when the ordering is valid - standard order', async () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       service.addBlock('loaddata');
@@ -48,7 +48,7 @@ describe('BlockService', () => {
       expect(result[3].blockId).toBe('qcfiltering');
     });
 
-    it('should add the given block when the ordering is valid 2', async () => {
+    it('should add the given block when the ordering is valid - alternative order', async () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       service.addBlock('loaddata');
@@ -63,7 +63,7 @@ describe('BlockService', () => {
       expect(result[3].blockId).toBe('basicfiltering');
     });
 
-    it('should open snack bar when ordering is not valid 1', async() => {
+    it('should open snack bar when ordering is not valid - repeated load data', async() => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');
@@ -72,7 +72,7 @@ describe('BlockService', () => {
       expect(spy).toHaveBeenCalledOnceWith('Load Data block cannot be added', 'Close', { duration: 5000 });
     });
     
-    it('should open snack bar when ordering is not valid 2', async() => {
+    it('should open snack bar when ordering is not valid - basic filtering before load data', async() => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');

@@ -21,9 +21,8 @@ export class OutputDisplayComponent {
             return output;
           } else if (output.img) {
             const imageString = output.img as string;
-            let fixedData = imageString.substring(2, imageString.length-3);
-            fixedData = fixedData.replace(/\\n/g, '');
-            const objectURL = 'data:image/png;base64,' + fixedData;
+            const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
+            const objectURL = 'data:image/png;base64,' + processedString;
             const newImg = sanitizer.bypassSecurityTrustUrl(objectURL);
             return {
               img: newImg

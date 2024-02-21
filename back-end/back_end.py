@@ -2,13 +2,12 @@ from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
 from matplotlib import pyplot as plt
-import base64
 import codecs
 import copy
 import io
 import json
-import numpy as np
-import pandas as pd
+# import numpy as np
+# import pandas as pd
 import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
@@ -78,10 +77,12 @@ def create_app(test_mode=False):
         if user_id is None or user_id == '':
             raise we.BadRequest('Not a valid user_id')
         else:
+            # To be added once user cache is fully implemented
             # if user_cache.get(user_id) is None:
             #     user_cache.set(user_id, {
             #         'basic_filtering': (None, None),
             #         'qc_plots': (None, None),
+            #         'qc_filtering': (None, None),
             #         # Reset cache
             #     })
             if raw_data_cache.get('pbmc3k') is None:

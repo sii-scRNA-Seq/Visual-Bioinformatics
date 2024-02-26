@@ -1,13 +1,13 @@
-<mat-card>
+<mat-card class="block">
     <mat-card-header>
-        <mat-card-title>{{block.title}}</mat-card-title>
-        <button (click)="removeBlock()">Remove</button>
+        <mat-card-title class="block-title">{{block.title}}</mat-card-title>
+        <button class="remove-button" (click)="removeBlock()">Remove</button>
     </mat-card-header>
     <mat-card-content>
         <ul class="no-bullets">
-            <li *ngFor="let parameter of block.parameters">
-                {{parameter.text}}
-                <input [(ngModel)]="parameter.value" placeholder="0">
+            <li class="container" *ngFor="let parameter of block.parameters">
+                {{parameter.text}} 
+                <input class="parameter-input" [(ngModel)]="parameter.value" placeholder="0">
             </li>
         </ul>
     </mat-card-content>

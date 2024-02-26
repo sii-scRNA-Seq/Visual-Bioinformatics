@@ -65,5 +65,14 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('qcfiltering');
     });
+
+    it ('should call blockService.addBlock with variablegenes when add button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#variable-genes'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('variablegenes');
+    });
   });
 });

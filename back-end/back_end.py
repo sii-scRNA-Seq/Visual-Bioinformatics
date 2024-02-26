@@ -109,8 +109,8 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-            min_genes = int(request.args.get('min_genes'))
-            min_cells = int(request.args.get('min_cells'))
+            min_genes = float(request.args.get('min_genes'))
+            min_cells = float(request.args.get('min_cells'))
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
             sc.pp.filter_cells(new_adata, min_genes=min_genes)
             sc.pp.filter_genes(new_adata, min_cells=min_cells)
@@ -160,8 +160,8 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-            n_genes_by_counts = int(request.args.get('n_genes_by_counts'))
-            pct_counts_mt = int(request.args.get('pct_counts_mt'))
+            n_genes_by_counts = float(request.args.get('n_genes_by_counts'))
+            pct_counts_mt = float(request.args.get('pct_counts_mt'))
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
@@ -172,6 +172,38 @@ def create_app(test_mode=False):
             })
             message = {
                 'text': str(user_cache.get(user_id)['working_data']),
+            }
+            return jsonify(message)
+
+    @app.route('/variablegenes')
+    def variable_genes():
+        user_id = request.args.get('user_id')
+        invalid_params = get_invalid_parameters(['min_mean', 'max_mean', 'min_disp'])
+        if user_id is None or user_id == '' or user_cache.get(user_id) is None:
+            raise we.BadRequest('Not a valid user_id')
+        elif invalid_params != []:
+            raise we.BadRequest('Missing parameters: ' + str(invalid_params))
+        elif user_cache.get(user_id)["working_data"] is None:
+            raise IncorrectOrderException()
+        else:
+            user_id = request.args.get('user_id')
+            min_mean = float(request.args.get('min_mean'))
+            max_mean = float(request.args.get('max_mean'))
+            min_disp = float(request.args.get('min_disp'))
+            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            sc.pp.normalize_total(new_adata, target_sum=1e4)
+            sc.pp.log1p(new_adata)
+            sc.pp.highly_variable_genes(new_adata, min_mean=min_mean, max_mean=max_mean, min_disp=min_disp)
+            user_cache.set(user_id, {
+                'working_data': new_adata,
+            })
+            plt.rcParams['font.size'] = 14
+            sc.pl.highly_variable_genes(new_adata)
+            my_stringIObytes = io.BytesIO()
+            plt.savefig(my_stringIObytes, format='png')
+            my_stringIObytes.seek(0)
+            message = {
+                'img': str(codecs.encode(my_stringIObytes.read(), 'base64'))
             }
             return jsonify(message)
 

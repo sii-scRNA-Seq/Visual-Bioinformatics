@@ -3,3 +3,33 @@ ul.no-bullets {
     padding: 0; /* Remove padding */
     margin: 0; /* Remove margins */
 }
+
+.block-title {
+    font-size: 16px;
+    line-height: 18px;
+}
+
+.remove-button {
+    font-size: 12px;
+    height: 20px;
+    margin-left: auto; 
+    margin-right: 0;
+    line-height: 18px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.parameter-input {
+    font-size: 12px;
+    width: 30px;
+    margin-left: auto; 
+    margin-right: 0;
+}
+
+.container {
+    font-size: 12px;
+    line-height: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

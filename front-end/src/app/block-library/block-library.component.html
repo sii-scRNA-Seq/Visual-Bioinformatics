@@ -3,21 +3,25 @@
         <mat-card-title>Block Library</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <p>
+        <p class="container">
             Load Data
-            <button id="load-data" (click)='addBlock("loaddata")'>Add</button>
+            <button class="add-button" id="load-data" (click)='addBlock("loaddata")'>Add</button>
         </p>
-        <p>
+        <p class="container">
             Basic Filtering
-            <button id="basic-filtering" (click)='addBlock("basicfiltering")'>Add</button>
+            <button class="add-button" id="basic-filtering" (click)='addBlock("basicfiltering")'>Add</button>
         </p>
-        <p>
+        <p class="container">
             Quality Control Plots
-            <button id="qc-plots" (click)='addBlock("qcplots")'>Add</button>
+            <button class="add-button" id="qc-plots" (click)='addBlock("qcplots")'>Add</button>
         </p>
-        <p>
+        <p class="container">
             Quality Control Filtering
-            <button id="qc-filtering" (click)='addBlock("qcfiltering")'>Add</button>
+            <button class="add-button" id="qc-filtering" (click)='addBlock("qcfiltering")'>Add</button>
+        </p>
+        <p class="container">
+            Identify Highly Variable Genes
+            <button class="add-button" id="variable-genes" (click)='addBlock("variablegenes")'>Add</button>
         </p>
     </mat-card-content>
 </mat-card>

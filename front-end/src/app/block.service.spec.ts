@@ -40,12 +40,14 @@ describe('BlockService', () => {
       service.addBlock('basicfiltering');
       service.addBlock('qcplots');
       service.addBlock('qcfiltering');
+      service.addBlock('variablegenes');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(4);
+      expect(result.length).toBe(5);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('basicfiltering');
       expect(result[2].blockId).toBe('qcplots');
       expect(result[3].blockId).toBe('qcfiltering');
+      expect(result[4].blockId).toBe('variablegenes');
     });
 
     it('should add the given block when the ordering is valid - alternative order', async () => {
@@ -53,14 +55,24 @@ describe('BlockService', () => {
       expect(blocks.length).toBe(0);
       service.addBlock('loaddata');
       service.addBlock('qcfiltering');
+      service.addBlock('qcfiltering');
+      service.addBlock('qcplots');
       service.addBlock('qcplots');
       service.addBlock('basicfiltering');
+      service.addBlock('basicfiltering');
+      service.addBlock('variablegenes');
+      service.addBlock('variablegenes');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(4);
+      expect(result.length).toBe(9);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('qcfiltering');
-      expect(result[2].blockId).toBe('qcplots');
-      expect(result[3].blockId).toBe('basicfiltering');
+      expect(result[2].blockId).toBe('qcfiltering');
+      expect(result[3].blockId).toBe('qcplots');
+      expect(result[4].blockId).toBe('qcplots');
+      expect(result[5].blockId).toBe('basicfiltering');
+      expect(result[6].blockId).toBe('basicfiltering');
+      expect(result[7].blockId).toBe('variablegenes');
+      expect(result[8].blockId).toBe('variablegenes');
     });
 
     it('should open snack bar when ordering is not valid - repeated load data', async() => {
@@ -76,6 +88,16 @@ describe('BlockService', () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');
+      service.addBlock('basicfiltering');
+      expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+    });
+
+    it('should open snack bar when ordering is not valid 3', async() => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      const spy = spyOn(snackBar, 'open');
+      service.addBlock('loaddata');
+      service.addBlock('variablegenes');
       service.addBlock('basicfiltering');
       expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
     });

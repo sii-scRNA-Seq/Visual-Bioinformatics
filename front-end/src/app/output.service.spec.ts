@@ -95,7 +95,6 @@ describe('OutputService', () => {
         title: 'Quality Control Plots',
         possibleChildBlocks: [],
         parameters: [],
-        onRun: () => from(''),
       };
       const userIdService: UserIdService = TestBed.inject(UserIdService);
       userIdService.setUserId();

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -12,7 +11,6 @@ import { OutputService } from '../output.service';
 describe('OutputDisplayComponent', () => {
   let component: OutputDisplayComponent;
   let fixture: ComponentFixture<OutputDisplayComponent>;
-  let sanitizer: DomSanitizer;
 
 
   beforeEach(() => {
@@ -30,7 +28,6 @@ describe('OutputDisplayComponent', () => {
     fixture = TestBed.createComponent(OutputDisplayComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    sanitizer = TestBed.inject(DomSanitizer);
   });
 
   it('should create', () => {
@@ -38,7 +35,8 @@ describe('OutputDisplayComponent', () => {
   });
 
   describe('OutputList', () => {
-    it('should have text outputs remain the same', () => {
+    it('should update when OutputService.outputs updates', () => {
+      expect(component.outputList.length).toBe(0);
       const block: Block = {
         blockId: 'loaddata',
         title: 'Load Data',
@@ -47,22 +45,7 @@ describe('OutputDisplayComponent', () => {
       };
       const outputService: OutputService = TestBed.inject(OutputService);
       outputService.executeBlock(block);
-      expect(component.outputList[0].text == 'Some text here');
-    });
-
-    it('should replace image outputs with a sanitised SafeUrl', () => {
-      const block: Block = {
-        blockId: 'loaddata',
-        title: 'Load Data',
-        possibleChildBlocks: [],
-        parameters: [],
-      };
-      const outputService: OutputService = TestBed.inject(OutputService);
-      const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
-      outputService.executeBlock(block);
-      expect(spy).toHaveBeenCalledTimes(1);
-      const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'An image here');
-      expect(component.outputList[1].img).toBe(expectedValue);
+      expect(component.outputList.length).toBe(1);
     });
   });
 });

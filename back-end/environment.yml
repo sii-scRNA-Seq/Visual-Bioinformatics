@@ -13,6 +13,7 @@ dependencies:
       - coverage==7.4.0
       - cycler==0.12.1
       - exceptiongroup==1.2.0
+      - flake8==7.0.0
       - flask==3.0.0
       - flask-caching==2.1.0
       - flask-cors==4.0.0
@@ -29,6 +30,7 @@ dependencies:
       - llvmlite==0.41.1
       - markupsafe==2.1.3
       - matplotlib==3.7.3
+      - mccabe==0.7.0
       - natsort==8.4.0
       - networkx==3.1
       - numba==0.58.1
@@ -39,6 +41,8 @@ dependencies:
       - pep8==1.7.1
       - pillow==10.1.0
       - pluggy==1.3.0
+      - pycodestyle==2.11.1
+      - pyflakes==3.2.0
       - pynndescent==0.5.10
       - pyparsing==3.1.1
       - pytest==7.4.4

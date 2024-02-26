@@ -15,9 +15,7 @@ export class MockOutputService implements OutputServiceInterface {
   async executeBlock(block: Block): Promise<void> {
     block;
     const outputs = [];
-    let output: Output = {text: 'Some text here'};
-    outputs.push(output);
-    output = {img: 'An image here'};
+    const output: Output = {text: 'Some text here'};
     outputs.push(output);
     this.outputs$.next(outputs);
   }

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';

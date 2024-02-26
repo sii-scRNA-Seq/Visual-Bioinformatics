@@ -1,23 +1,24 @@
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Block } from './block.interface';
-import { Output } from './output';
+import { Output, RawOutput } from './output';
+import { OutputServiceInterface } from './output.service.interface';
 import { UserIdService } from './user-id.service';
 
 @Injectable({
   providedIn: 'root',
 })
-
-export class OutputService {
+export class OutputService implements OutputServiceInterface {
   private readonly outputs$: BehaviorSubject<Output[]> = new BehaviorSubject<Output[]> ([]);
   readonly outputs: Observable<Output[]> = this.outputs$.asObservable();
 
   private userId: string | null = null;
 
-  constructor(private http: HttpClient, private userIdService: UserIdService, private snackBar: MatSnackBar) {
+  constructor(private http: HttpClient, private userIdService: UserIdService, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },
     );
@@ -38,11 +39,23 @@ export class OutputService {
       for (let i = 0; i < block.parameters.length; i++) {
         params[block.parameters[i].key] = block.parameters[i].value;
       }
-      let outputResponse: Output = { text: '' };
       try {
-        outputResponse = await firstValueFrom(this.http.get<Output>(url, { params: params }));
+        const outputResponse: RawOutput = await firstValueFrom(this.http.get<RawOutput>(url, { params: params }));
+        let processedResponse: Output = {};
+        if (outputResponse.text) {
+          processedResponse = outputResponse;
+        } else if (outputResponse.img) {
+          const imageString = outputResponse.img as string;
+          const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
+          const objectURL = 'data:image/png;base64,' + processedString;
+          const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          processedResponse = { 
+            img: newImg,
+            alttext: outputResponse.alttext,
+          };
+        }
         const outputs = this.outputs$.getValue();
-        outputs.push(outputResponse);
+        outputs.push(processedResponse);
         this.outputs$.next(outputs);
       } catch (e) {
         this.snackBar.open('Not a valid order, please check the blocks and try again', 'Close', { duration: 5000 });

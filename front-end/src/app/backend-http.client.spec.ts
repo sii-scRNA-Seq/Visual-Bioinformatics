@@ -1,8 +1,8 @@
+import { fakeAsync, tick, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BackendHttpClient } from './backend-http.client';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('BackendHttpClient', () => {
   let service: BackendHttpClient;
@@ -30,7 +30,7 @@ describe('BackendHttpClient', () => {
       tick();
       const req = mockHttp.expectOne('http://127.0.0.1:5000/getuserid?user_id=input_id');
       expect(req.request.method).toBe('GET');
-      req.flush({text: 'output_id'});
+      req.flush({user_id: 'output_id'});
       mockHttp.verify();
       expect(await return_value).toBe('output_id');
     }));

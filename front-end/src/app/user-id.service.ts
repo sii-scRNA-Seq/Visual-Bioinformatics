@@ -7,7 +7,7 @@ import { UserIdServiceInterface } from './user-id.service.interface';
 @Injectable({
   providedIn: 'root'
 })
-export class UserIdService implements UserIdServiceInterface{
+export class UserIdService implements UserIdServiceInterface {
   private readonly userId$: BehaviorSubject<string | null> = new BehaviorSubject<string | null> (null);
   readonly userId: Observable<string | null> = this.userId$.asObservable();
 

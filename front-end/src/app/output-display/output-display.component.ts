@@ -14,7 +14,7 @@ export class OutputDisplayComponent {
 
   constructor(private outputService: OutputService) {
     this.outputService.outputs.subscribe(
-      (res) => { this.outputList = res; },
+      (res) => { this.outputList = res; }
     );
   }
 }

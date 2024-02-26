@@ -22,7 +22,7 @@ export class BlockService {
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
-            possibleChildBlocks: [],
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [],
             onRun: () => from(''),
           }]);
@@ -32,23 +32,60 @@ export class BlockService {
         }
         break;
       }
-      case 'basicfiltering': {  
-        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.blockId == 'loaddata') {
-          const temp = this.blocksOnCanvas$.getValue();
-          temp.push({
+      case 'basicfiltering': {
+        const blockList = this.blocksOnCanvas$.getValue();
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
+          blockList.push({
             blockId: 'basicfiltering',
             title: 'Basic Filtering',
-            possibleChildBlocks: [],
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
             parameters: [
               {key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
               {key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
             ],
             onRun: () => from(''),
           });
-          this.blocksOnCanvas$.next(temp);
+          this.blocksOnCanvas$.next(blockList);
         }
         else {
           this.snackBar.open('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'qcplots': {
+        const blockList = this.blocksOnCanvas$.getValue();
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcplots') > -1) {
+          blockList.push({
+            blockId: 'qcplots',
+            title: 'Quality Control Plots',
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
+            parameters: [],
+            onRun: () => from(''),
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Quality Control Plots block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'qcfiltering': {
+        const blockList = this.blocksOnCanvas$.getValue();
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
+          blockList.push({
+            blockId: 'qcfiltering',
+            title: 'Quality Control Filtering',
+            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering'],
+            parameters: [
+              {key: 'n_genes_by_counts', text: 'Maximum Total Gene Count', value: 2500},
+              {key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
+            ],
+            onRun: () => from(''),
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Quality Control Filtering block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

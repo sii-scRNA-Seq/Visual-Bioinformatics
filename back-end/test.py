@@ -377,6 +377,7 @@ def test_qcplots_ReturnsCorrectString(mock, client):
     })
     assert response.status_code == 200
     assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(response.data)['alttext'] == 'A violin plot displaying quality control metrics generate by a QC Plots block'
 
 
 def test_qcfiltering_WarnsUserWhenUserIdIsNone(client):

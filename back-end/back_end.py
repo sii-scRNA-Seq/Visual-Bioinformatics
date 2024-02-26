@@ -143,7 +143,8 @@ def create_app(test_mode=False):
             plt.savefig(my_stringIObytes, format='png')
             my_stringIObytes.seek(0)
             message = {
-                'img': str(codecs.encode(my_stringIObytes.read(), 'base64'))
+                'img': str(codecs.encode(my_stringIObytes.read(), 'base64')),
+                'alttext': 'A violin plot displaying quality control metrics generate by a QC Plots block',
             }
             return jsonify(message)
 

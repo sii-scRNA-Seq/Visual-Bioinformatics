@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 
 import { Output } from './../output';
 import { OutputService } from './../output.service';
@@ -13,25 +12,9 @@ import { OutputService } from './../output.service';
 export class OutputDisplayComponent {
   outputList: Output[] = [];
 
-  constructor(private outputService: OutputService, sanitizer: DomSanitizer) {
+  constructor(private outputService: OutputService) {
     this.outputService.outputs.subscribe(
-      (res) => { 
-        this.outputList = res.map(output => {
-          if (output.text) {
-            return output;
-          } else if (output.img) {
-            const imageString = output.img as string;
-            const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
-            const objectURL = 'data:image/png;base64,' + processedString;
-            const newImg = sanitizer.bypassSecurityTrustUrl(objectURL);
-            return {
-              img: newImg
-            }; 
-          } else {
-            return output;
-          }
-        }); 
-      }
+      (res) => { this.outputList = res; }
     );
   }
 }

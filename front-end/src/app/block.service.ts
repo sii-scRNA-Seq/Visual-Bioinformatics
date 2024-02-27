@@ -86,19 +86,35 @@ export class BlockService {
         break;
       }
       case 'variablegenes': {
-        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
-          const temp = this.blocksOnCanvas$.getValue();
-          temp.push({
+        const blockList = this.blocksOnCanvas$.getValue();
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
+          blockList.push({
             blockId: 'variablegenes',
             title: 'Identify Highly Variable Genes',
-            possibleChildBlocks: ['variablegenes'],
+            possibleChildBlocks: ['variablegenes', 'pca'],
             parameters: [
               {key: 'min_mean', text: 'Minimum Mean', value: 0.0125},
               {key: 'max_mean', text: 'Maximum Mean', value: 3},
               {key: 'min_disp', text: 'Minimum Dispersion', value: 0.5}
             ],
           });
-          this.blocksOnCanvas$.next(temp);
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'pca': {
+        const blockList = this.blocksOnCanvas$.getValue();
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('pca') > -1) {
+          blockList.push({
+            blockId: 'pca',
+            title: 'Principle Component Analysis',
+            possibleChildBlocks: ['pca'],
+            parameters: [],
+          });
+          this.blocksOnCanvas$.next(blockList);
         }
         else {
           this.snackBar.open('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });

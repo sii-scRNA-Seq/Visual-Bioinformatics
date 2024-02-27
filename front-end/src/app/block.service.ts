@@ -16,9 +16,10 @@ export class BlockService {
   constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
   addBlock(id: BlockId): void {
+    const blockList = this.blocksOnCanvas$.getValue();
     switch (id) {
       case 'loaddata': {
-        if (this.blocksOnCanvas$.getValue().length == 0) {
+        if (blockList.length == 0) {
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
@@ -32,7 +33,6 @@ export class BlockService {
         break;
       }
       case 'basicfiltering': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
           blockList.push({
             blockId: 'basicfiltering',
@@ -51,7 +51,6 @@ export class BlockService {
         break;
       }
       case 'qcplots': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcplots') > -1) {
           blockList.push({
             blockId: 'qcplots',
@@ -67,7 +66,6 @@ export class BlockService {
         break;
       }
       case 'qcfiltering': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           blockList.push({
             blockId: 'qcfiltering',
@@ -86,7 +84,6 @@ export class BlockService {
         break;
       }
       case 'variablegenes': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
           blockList.push({
             blockId: 'variablegenes',
@@ -106,7 +103,6 @@ export class BlockService {
         break;
       }
       case 'pca': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('pca') > -1) {
           blockList.push({
             blockId: 'pca',

@@ -224,8 +224,6 @@ def create_app(test_mode=False):
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })
-            # plt.rcParams['font.size'] = 18
-            # plt.rcParams['figure.figsize'] = 10, 6
             sc.pl.pca_variance_ratio(new_adata, log=True)
             my_stringIObytes = io.BytesIO()
             plt.savefig(my_stringIObytes, format='png')

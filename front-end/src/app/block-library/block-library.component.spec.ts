@@ -74,5 +74,14 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('variablegenes');
     });
+
+    it ('should call blockService.addBlock with pca when add button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#pca'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('pca');
+    });
   });
 });

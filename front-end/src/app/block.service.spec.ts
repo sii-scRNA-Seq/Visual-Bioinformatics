@@ -41,13 +41,15 @@ describe('BlockService', () => {
       service.addBlock('qcplots');
       service.addBlock('qcfiltering');
       service.addBlock('variablegenes');
+      service.addBlock('pca');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(5);
+      expect(result.length).toBe(6);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('basicfiltering');
       expect(result[2].blockId).toBe('qcplots');
       expect(result[3].blockId).toBe('qcfiltering');
       expect(result[4].blockId).toBe('variablegenes');
+      expect(result[5].blockId).toBe('pca');
     });
 
     it('should add the given block when the ordering is valid - alternative order', async () => {
@@ -62,8 +64,10 @@ describe('BlockService', () => {
       service.addBlock('basicfiltering');
       service.addBlock('variablegenes');
       service.addBlock('variablegenes');
+      service.addBlock('pca');
+      service.addBlock('pca');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(9);
+      expect(result.length).toBe(11);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('qcfiltering');
       expect(result[2].blockId).toBe('qcfiltering');
@@ -73,6 +77,8 @@ describe('BlockService', () => {
       expect(result[6].blockId).toBe('basicfiltering');
       expect(result[7].blockId).toBe('variablegenes');
       expect(result[8].blockId).toBe('variablegenes');
+      expect(result[9].blockId).toBe('pca');
+      expect(result[10].blockId).toBe('pca');
     });
 
     it('should open snack bar when ordering is not valid - repeated load data', async() => {
@@ -92,7 +98,7 @@ describe('BlockService', () => {
       expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
     });
 
-    it('should open snack bar when ordering is not valid 3', async() => {
+    it('should open snack bar when ordering is not valid - basic filtering after variable genes', async() => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');
@@ -100,6 +106,26 @@ describe('BlockService', () => {
       service.addBlock('variablegenes');
       service.addBlock('basicfiltering');
       expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+    });
+
+    it('should open snack bar when ordering is not valid - pca before variable genes', async() => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      const spy = spyOn(snackBar, 'open');
+      service.addBlock('loaddata');
+      service.addBlock('pca');
+      expect(spy).toHaveBeenCalledOnceWith('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+    });
+
+    it('should open snack bar when ordering is not valid - variable genes after pca', async() => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      const spy = spyOn(snackBar, 'open');
+      service.addBlock('loaddata');
+      service.addBlock('variablegenes');
+      service.addBlock('pca');
+      service.addBlock('variablegenes');
+      expect(spy).toHaveBeenCalledOnceWith('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });
     });
   });
 

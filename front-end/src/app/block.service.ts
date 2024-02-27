@@ -117,7 +117,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

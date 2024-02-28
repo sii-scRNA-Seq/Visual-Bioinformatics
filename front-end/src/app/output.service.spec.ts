@@ -128,7 +128,7 @@ describe('OutputService', () => {
       });
     }));
 
-    it('should open snack bar when response is an error', fakeAsync(() => {
+    it('should open snack bar with appropriate message when response is a 406 error', fakeAsync(() => {
       const block: Block = {
         blockId: 'loaddata',
         title: 'Load Data',
@@ -146,6 +146,27 @@ describe('OutputService', () => {
       const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata?user_id=mock_user_id');
       expect(req.request.method).toBe('GET');
       req.flush('', { status: 406, statusText: 'Bad Request'});
+      mockHttp.verify(); 
+    }));
+
+    it('should open snack bar with appropriate message for other errors', fakeAsync(() => {
+      const block: Block = {
+        blockId: 'runumap',
+        title: 'Run UMAP',
+        possibleChildBlocks: [],
+        parameters: [],
+      };
+      const userIdService: UserIdService = TestBed.inject(UserIdService);
+      userIdService.setUserId();
+      const mockHttp = TestBed.inject(HttpTestingController);
+      const spy = spyOn(snackBar, 'open');
+      service.executeBlock(block).then(async () => {
+        expect(spy).toHaveBeenCalledOnceWith('There has been an error. Please refresh the page and try again.', 'Close', { duration: 5000 });
+      });
+      tick();
+      const req = mockHttp.expectOne('http://127.0.0.1:5000/runumap?user_id=mock_user_id');
+      expect(req.request.method).toBe('GET');
+      req.flush('', { status: 400, statusText: 'Bad Request'});
       mockHttp.verify(); 
     }));
   }); 

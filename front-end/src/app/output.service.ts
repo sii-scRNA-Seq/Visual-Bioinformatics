@@ -60,10 +60,10 @@ export class OutputService implements OutputServiceInterface {
       } catch (e) {
         if (e instanceof HttpErrorResponse && e.status == 406) {
           this.snackBar.open('The blocks you have executed are not a valid order. Please check the blocks and try again.', 'Close', { duration: 5000 });
-        } else if (e instanceof HttpErrorResponse && e.status == 400) {
+        } else if (e instanceof HttpErrorResponse && e.status == 400 && e.error) {
           this.snackBar.open(e.error.description, 'Close', { duration: 5000 });
         } else {
-          this.snackBar.open('There has been an unknown error. Please refresh the page and try again.', 'Close', { duration: 5000 });
+          this.snackBar.open('There has been an error. Please refresh the page and try again.', 'Close', { duration: 5000 });
         }
       }
     }

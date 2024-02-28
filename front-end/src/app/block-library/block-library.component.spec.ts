@@ -83,5 +83,14 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('pca');
     });
+
+    it ('should call blockService.addBlock with runumap when add button is clicked', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'addBlock');
+      const button = fixture.debugElement.query(By.css('#run-umap'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.addBlock).toHaveBeenCalledOnceWith('runumap');
+    });
   });
 });

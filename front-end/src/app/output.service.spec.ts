@@ -140,7 +140,7 @@ describe('OutputService', () => {
       const mockHttp = TestBed.inject(HttpTestingController);
       const spy = spyOn(snackBar, 'open');
       service.executeBlock(block).then(async () => {
-        expect(spy).toHaveBeenCalledOnceWith('Not a valid order, please check the blocks and try again', 'Close', { duration: 5000 });
+        expect(spy).toHaveBeenCalledOnceWith('The blocks you have executed are not a valid order. Please check the blocks and try again.', 'Close', { duration: 5000 });
       });
       tick();
       const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata?user_id=mock_user_id');

@@ -107,13 +107,31 @@ export class BlockService {
           blockList.push({
             blockId: 'pca',
             title: 'Principle Component Analysis',
-            possibleChildBlocks: ['pca'],
+            possibleChildBlocks: ['pca', 'runumap'],
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
         }
         else {
           this.snackBar.open('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'runumap': {
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('runumap') > -1) {
+          blockList.push({
+            blockId: 'runumap',
+            title: 'Run UMAP',
+            possibleChildBlocks: ['runumap'],
+            parameters: [
+              {key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
+              {key: 'n_pcs', text: 'Number of Principle Components', value: 40},
+            ],
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Run UMAP block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

@@ -1,6 +1,6 @@
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -58,7 +58,13 @@ export class OutputService implements OutputServiceInterface {
         outputs.push(processedResponse);
         this.outputs$.next(outputs);
       } catch (e) {
-        this.snackBar.open('Not a valid order, please check the blocks and try again', 'Close', { duration: 5000 });
+        if (e instanceof HttpErrorResponse && e.status == 406) {
+          this.snackBar.open('The blocks you have executed are not a valid order. Please check the blocks and try again.', 'Close', { duration: 5000 });
+        } else if (e instanceof HttpErrorResponse && e.status == 400) {
+          this.snackBar.open(e.error.description, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('There has been an unknown error. Please refresh the page and try again.', 'Close', { duration: 5000 });
+        }
       }
     }
   }

@@ -220,7 +220,7 @@ def test_basicfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
     }
     assert json.loads(response.data) == message
 
@@ -348,7 +348,7 @@ def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
     }
     assert json.loads(response.data) == message
 
@@ -481,7 +481,7 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
     }
     assert json.loads(response.data) == message
 
@@ -626,7 +626,7 @@ def test_variablegenes_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
     }
     assert json.loads(response.data) == message
 
@@ -715,7 +715,7 @@ def test_pca_WarnsUserWhenNoDataIsInUserCache(client):
     message = {
         "code": 406,
         "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the order and try again.',
+        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
     }
     assert json.loads(response.data) == message
 

@@ -218,6 +218,8 @@ def create_app(test_mode=False):
         else:
             user_id = request.args.get('user_id')
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
+            sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
             sc.pp.regress_out(new_adata, ['total_counts', 'pct_counts_mt'])
             sc.pp.scale(new_adata, max_value=10)
             sc.tl.pca(new_adata, svd_solver='arpack')

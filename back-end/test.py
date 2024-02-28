@@ -418,7 +418,7 @@ def test_qcfiltering_WarnsUserWhenUserIdIsNotInCache(client):
     assert json.loads(response.data) == message
 
 
-def test_basicfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
+def test_qcfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
     client.get('/getuserid', query_string={
         'user_id': 'bob',
     })
@@ -435,7 +435,7 @@ def test_basicfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
     assert json.loads(response.data) == message
 
 
-def test_basicfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
+def test_qcfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
     client.get('/getuserid', query_string={
         'user_id': 'bob',
     })
@@ -726,7 +726,7 @@ def test_pca_CallsScanpyFunctions(mock_loaddata, client):
     client.get('/loaddata', query_string={
         'user_id': 'bob',
     })
-    with patch('scanpy.pp.regress_out') as mock1, patch('scanpy.pp.scale') as mock2, patch('scanpy.tl.pca') as mock3, patch('scanpy.pl.pca_variance_ratio') as mock4:
+    with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pp.regress_out') as mock2, patch('scanpy.pp.scale') as mock3, patch('scanpy.tl.pca') as mock4, patch('scanpy.pl.pca_variance_ratio') as mock5:
         client.get('/pca', query_string={
             'user_id': 'bob',
         })
@@ -734,15 +734,13 @@ def test_pca_CallsScanpyFunctions(mock_loaddata, client):
         mock2.assert_called_once()
         mock3.assert_called_once()
         mock4.assert_called_once()
+        mock5.assert_called_once()
 
 
 @patch('scanpy.read_10x_mtx')
 def test_pca_ReturnsCorrectString(mock, client):
     mock.return_value = get_AnnData(qc_filtering=True)
     client.get('/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    client.get('/qcplots', query_string={
         'user_id': 'bob',
     })
     response = client.get('/pca', query_string={

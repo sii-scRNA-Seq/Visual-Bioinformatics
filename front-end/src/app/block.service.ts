@@ -16,9 +16,10 @@ export class BlockService {
   constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
   addBlock(id: BlockId): void {
+    const blockList = this.blocksOnCanvas$.getValue();
     switch (id) {
       case 'loaddata': {
-        if (this.blocksOnCanvas$.getValue().length == 0) {
+        if (blockList.length == 0) {
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
@@ -32,7 +33,6 @@ export class BlockService {
         break;
       }
       case 'basicfiltering': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
           blockList.push({
             blockId: 'basicfiltering',
@@ -51,7 +51,6 @@ export class BlockService {
         break;
       }
       case 'qcplots': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcplots') > -1) {
           blockList.push({
             blockId: 'qcplots',
@@ -67,7 +66,6 @@ export class BlockService {
         break;
       }
       case 'qcfiltering': {
-        const blockList = this.blocksOnCanvas$.getValue();
         if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           blockList.push({
             blockId: 'qcfiltering',
@@ -86,22 +84,36 @@ export class BlockService {
         break;
       }
       case 'variablegenes': {
-        if (this.blocksOnCanvas$.getValue()[this.blocksOnCanvas$.getValue().length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
-          const temp = this.blocksOnCanvas$.getValue();
-          temp.push({
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
+          blockList.push({
             blockId: 'variablegenes',
             title: 'Identify Highly Variable Genes',
-            possibleChildBlocks: ['variablegenes'],
+            possibleChildBlocks: ['variablegenes', 'pca'],
             parameters: [
               {key: 'min_mean', text: 'Minimum Mean', value: 0.0125},
               {key: 'max_mean', text: 'Maximum Mean', value: 3},
               {key: 'min_disp', text: 'Minimum Dispersion', value: 0.5}
             ],
           });
-          this.blocksOnCanvas$.next(temp);
+          this.blocksOnCanvas$.next(blockList);
         }
         else {
           this.snackBar.open('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'pca': {
+        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('pca') > -1) {
+          blockList.push({
+            blockId: 'pca',
+            title: 'Principle Component Analysis',
+            possibleChildBlocks: ['pca'],
+            parameters: [],
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

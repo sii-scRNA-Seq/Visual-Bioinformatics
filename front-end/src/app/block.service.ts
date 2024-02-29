@@ -17,6 +17,7 @@ export class BlockService {
 
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
+    const lastBlock = blockList[blockList.length-1];
     switch (id) {
       case 'loaddata': {
         if (blockList.length == 0) {
@@ -33,7 +34,7 @@ export class BlockService {
         break;
       }
       case 'basicfiltering': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
           blockList.push({
             blockId: 'basicfiltering',
             title: 'Basic Filtering',
@@ -51,7 +52,7 @@ export class BlockService {
         break;
       }
       case 'qcplots': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcplots') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('qcplots') > -1) {
           blockList.push({
             blockId: 'qcplots',
             title: 'Quality Control Plots',
@@ -66,7 +67,7 @@ export class BlockService {
         break;
       }
       case 'qcfiltering': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           blockList.push({
             blockId: 'qcfiltering',
             title: 'Quality Control Filtering',
@@ -84,7 +85,7 @@ export class BlockService {
         break;
       }
       case 'variablegenes': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('variablegenes') > -1) {
           blockList.push({
             blockId: 'variablegenes',
             title: 'Identify Highly Variable Genes',
@@ -103,7 +104,7 @@ export class BlockService {
         break;
       }
       case 'pca': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('pca') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('pca') > -1) {
           blockList.push({
             blockId: 'pca',
             title: 'Principle Component Analysis',
@@ -118,7 +119,7 @@ export class BlockService {
         break;
       }
       case 'runumap': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('runumap') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('runumap') > -1) {
           blockList.push({
             blockId: 'runumap',
             title: 'Run UMAP',

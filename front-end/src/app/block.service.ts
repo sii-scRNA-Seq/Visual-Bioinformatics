@@ -17,6 +17,7 @@ export class BlockService {
 
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
+    const lastBlock = blockList[blockList.length-1];
     switch (id) {
       case 'loaddata': {
         if (blockList.length == 0) {
@@ -33,7 +34,7 @@ export class BlockService {
         break;
       }
       case 'basicfiltering': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
           blockList.push({
             blockId: 'basicfiltering',
             title: 'Basic Filtering',
@@ -51,7 +52,7 @@ export class BlockService {
         break;
       }
       case 'qcplots': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcplots') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('qcplots') > -1) {
           blockList.push({
             blockId: 'qcplots',
             title: 'Quality Control Plots',
@@ -66,7 +67,7 @@ export class BlockService {
         break;
       }
       case 'qcfiltering': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           blockList.push({
             blockId: 'qcfiltering',
             title: 'Quality Control Filtering',
@@ -84,7 +85,7 @@ export class BlockService {
         break;
       }
       case 'variablegenes': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('variablegenes') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('variablegenes') > -1) {
           blockList.push({
             blockId: 'variablegenes',
             title: 'Identify Highly Variable Genes',
@@ -103,17 +104,35 @@ export class BlockService {
         break;
       }
       case 'pca': {
-        if (blockList[blockList.length-1]?.possibleChildBlocks.indexOf('pca') > -1) {
+        if (lastBlock?.possibleChildBlocks.indexOf('pca') > -1) {
           blockList.push({
             blockId: 'pca',
             title: 'Principle Component Analysis',
-            possibleChildBlocks: ['pca'],
+            possibleChildBlocks: ['pca', 'runumap'],
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
         }
         else {
           this.snackBar.open('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'runumap': {
+        if (lastBlock?.possibleChildBlocks.indexOf('runumap') > -1) {
+          blockList.push({
+            blockId: 'runumap',
+            title: 'Run UMAP',
+            possibleChildBlocks: ['runumap'],
+            parameters: [
+              {key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
+              {key: 'n_pcs', text: 'Number of Principle Components', value: 40},
+            ],
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Run UMAP block cannot be added', 'Close', { duration: 5000 });
         }
         break;
       }

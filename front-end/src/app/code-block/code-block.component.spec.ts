@@ -125,5 +125,21 @@ describe('CodeBlockComponent', () => {
       fixture.detectChanges();
       expect(blockService.removeBlock).toHaveBeenCalledOnceWith('pca');
     });
+
+    it ('blockService.removeBlock should be called with runumap when remove button is clicked', () => {
+      component.block = {
+        blockId: 'runumap',
+        title: 'Run UMAP',
+        possibleChildBlocks: [],
+        parameters: [],
+      };
+      fixture.detectChanges();
+      const blockService: BlockService = TestBed.inject(BlockService);
+      spyOn(blockService, 'removeBlock');
+      const button = fixture.debugElement.query(By.css('button'));
+      button.triggerEventHandler('click', {});
+      fixture.detectChanges();
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('runumap');
+    });
   });
 });

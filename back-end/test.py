@@ -421,19 +421,19 @@ def test_qcfiltering_WarnsUserWhenUserIdIsNotInCache(client):
     assert json.loads(response.data) == message
 
 
-def test_qcfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
+def test_qcfiltering_WarnsUserWhenGenesByCountsIsMissing(client):
     client.get('/getuserid', query_string={
         'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
-        'pct_counts_mt': 0,
+        'pct_counts_mt': 0
     })
     assert response.status_code == 400
     message = {
         "code": 400,
         "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_genes_by_counts\']',
+        "description": "Missing parameters: ['min_n_genes_by_counts', 'max_n_genes_by_counts']",
     }
     assert json.loads(response.data) == message
 
@@ -444,13 +444,14 @@ def test_qcfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 0,
+        'min_n_genes_by_counts': 0,
+        'max_n_genes_by_counts': 0,
     })
     assert response.status_code == 400
     message = {
         "code": 400,
         "name": 'Bad Request',
-        "description": 'Missing parameters: [\'pct_counts_mt\']',
+        "description": "Missing parameters: ['pct_counts_mt']",
     }
     assert json.loads(response.data) == message
 
@@ -466,7 +467,7 @@ def test_qcfiltering_WarnsUserWhenNGenesByCountsAndPctCountsMtAreMissing(client)
     message = {
         "code": 400,
         "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_genes_by_counts\', \'pct_counts_mt\']',
+        "description": "Missing parameters: ['min_n_genes_by_counts', 'max_n_genes_by_counts', 'pct_counts_mt']",
     }
     assert json.loads(response.data) == message
 
@@ -477,7 +478,8 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 1,
+        'min_n_genes_by_counts': 1,
+        'max_n_genes_by_counts': 10,
         'pct_counts_mt': 1,
     })
     assert response.status_code == 406
@@ -490,14 +492,15 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
 
 
 @patch('scanpy.read_10x_mtx')
-def test_qcfiltering_NGenesByCountsWorks(mock_loaddata, client):
+def test_qcfiltering_maxNGenesByCountsWorks(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/loaddata', query_string={
         'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 4,
+        'min_n_genes_by_counts': 0,
+        'max_n_genes_by_counts': 4,
         'pct_counts_mt': 100,
     })
     assert response.status_code == 200
@@ -515,7 +518,8 @@ def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 5,
+        'min_n_genes_by_counts': 0,
+        'max_n_genes_by_counts': 5,
         'pct_counts_mt': 95,
     })
     assert response.status_code == 200
@@ -526,14 +530,15 @@ def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
 
 
 @patch('scanpy.read_10x_mtx')
-def test_qcfiltering_NGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
+def test_qcfiltering_maxNGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/loaddata', query_string={
         'user_id': 'bob',
     })
     response = client.get('/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 4,
+        'min_n_genes_by_counts': 1,
+        'max_n_genes_by_counts': 4,
         'pct_counts_mt': 95,
     })
     assert response.status_code == 200

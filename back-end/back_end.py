@@ -3,16 +3,12 @@ from flask_caching import Cache
 from flask_cors import CORS
 from matplotlib import pyplot as plt
 import codecs
-import copy
 import io
 import json
 from anndata import AnnData
-# import numpy as np
-# import pandas as pd
 import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
-# from joblib import parallel_backend
 from threadpoolctl import threadpool_limits
 
 sc.settings.verbosity = 3
@@ -99,7 +95,7 @@ def create_app(test_mode=False):
                 data.var_names_make_unique()
                 raw_data_cache.set('pbmc3k', data)
             user_cache.set(user_id, {
-                'working_data': copy.copy(raw_data_cache.get('pbmc3k')),
+                'working_data': raw_data_cache.get('pbmc3k').copy(),
             })
             message = {
                 'text': str(adata_text(user_cache.get(user_id)['working_data'])),
@@ -120,7 +116,7 @@ def create_app(test_mode=False):
             user_id = request.args.get('user_id')
             min_genes = float(request.args.get('min_genes'))
             min_cells = float(request.args.get('min_cells'))
-            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata = user_cache.get(user_id)['working_data'].copy()
             sc.pp.filter_cells(new_adata, min_genes=min_genes)
             sc.pp.filter_genes(new_adata, min_cells=min_cells)
             user_cache.set(user_id, {
@@ -140,17 +136,20 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata = user_cache.get(user_id)['working_data'].copy()
+
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+
+            # Rename total_counts to total_UMIs
+            print(new_adata)
+            new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
+            new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
+
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })
             plt.rcParams['font.size'] = 18
-
-            # Rename total_counts to total_UMIs
-            new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
-            new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
 
             sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_UMIs', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False)
             image_stream = io.BytesIO()
@@ -165,7 +164,7 @@ def create_app(test_mode=False):
     @app.route('/qcfiltering')
     def qc_filtering():
         user_id = request.args.get('user_id')
-        invalid_params = get_invalid_parameters(['n_genes_by_counts', 'pct_counts_mt'])
+        invalid_params = get_invalid_parameters(['min_n_genes_by_counts', 'max_n_genes_by_counts', 'pct_counts_mt'])
         if user_id is None or user_id == '' or user_cache.get(user_id) is None:
             raise we.BadRequest('Not a valid user_id')
         elif invalid_params != []:
@@ -174,9 +173,10 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-            n_genes_by_counts = float(request.args.get('n_genes_by_counts'))
+            min_n_genes_by_counts = float(request.args.get('min_n_genes_by_counts'))
+            max_n_genes_by_counts = float(request.args.get('max_n_genes_by_counts'))
             pct_counts_mt = float(request.args.get('pct_counts_mt'))
-            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata = user_cache.get(user_id)['working_data'].copy()
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
 
@@ -184,7 +184,8 @@ def create_app(test_mode=False):
             new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
             new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
 
-            new_adata = new_adata[new_adata.obs.n_genes_by_counts < n_genes_by_counts, :]
+            new_adata = new_adata[new_adata.obs.n_genes_by_counts < max_n_genes_by_counts, :]
+            new_adata = new_adata[new_adata.obs.n_genes_by_counts > min_n_genes_by_counts, :]
             new_adata = new_adata[new_adata.obs.pct_counts_mt < pct_counts_mt, :]
             user_cache.set(user_id, {
                 'working_data': new_adata,
@@ -209,7 +210,7 @@ def create_app(test_mode=False):
             min_mean = float(request.args.get('min_mean'))
             max_mean = float(request.args.get('max_mean'))
             min_disp = float(request.args.get('min_disp'))
-            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata = user_cache.get(user_id)['working_data'].copy()
             sc.pp.normalize_total(new_adata, target_sum=1e4)
             sc.pp.log1p(new_adata)
             sc.pp.highly_variable_genes(new_adata, min_mean=min_mean, max_mean=max_mean, min_disp=min_disp)
@@ -236,7 +237,7 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata = user_cache.get(user_id)['working_data'].copy()
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
 
@@ -249,6 +250,7 @@ def create_app(test_mode=False):
 
             with threadpool_limits(limits=2, user_api='blas'):
                 sc.tl.pca(new_adata, svd_solver='arpack')
+
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })
@@ -278,7 +280,7 @@ def create_app(test_mode=False):
             user_id = request.args.get('user_id')
             n_neighbors = int(request.args.get('n_neighbors'))
             n_pcs = int(request.args.get('n_pcs'))
-            new_adata = copy.copy(user_cache.get(user_id)['working_data'])
+            new_adata = user_cache.get(user_id)['working_data'].copy()
             sc.pp.neighbors(new_adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
             sc.tl.umap(new_adata)
             sc.tl.leiden(new_adata)

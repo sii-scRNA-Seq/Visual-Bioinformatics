@@ -142,7 +142,6 @@ def create_app(test_mode=False):
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
 
             # Rename total_counts to total_UMIs
-            print(new_adata)
             new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
             new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
 

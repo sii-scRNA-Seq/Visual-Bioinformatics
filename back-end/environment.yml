@@ -2,7 +2,8 @@ name: visual-bioinformatics
 channels:
   - defaults
 dependencies:
-  - pip=23.3=py38h06a4308_0
+  - python=3.11
+  - pip=23.3
   - pip:
       - anndata==0.9.2
       - blinker==1.7.0

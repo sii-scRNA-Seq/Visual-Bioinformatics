@@ -8,7 +8,6 @@ import { OutputService } from './output.service';
 @Injectable({
   providedIn: 'root',
 })
-
 export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();

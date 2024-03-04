@@ -54,7 +54,7 @@ def create_app(test_mode=False):
     app.register_error_handler(IncorrectOrderException, handle_exception)
     app.register_error_handler(we.BadRequest, handle_exception)
 
-    @app.route('/getuserid')
+    @app.route('/api/getuserid')
     def get_user_id():
         user_id = request.args.get('user_id')
         if user_id is None:
@@ -71,7 +71,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/loaddata')
+    @app.route('/api/loaddata')
     def load_data():
         user_id = request.args.get('user_id')
         if user_id is None or user_id == '':
@@ -97,7 +97,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/basicfiltering')
+    @app.route('/api/basicfiltering')
     def basic_filtering():
         user_id = request.args.get('user_id')
         invalid_params = get_invalid_parameters(['min_genes', 'min_cells'])
@@ -122,7 +122,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/qcplots')
+    @app.route('/api/qcplots')
     def qc_plots():
         user_id = request.args.get('user_id')
         if user_id is None or user_id == '' or user_cache.get(user_id) is None:
@@ -148,7 +148,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/qcfiltering')
+    @app.route('/api/qcfiltering')
     def qc_filtering():
         user_id = request.args.get('user_id')
         invalid_params = get_invalid_parameters(['n_genes_by_counts', 'pct_counts_mt'])
@@ -175,7 +175,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/variablegenes')
+    @app.route('/api/variablegenes')
     def variable_genes():
         user_id = request.args.get('user_id')
         invalid_params = get_invalid_parameters(['min_mean', 'max_mean', 'min_disp'])
@@ -208,7 +208,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/pca')
+    @app.route('/api/pca')
     def pca():
         user_id = request.args.get('user_id')
         if user_id is None or user_id == '' or user_cache.get(user_id) is None:
@@ -236,7 +236,7 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
-    @app.route('/runumap')
+    @app.route('/api/runumap')
     def run_umap():
         user_id = request.args.get('user_id')
         invalid_params = get_invalid_parameters(['n_neighbors', 'n_pcs'])

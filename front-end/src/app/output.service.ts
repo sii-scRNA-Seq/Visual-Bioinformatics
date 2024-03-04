@@ -32,7 +32,7 @@ export class OutputService implements OutputServiceInterface {
     if (this.userId === null) {
       this.snackBar.open('No User ID, please refresh the page and try again', 'Close', { duration: 5000 });
     } else {
-      const url = 'http://127.0.0.1:5000/' + block.blockId;
+      const url = 'http://127.0.0.1:5000/api/' + block.blockId;
       type Params = { [key: string]: string | number };
       const params: Params = {};
       params['user_id'] = this.userId;

@@ -12,6 +12,8 @@ from anndata import AnnData
 import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
+# from joblib import parallel_backend
+from threadpoolctl import threadpool_limits
 
 sc.settings.verbosity = 3
 plt.switch_backend('agg')
@@ -242,9 +244,11 @@ def create_app(test_mode=False):
             new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
             new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
 
-            sc.pp.regress_out(new_adata, ['total_UMIs', 'pct_counts_mt'])
+            sc.pp.regress_out(new_adata, ['total_UMIs', 'pct_counts_mt'], n_jobs=2)
             sc.pp.scale(new_adata, max_value=10)
-            sc.tl.pca(new_adata, svd_solver='arpack')
+
+            with threadpool_limits(limits=2, user_api='blas'):
+                sc.tl.pca(new_adata, svd_solver='arpack')
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })

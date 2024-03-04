@@ -1,7 +1,7 @@
 name: visual-bioinformatics
 channels:
   - defaults
-  - python
+  - conda-forge
 dependencies:
   - python=3.11
   - pip=23.3

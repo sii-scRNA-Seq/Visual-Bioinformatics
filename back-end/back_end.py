@@ -98,7 +98,7 @@ def create_app(test_mode=False):
                 'working_data': raw_data_cache.get('pbmc3k').copy(),
             })
             message = {
-                'text': str(adata_text(user_cache.get(user_id)['working_data'])),
+                'text': adata_text(user_cache.get(user_id)['working_data']),
             }
             return jsonify(message)
 

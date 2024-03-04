@@ -6,14 +6,21 @@ import codecs
 import copy
 import io
 import json
+from anndata import AnnData
 # import numpy as np
 # import pandas as pd
 import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
+
 sc.settings.verbosity = 3
 plt.switch_backend('agg')
+
 THREE_DAYS = 3 * 24 * 60 * 60
+
+
+def adata_text(adata: AnnData) -> str:
+    return f'Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes'
 
 
 def create_app(test_mode=False):
@@ -93,7 +100,7 @@ def create_app(test_mode=False):
                 'working_data': copy.copy(raw_data_cache.get('pbmc3k')),
             })
             message = {
-                'text': str(user_cache.get(user_id)['working_data']),
+                'text': str(adata_text(user_cache.get(user_id)['working_data'])),
             }
             return jsonify(message)
 
@@ -118,7 +125,7 @@ def create_app(test_mode=False):
                 'working_data': new_adata,
             })
             message = {
-                'text': str(user_cache.get(user_id)['working_data']),
+                'text': adata_text(user_cache.get(user_id)['working_data']),
             }
             return jsonify(message)
 
@@ -181,7 +188,7 @@ def create_app(test_mode=False):
                 'working_data': new_adata,
             })
             message = {
-                'text': str(user_cache.get(user_id)['working_data']),
+                'text': adata_text(user_cache.get(user_id)['working_data']),
             }
             return jsonify(message)
 

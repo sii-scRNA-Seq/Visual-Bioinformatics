@@ -138,7 +138,12 @@ def create_app(test_mode=False):
                 'working_data': new_adata,
             })
             plt.rcParams['font.size'] = 18
-            sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False)
+
+            # Rename total_counts to total_UMIs
+            new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
+            new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
+
+            sc.pl.violin(new_adata, ['n_genes_by_counts', 'total_UMIs', 'pct_counts_mt'], jitter=0.4, multi_panel=True, show=False)
             image_stream = io.BytesIO()
             plt.savefig(image_stream, format='png')
             image_stream.seek(0)
@@ -165,6 +170,11 @@ def create_app(test_mode=False):
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+
+            # Rename total_counts to total_UMIs
+            new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
+            new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
+
             new_adata = new_adata[new_adata.obs.n_genes_by_counts < n_genes_by_counts, :]
             new_adata = new_adata[new_adata.obs.pct_counts_mt < pct_counts_mt, :]
             user_cache.set(user_id, {
@@ -220,7 +230,12 @@ def create_app(test_mode=False):
             new_adata = copy.copy(user_cache.get(user_id)['working_data'])
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
-            sc.pp.regress_out(new_adata, ['total_counts', 'pct_counts_mt'])
+
+            # Rename total_counts to total_UMIs
+            new_adata.obs['total_UMIs'] = new_adata.obs['total_counts']
+            new_adata.obs = new_adata.obs.drop('total_counts', axis=1)
+
+            sc.pp.regress_out(new_adata, ['total_UMIs', 'pct_counts_mt'])
             sc.pp.scale(new_adata, max_value=10)
             sc.tl.pca(new_adata, svd_solver='arpack')
             user_cache.set(user_id, {

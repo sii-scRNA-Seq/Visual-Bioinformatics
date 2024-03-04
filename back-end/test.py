@@ -355,7 +355,10 @@ def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
 
 @patch('scanpy.read_10x_mtx')
 def test_qcplots_CallsScanpyFunctions(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0,adata.n_obs))
+    mock_loaddata.return_value = adata
+
     client.get('/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -499,7 +502,7 @@ def test_qcfiltering_NGenesByCountsWorks(mock_loaddata, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts_mt', 'pct_counts_mt', 'total_UMIs'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
     }
     assert json.loads(response.data) == message
 
@@ -517,7 +520,7 @@ def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts_mt', 'pct_counts_mt', 'total_UMIs'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
     }
     assert json.loads(response.data) == message
 
@@ -535,7 +538,7 @@ def test_qcfiltering_NGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "View of AnnData object with n_obs × n_vars = 3 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+        'text': "View of AnnData object with n_obs × n_vars = 3 × 4\n    obs: 'n_genes_by_counts', 'total_counts_mt', 'pct_counts_mt', 'total_UMIs'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
     }
     assert json.loads(response.data) == message
 
@@ -722,7 +725,10 @@ def test_pca_WarnsUserWhenNoDataIsInUserCache(client):
 
 @patch('scanpy.read_10x_mtx')
 def test_pca_CallsScanpyFunctions(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0,adata.n_obs))
+    mock_loaddata.return_value = adata
+
     client.get('/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -739,7 +745,10 @@ def test_pca_CallsScanpyFunctions(mock_loaddata, client):
 
 @patch('scanpy.read_10x_mtx')
 def test_pca_ReturnsCorrectString(mock, client):
-    mock.return_value = get_AnnData(qc_filtering=True)
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0,adata.n_obs))
+    mock.return_value = adata
+    
     client.get('/loaddata', query_string={
         'user_id': 'bob',
     })

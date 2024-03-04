@@ -13,7 +13,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: visual-bioinformatics
-          environment-file: back-end/environment.yml
+          environment-file: back-end/test-environment.yml
           python-version: 3.8
           auto-activate-base: false
       - run: |

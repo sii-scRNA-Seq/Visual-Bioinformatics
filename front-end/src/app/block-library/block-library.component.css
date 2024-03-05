@@ -11,3 +11,7 @@
     display: inline-flex;
     align-items: center;
 }
+
+mat-card {
+    overflow: scroll;
+}

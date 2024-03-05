@@ -1,5 +1,5 @@
 on:
-  [push, pull_request]
+  [push]
 
 jobs:
   build:
@@ -13,8 +13,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: visual-bioinformatics
-          environment-file: back-end/test-environment.yml
-          python-version: 3.8
+          environment-file: back-end/environment.yml
           auto-activate-base: false
       - run: |
           conda info

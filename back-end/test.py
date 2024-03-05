@@ -115,7 +115,7 @@ def test_loaddata_AnnDataIsLoadedCorrectly(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "AnnData object with n_obs × n_vars = 5 × 3"
+        'text': "Object with: 5 cells and 3 genes"
     }
     assert json.loads(response.data) == message
 
@@ -238,7 +238,7 @@ def test_basicfiltering_FilterGenesWorks(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "AnnData object with n_obs × n_vars = 5 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
+        'text': "Object with: 5 cells and 2 genes"
     }
     assert json.loads(response.data) == message
 
@@ -256,7 +256,7 @@ def test_basicfiltering_FilterCellsWorks(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "AnnData object with n_obs × n_vars = 4 × 3\n    obs: 'n_genes'\n    var: 'n_cells'"
+        'text': "Object with: 4 cells and 3 genes"
     }
     assert json.loads(response.data) == message
 
@@ -274,7 +274,7 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
     })
     assert response.status_code == 200
     message = {
-        'text': "AnnData object with n_obs × n_vars = 4 × 2\n    obs: 'n_genes'\n    var: 'n_cells'"
+        'text': "Object with: 4 cells and 2 genes"
     }
     assert json.loads(response.data) == message
 
@@ -355,7 +355,10 @@ def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
 
 @patch('scanpy.read_10x_mtx')
 def test_qcplots_CallsScanpyFunctions(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    mock_loaddata.return_value = adata
+
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -418,19 +421,19 @@ def test_qcfiltering_WarnsUserWhenUserIdIsNotInCache(client):
     assert json.loads(response.data) == message
 
 
-def test_qcfiltering_WarnsUserWhenNGenesByCountsIsMissing(client):
+def test_qcfiltering_WarnsUserWhenGenesByCountsIsMissing(client):
     client.get('/api/getuserid', query_string={
         'user_id': 'bob',
     })
     response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-        'pct_counts_mt': 0,
+        'pct_counts_mt': 0
     })
     assert response.status_code == 400
     message = {
         "code": 400,
         "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_genes_by_counts\']',
+        "description": "Missing parameters: ['min_n_genes_by_counts', 'max_n_genes_by_counts']",
     }
     assert json.loads(response.data) == message
 
@@ -441,13 +444,14 @@ def test_qcfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
     })
     response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 0,
+        'min_n_genes_by_counts': 0,
+        'max_n_genes_by_counts': 0,
     })
     assert response.status_code == 400
     message = {
         "code": 400,
         "name": 'Bad Request',
-        "description": 'Missing parameters: [\'pct_counts_mt\']',
+        "description": "Missing parameters: ['pct_counts_mt']",
     }
     assert json.loads(response.data) == message
 
@@ -463,7 +467,7 @@ def test_qcfiltering_WarnsUserWhenNGenesByCountsAndPctCountsMtAreMissing(client)
     message = {
         "code": 400,
         "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_genes_by_counts\', \'pct_counts_mt\']',
+        "description": "Missing parameters: ['min_n_genes_by_counts', 'max_n_genes_by_counts', 'pct_counts_mt']",
     }
     assert json.loads(response.data) == message
 
@@ -474,7 +478,8 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     })
     response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 1,
+        'min_n_genes_by_counts': 1,
+        'max_n_genes_by_counts': 10,
         'pct_counts_mt': 1,
     })
     assert response.status_code == 406
@@ -487,19 +492,20 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
 
 
 @patch('scanpy.read_10x_mtx')
-def test_qcfiltering_NGenesByCountsWorks(mock_loaddata, client):
+def test_qcfiltering_maxNGenesByCountsWorks(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
     response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 4,
+        'min_n_genes_by_counts': 0,
+        'max_n_genes_by_counts': 4,
         'pct_counts_mt': 100,
     })
     assert response.status_code == 200
     message = {
-        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+        'text': "Object with: 4 cells and 4 genes"
     }
     assert json.loads(response.data) == message
 
@@ -512,30 +518,32 @@ def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
     })
     response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 5,
+        'min_n_genes_by_counts': 0,
+        'max_n_genes_by_counts': 5,
         'pct_counts_mt': 95,
     })
     assert response.status_code == 200
     message = {
-        'text': "View of AnnData object with n_obs × n_vars = 4 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+        'text': "Object with: 4 cells and 4 genes"
     }
     assert json.loads(response.data) == message
 
 
 @patch('scanpy.read_10x_mtx')
-def test_qcfiltering_NGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
+def test_qcfiltering_maxNGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
     mock_loaddata.return_value = get_AnnData(qc_filtering=True)
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
     response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-        'n_genes_by_counts': 4,
+        'min_n_genes_by_counts': 1,
+        'max_n_genes_by_counts': 4,
         'pct_counts_mt': 95,
     })
     assert response.status_code == 200
     message = {
-        'text': "View of AnnData object with n_obs × n_vars = 3 × 4\n    obs: 'n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt'\n    var: 'mt', 'n_cells_by_counts', 'mean_counts', 'pct_dropout_by_counts', 'total_counts'"
+        'text': "Object with: 3 cells and 4 genes"
     }
     assert json.loads(response.data) == message
 
@@ -722,7 +730,10 @@ def test_pca_WarnsUserWhenNoDataIsInUserCache(client):
 
 @patch('scanpy.read_10x_mtx')
 def test_pca_CallsScanpyFunctions(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    mock_loaddata.return_value = adata
+
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -739,7 +750,10 @@ def test_pca_CallsScanpyFunctions(mock_loaddata, client):
 
 @patch('scanpy.read_10x_mtx')
 def test_pca_ReturnsCorrectString(mock, client):
-    mock.return_value = get_AnnData(qc_filtering=True)
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    mock.return_value = adata
+
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })

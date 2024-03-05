@@ -72,7 +72,8 @@ export class BlockService {
             title: 'Quality Control Filtering',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {key: 'n_genes_by_counts', text: 'Maximum Total Gene Count', value: 2500},
+              {key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
+              {key: 'max_n_genes_by_counts', text: 'Maximum Gene Per Cell', value: 2500},
               {key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
             ],
           });

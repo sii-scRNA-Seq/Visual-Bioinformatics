@@ -1,5 +1,5 @@
 on:
-  [push, pull_request]
+  [push]
 
 jobs:
   build:
@@ -14,7 +14,6 @@ jobs:
         with:
           activate-environment: visual-bioinformatics
           environment-file: back-end/environment.yml
-          python-version: 3.8
           auto-activate-base: false
       - run: |
           conda info

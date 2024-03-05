@@ -8,3 +8,7 @@ ul.no-bullets {
     padding: 0;             /* Remove padding */
     margin: 0;              /* Remove margins */
 }
+
+mat-card {
+    margin: 0.5rem;
+}

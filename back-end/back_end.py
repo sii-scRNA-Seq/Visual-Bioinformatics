@@ -259,7 +259,7 @@ def create_app(test_mode=False):
             user_cache.set(user_id, {
                 'working_data': new_adata,
             })
-            sc.pl.umap(new_adata, color=['leiden'])
+            sc.pl.umap(new_adata, color=['leiden'], legend_loc='on data')
             image_stream = io.BytesIO()
             plt.savefig(image_stream, format='png')
             image_stream.seek(0)

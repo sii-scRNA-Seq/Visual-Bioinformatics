@@ -11,7 +11,7 @@ Welcome to the Visual Bioinformatics project.
 - Open a new terminal prompt
 - Navigate to the front-end directory
 - Run "npm install"
-- Run "ng serve --open"
+- Run "ng serve --open" to launch the front-end in development mode
 
 # Compiling the application
 - Run "ng build"

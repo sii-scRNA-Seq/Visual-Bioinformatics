@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
@@ -11,7 +11,12 @@ export class BackendHttpClient {
   constructor(private http: HttpClient, private snackBar: MatSnackBar) { }
 
   async getUserId(id: string): Promise<string> {
-    const url = 'http://127.0.0.1:5000/getuserid';
+    let url = '';
+    if (isDevMode()) {
+      url = 'http://localhost:5000/api/getuserid';
+    } else {
+      url = '/api/getuserid';
+    }
     type Params = {[key: string] : string};
     const params: Params = {'user_id': id};
     type Response = {user_id: string};

@@ -56,7 +56,7 @@ describe('OutputService', () => {
       userIdService.setUserId();
       const mockHttp = TestBed.inject(HttpTestingController);
       service.executeBlock(block);
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata?user_id=mock_user_id');
+      const req = mockHttp.expectOne('http://localhost:5000/api/loaddata?user_id=mock_user_id');
       req.flush({text: 'Hello World'});
       tick();
       outputs = await firstValueFrom(service.outputs.pipe(first()));
@@ -83,7 +83,7 @@ describe('OutputService', () => {
         expect(outputs).toEqual([{text: 'Hello World'}]);
       });
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata?user_id=mock_user_id');
+      const req = mockHttp.expectOne('http://localhost:5000/api/loaddata?user_id=mock_user_id');
       expect(req.request.method).toBe('GET');
       req.flush({text: 'Hello World'});
       mockHttp.verify();
@@ -109,7 +109,7 @@ describe('OutputService', () => {
         expect(outputs[0].alttext).toBe('Alt text');
       });
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/qcplots?user_id=mock_user_id');
+      const req = mockHttp.expectOne('http://localhost:5000/api/qcplots?user_id=mock_user_id');
       expect(req.request.method).toBe('GET');
       req.flush({img: 'Image string', alttext: 'Alt text'});
       mockHttp.verify();
@@ -143,7 +143,7 @@ describe('OutputService', () => {
         expect(spy).toHaveBeenCalledOnceWith('The blocks you have executed are not a valid order. Please check the blocks and try again.', 'Close', { duration: 5000 });
       });
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/loaddata?user_id=mock_user_id');
+      const req = mockHttp.expectOne('http://localhost:5000/api/loaddata?user_id=mock_user_id');
       expect(req.request.method).toBe('GET');
       req.flush('', { status: 406, statusText: 'Bad Request'});
       mockHttp.verify(); 
@@ -164,7 +164,7 @@ describe('OutputService', () => {
         expect(spy).toHaveBeenCalledOnceWith('There has been an error. Please refresh the page and try again.', 'Close', { duration: 5000 });
       });
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/runumap?user_id=mock_user_id');
+      const req = mockHttp.expectOne('http://localhost:5000/api/runumap?user_id=mock_user_id');
       expect(req.request.method).toBe('GET');
       req.flush('', { status: 400, statusText: 'Bad Request'});
       mockHttp.verify(); 

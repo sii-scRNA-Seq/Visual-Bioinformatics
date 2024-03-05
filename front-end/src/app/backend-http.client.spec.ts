@@ -28,7 +28,7 @@ describe('BackendHttpClient', () => {
       const mockHttp = TestBed.inject(HttpTestingController);
       const return_value = service.getUserId('input_id');
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/getuserid?user_id=input_id');
+      const req = mockHttp.expectOne('http://localhost:5000/api/getuserid?user_id=input_id');
       expect(req.request.method).toBe('GET');
       req.flush({user_id: 'output_id'});
       mockHttp.verify();
@@ -42,7 +42,7 @@ describe('BackendHttpClient', () => {
         expect(spy).toHaveBeenCalledOnceWith('Error retrieving userId, please refresh the page and try again', 'Close', { duration: 5000 });
       });
       tick();
-      const req = mockHttp.expectOne('http://127.0.0.1:5000/getuserid?user_id=');
+      const req = mockHttp.expectOne('http://localhost:5000/api/getuserid?user_id=');
       expect(req.request.method).toBe('GET');
       req.flush('', { status: 406, statusText: 'Bad Request'});
       mockHttp.verify(); 

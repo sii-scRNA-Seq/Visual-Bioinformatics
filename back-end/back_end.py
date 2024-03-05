@@ -17,10 +17,6 @@ plt.switch_backend('agg')
 THREE_DAYS = 3 * 24 * 60 * 60
 
 
-def adata_text(adata: AnnData) -> str:
-    return f'Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes'
-
-
 def create_app(test_mode=False):
 
     if test_mode:
@@ -302,6 +298,9 @@ def create_app(test_mode=False):
             if request.args.get(param) is None:
                 invalid_params.append(param)
         return invalid_params
+
+    def adata_text(adata: AnnData) -> str:
+        return f'Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes'
 
     return app
 

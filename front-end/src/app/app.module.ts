@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgModule } from '@angular/core';
 
@@ -26,6 +27,7 @@ import { OutputDisplayComponent } from './output-display/output-display.componen
     FormsModule,
     HttpClientModule,
     MatCardModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
   providers: [],

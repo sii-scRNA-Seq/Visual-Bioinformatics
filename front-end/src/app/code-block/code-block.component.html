@@ -1,7 +1,7 @@
 <mat-card class="block">
     <mat-card-header>
         <mat-card-title class="block-title">{{block.title}}</mat-card-title>
-        <button class="remove-button" (click)="removeBlock()">Remove</button>
+        <button class="remove-button" (click)="removeBlock()" [disabled]="executingBlocks">Remove</button>
     </mat-card-header>
     <mat-card-content>
         <ul class="no-bullets">

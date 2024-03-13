@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BlockLibraryComponent } from './block-library.component';
 import { BlockService } from '../block.service';
+import { MockBlockService } from '../mock-block.service';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -18,6 +19,9 @@ describe('BlockLibraryComponent', () => {
         HttpClientTestingModule,
         MatCardModule,
         MatSnackBarModule,
+      ],
+      providers: [
+        { provide: BlockService, useClass: MockBlockService }
       ],
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);
@@ -91,6 +95,26 @@ describe('BlockLibraryComponent', () => {
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('runumap');
+    });
+
+    it ('should be disabled while blocks are being executed', () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#qc-plots')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#qc-filtering')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(false);
+      blockService.executeBlocks();
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#qc-plots')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#qc-filtering')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(true);
     });
   });
 });

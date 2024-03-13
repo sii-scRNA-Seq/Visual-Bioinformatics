@@ -177,12 +177,10 @@ describe('CodeBlockComponent', () => {
       fixture.detectChanges();
       
       expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(false);
-      console.log('before', component.executingBlocks)
 
       await blockService.executeBlocks();
       fixture.detectChanges(); 
 
-      console.log('after', component.executingBlocks)
       expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(true);
     });
   });

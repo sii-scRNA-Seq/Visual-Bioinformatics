@@ -1,0 +1,30 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s %(name)s - %(levelname)s - %(funcName)-15s: %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S %Z'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  production:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: scampi.log
+    maxBytes: 2097152 #2MB
+    backupCount: 4
+loggers:
+  scampi-test:
+    level: INFO
+    handlers: [console]
+    propagate: no
+  scampi:
+    level: INFO
+    handlers: [production]
+    propagate: no
+root:
+  level: INFO
+  handlers: [console]

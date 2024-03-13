@@ -331,7 +331,6 @@ def create_app(test_mode=False):
 
     @app.route('/<path:path>')
     def serve_spa_files(path):
-        print("Serve file: ", path)
         return app.send_static_file(path)
 
     @app.route('/')

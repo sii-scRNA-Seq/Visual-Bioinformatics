@@ -17,25 +17,30 @@ plt.switch_backend('agg')
 THREE_DAYS = 3 * 24 * 60 * 60
 
 
+simple_cache_config = {
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+}
+
+file_cache_config = {
+    "CACHE_TYPE": "FileSystemCache",
+    "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+    "CACHE_IGNORE_ERRORS": False,  # Default
+    "CACHE_DIR": 'back-end-cache',
+    "CACHE_THRESHOLD": 500,        # Default
+}
+
 def create_app(test_mode=False):
 
     if test_mode:
-        config = {
-            "CACHE_TYPE": "SimpleCache",
-            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
-        }
+        user_cache_config = simple_cache_config
     else:
-        config = {
-            "CACHE_TYPE": "FileSystemCache",
-            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
-            "CACHE_IGNORE_ERRORS": False,  # Default
-            "CACHE_DIR": 'back-end-cache',
-            "CACHE_THRESHOLD": 500,        # Default
-        }
+        user_cache_config = file_cache_config
+
     app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
-    app.config.from_mapping(config)
-    user_cache = Cache(app)
-    raw_data_cache = Cache(app)
+    user_cache = Cache(config=user_cache_config)
+    user_cache.init_app(app)
+    raw_data_cache = {}
     CORS(app)
 
     class IncorrectOrderException(we.HTTPException):
@@ -89,7 +94,7 @@ def create_app(test_mode=False):
             if raw_data_cache.get('pbmc3k') is None:
                 data = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True)
                 data.var_names_make_unique()
-                raw_data_cache.set('pbmc3k', data)
+                raw_data_cache['pbmc3k'] = data
             user_cache.set(user_id, {
                 'working_data': raw_data_cache.get('pbmc3k').copy(),
             })

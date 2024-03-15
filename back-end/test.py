@@ -9,11 +9,10 @@ from back_end import create_app
 
 @pytest.fixture()
 def app():
-    app = create_app(test_mode=True)
-    app.config.update({
-        "TESTING": True,
-    })
-    yield app
+    with patch('scanpy.datasets.pbmc3k', get_AnnData):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        yield app
 
 
 @pytest.fixture()
@@ -107,9 +106,7 @@ def test_loaddata_WarnsUserWhenUserIdIsEmpty(client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_loaddata_AnnDataIsLoadedCorrectly(mock, client):
-    mock.return_value = get_AnnData()
+def test_loaddata_AnnDataIsLoadedCorrectly(client):
     response = client.get('/api/loaddata', query_string={
         'user_id': 'bob'
     })
@@ -225,9 +222,7 @@ def test_basicfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_basicfiltering_FilterGenesWorks(mock, client):
-    mock.return_value = get_AnnData()
+def test_basicfiltering_FilterGenesWorks(client):
     client.get('/api/loaddata', query_string={
         'user_id': 'bob'
     })
@@ -243,9 +238,7 @@ def test_basicfiltering_FilterGenesWorks(mock, client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_basicfiltering_FilterCellsWorks(mock, client):
-    mock.return_value = get_AnnData()
+def test_basicfiltering_FilterCellsWorks(client):
     client.get('/api/loaddata', query_string={
         'user_id': 'bob'
     })
@@ -261,9 +254,7 @@ def test_basicfiltering_FilterCellsWorks(mock, client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
-    mock.return_value = get_AnnData()
+def test_basicfiltering_FilterGenesAndCellsWork(client):
     client.get('/api/loaddata', query_string={
         'user_id': 'bob'
     })
@@ -279,9 +270,7 @@ def test_basicfiltering_FilterGenesAndCellsWork(mock, client):
     assert json.loads(response.data) == message
 
 
-# @patch('scanpy.read_10x_mtx')
-# def test_basicfiltering_UsesExistingDataForSameParameters(mock_loaddata, client):
-#     mock_loaddata.return_value = get_AnnData()
+# def test_basicfiltering_UsesExistingDataForSameParameters(client):
 #     client.get('/api/loaddata', query_string={
 #         'user_id': 'bob'
 #     })
@@ -353,11 +342,14 @@ def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_qcplots_CallsScanpyFunctions(mock_loaddata, client):
+def test_qcplots_CallsScanpyFunctions(client):
     adata = get_AnnData()
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
-    mock_loaddata.return_value = adata
+
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client = app.test_client()
 
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
@@ -370,9 +362,7 @@ def test_qcplots_CallsScanpyFunctions(mock_loaddata, client):
         mock2.assert_called_once()
 
 
-@patch('scanpy.read_10x_mtx')
-def test_qcplots_ReturnsCorrectString(mock, client):
-    mock.return_value = get_AnnData()
+def test_qcplots_ReturnsCorrectString(client):
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -491,9 +481,13 @@ def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_qcfiltering_maxNGenesByCountsWorks(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData(qc_filtering=True)
+def test_qcfiltering_maxNGenesByCountsWorks(client):
+
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client = app.test_client()
+
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -510,9 +504,13 @@ def test_qcfiltering_maxNGenesByCountsWorks(mock_loaddata, client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData(qc_filtering=True)
+def test_qcfiltering_PctCountsMtWorks(client):
+
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client = app.test_client()
+
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -529,9 +527,12 @@ def test_qcfiltering_PctCountsMtWorks(mock_loaddata, client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_qcfiltering_maxNGenesByCountsAndPctCountsMtWork(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData(qc_filtering=True)
+def test_qcfiltering_maxNGenesByCountsAndPctCountsMtWork(client):
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client = app.test_client()
+
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
     })
@@ -728,11 +729,15 @@ def test_pca_WarnsUserWhenNoDataIsInUserCache(client):
     assert json.loads(response.data) == message
 
 
-@patch('scanpy.read_10x_mtx')
-def test_pca_CallsScanpyFunctions(mock_loaddata, client):
+def test_pca_CallsScanpyFunctions(client):
+
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
-    mock_loaddata.return_value = adata
+
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client = app.test_client()
 
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',
@@ -748,11 +753,14 @@ def test_pca_CallsScanpyFunctions(mock_loaddata, client):
         mock5.assert_called_once()
 
 
-@patch('scanpy.read_10x_mtx')
-def test_pca_ReturnsCorrectString(mock, client):
+def test_pca_ReturnsCorrectString(client):
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
-    mock.return_value = adata
+
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client = app.test_client()
 
     client.get('/api/loaddata', query_string={
         'user_id': 'bob',

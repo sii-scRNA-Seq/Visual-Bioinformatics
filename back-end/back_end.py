@@ -264,7 +264,6 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
-
             logger.info(f"user_id={user_id}")
 
             new_adata = user_cache.get(user_id)['working_data'].copy()

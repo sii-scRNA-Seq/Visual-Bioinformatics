@@ -11,8 +11,13 @@ import { BlockService } from '../block.service';
 
 export class CodeBlockComponent {
   @Input() block!: Block;
+  executingBlocks: boolean = false;
 
-  constructor(private blockService: BlockService) { }
+  constructor(private blockService: BlockService) { 
+    this.blockService.executingBlocks.subscribe(
+      (res) => { this.executingBlocks = res; },
+    );
+  }
 
   removeBlock(): void {
     this.blockService.removeBlock(this.block.blockId);

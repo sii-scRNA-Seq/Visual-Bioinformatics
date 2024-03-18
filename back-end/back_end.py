@@ -23,24 +23,28 @@ with open('logging.yml', 'rt') as f:
     config = yaml.safe_load(f.read())
 logging.config.dictConfig(config)
 
+simple_cache_config = {
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+}
+
+file_cache_config = {
+    "CACHE_TYPE": "FileSystemCache",
+    "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+    "CACHE_IGNORE_ERRORS": False,  # Default
+    "CACHE_DIR": 'back-end-cache',
+    "CACHE_THRESHOLD": 500,        # Default
+}
+
 
 def create_app(test_mode=False):
 
     if test_mode:
         logger = logging.getLogger('scampi-test')
-        config = {
-            "CACHE_TYPE": "SimpleCache",
-            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
-        }
+        user_cache_config = simple_cache_config
     else:
         logger = logging.getLogger('scampi')
-        config = {
-            "CACHE_TYPE": "FileSystemCache",
-            "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
-            "CACHE_IGNORE_ERRORS": False,  # Default
-            "CACHE_DIR": 'back-end-cache',
-            "CACHE_THRESHOLD": 500,        # Default
-        }
+        user_cache_config = file_cache_config
 
     external_loggers = [
         logging.getLogger('werkzeug'),
@@ -53,10 +57,17 @@ def create_app(test_mode=False):
         external_logger.setLevel(logging.WARNING)
 
     logger.info("Starting App")
+
+    logger.info("Loading raw data...")
+    raw_data_cache = {
+        "pbmc3k": sc.datasets.pbmc3k()
+    }
+    logger.info("Finished loading raw data")
+
     app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
-    app.config.from_mapping(config)
-    user_cache = Cache(app)
-    raw_data_cache = Cache(app)
+    user_cache = Cache(config=user_cache_config)
+    user_cache.init_app(app)
+
     CORS(app)
 
     class IncorrectOrderException(we.HTTPException):
@@ -111,9 +122,7 @@ def create_app(test_mode=False):
             logger.info(f"user_id={user_id}")
 
             if raw_data_cache.get('pbmc3k') is None:
-                data = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True)
-                data.var_names_make_unique()
-                raw_data_cache.set('pbmc3k', data)
+                raise KeyError("Raw Data Cache not initialised")
             user_cache.set(user_id, {
                 'working_data': raw_data_cache.get('pbmc3k').copy(),
             })

@@ -70,3 +70,4 @@ dependencies:
       - uuid==1.30
       - werkzeug==3.0.1
       - zipp==3.17.0
+      - pyYAML==6.0.1

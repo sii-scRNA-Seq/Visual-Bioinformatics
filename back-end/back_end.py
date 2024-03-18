@@ -10,21 +10,30 @@ import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
 from threadpoolctl import threadpool_limits
+import logging
+import logging.config
+import yaml
 
-sc.settings.verbosity = 3
+sc.settings.verbosity = 0
 plt.switch_backend('agg')
 
 THREE_DAYS = 3 * 24 * 60 * 60
+
+with open('logging.yml', 'rt') as f:
+    config = yaml.safe_load(f.read())
+logging.config.dictConfig(config)
 
 
 def create_app(test_mode=False):
 
     if test_mode:
+        logger = logging.getLogger('scampi-test')
         config = {
             "CACHE_TYPE": "SimpleCache",
             "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
         }
     else:
+        logger = logging.getLogger('scampi')
         config = {
             "CACHE_TYPE": "FileSystemCache",
             "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
@@ -32,6 +41,18 @@ def create_app(test_mode=False):
             "CACHE_DIR": 'back-end-cache',
             "CACHE_THRESHOLD": 500,        # Default
         }
+
+    external_loggers = [
+        logging.getLogger('werkzeug'),
+        logging.getLogger('waitress'),
+        logging.getLogger('scanpy')
+    ]
+    for external_logger in external_loggers:
+        external_logger.handlers.clear()
+        external_logger.handlers.extend(logger.handlers)
+        external_logger.setLevel(logging.WARNING)
+
+    logger.info("Starting App")
     app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
     app.config.from_mapping(config)
     user_cache = Cache(app)
@@ -63,6 +84,7 @@ def create_app(test_mode=False):
         else:
             if user_id == '':
                 user_id = str(uuid.uuid4())
+                logger.info(f"created user_id={user_id}")
             if user_cache.get(user_id) is None:
                 user_cache.set(user_id, {
                     'working_data': None
@@ -86,6 +108,8 @@ def create_app(test_mode=False):
             #         'qc_filtering': (None, None),
             #         # Reset cache
             #     })
+            logger.info(f"user_id={user_id}")
+
             if raw_data_cache.get('pbmc3k') is None:
                 data = sc.read_10x_mtx('data/filtered_gene_bc_matrices/hg19/', var_names='gene_symbols', cache=True)
                 data.var_names_make_unique()
@@ -112,6 +136,8 @@ def create_app(test_mode=False):
             user_id = request.args.get('user_id')
             min_genes = float(request.args.get('min_genes'))
             min_cells = float(request.args.get('min_cells'))
+            logger.info(f"min_genes={min_genes} min_cells={min_cells} user_id={user_id}")
+
             new_adata = user_cache.get(user_id)['working_data'].copy()
             sc.pp.filter_cells(new_adata, min_genes=min_genes)
             sc.pp.filter_genes(new_adata, min_cells=min_cells)
@@ -132,6 +158,8 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
+            logger.info(f"user_id={user_id}")
+
             new_adata = user_cache.get(user_id)['working_data'].copy()
 
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
@@ -171,6 +199,8 @@ def create_app(test_mode=False):
             min_n_genes_by_counts = float(request.args.get('min_n_genes_by_counts'))
             max_n_genes_by_counts = float(request.args.get('max_n_genes_by_counts'))
             pct_counts_mt = float(request.args.get('pct_counts_mt'))
+            logger.info(f"min_n_genes_by_counts={min_n_genes_by_counts} max_n_genes_by_counts={max_n_genes_by_counts} pct_counts_mt={pct_counts_mt} user_id={user_id}")
+
             new_adata = user_cache.get(user_id)['working_data'].copy()
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
@@ -205,6 +235,8 @@ def create_app(test_mode=False):
             min_mean = float(request.args.get('min_mean'))
             max_mean = float(request.args.get('max_mean'))
             min_disp = float(request.args.get('min_disp'))
+            logger.info(f"min_mean={min_mean} max_mean={max_mean} min_disp={min_disp} user_id={user_id}")
+
             new_adata = user_cache.get(user_id)['working_data'].copy()
             sc.pp.normalize_total(new_adata, target_sum=1e4)
             sc.pp.log1p(new_adata)
@@ -232,6 +264,8 @@ def create_app(test_mode=False):
             raise IncorrectOrderException()
         else:
             user_id = request.args.get('user_id')
+            logger.info(f"user_id={user_id}")
+
             new_adata = user_cache.get(user_id)['working_data'].copy()
             new_adata.var['mt'] = new_adata.var_names.str.startswith('MT-')
             sc.pp.calculate_qc_metrics(new_adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
@@ -275,6 +309,8 @@ def create_app(test_mode=False):
             user_id = request.args.get('user_id')
             n_neighbors = int(request.args.get('n_neighbors'))
             n_pcs = int(request.args.get('n_pcs'))
+            logger.info(f"n_neighbors={n_neighbors} n_pcs={n_pcs} user_id={user_id}")
+
             new_adata = user_cache.get(user_id)['working_data'].copy()
             sc.pp.neighbors(new_adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
             sc.tl.umap(new_adata)
@@ -294,7 +330,6 @@ def create_app(test_mode=False):
 
     @app.route('/<path:path>')
     def serve_spa_files(path):
-        print("Serve file: ", path)
         return app.send_static_file(path)
 
     @app.route('/')

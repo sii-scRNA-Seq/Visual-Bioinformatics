@@ -16,7 +16,6 @@ plt.switch_backend('agg')
 
 THREE_DAYS = 3 * 24 * 60 * 60
 
-
 simple_cache_config = {
     "CACHE_TYPE": "SimpleCache",
     "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,

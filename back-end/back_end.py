@@ -36,6 +36,7 @@ file_cache_config = {
     "CACHE_THRESHOLD": 500,        # Default
 }
 
+
 def create_app(test_mode=False):
 
     if test_mode:
@@ -46,9 +47,9 @@ def create_app(test_mode=False):
         user_cache_config = file_cache_config
 
     external_loggers = [
-    logging.getLogger('werkzeug'),
-    logging.getLogger('waitress'),
-    logging.getLogger('scanpy')
+        logging.getLogger('werkzeug'),
+        logging.getLogger('waitress'),
+        logging.getLogger('scanpy')
     ]
     for external_logger in external_loggers:
         external_logger.handlers.clear()

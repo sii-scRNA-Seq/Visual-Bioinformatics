@@ -1,5 +1,6 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -7,7 +8,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BlockService } from '../block.service';
 import { CodeBlockComponent } from './code-block.component';
 import { MockBlockService } from '../mock-block.service';
-import { FormsModule } from '@angular/forms';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -174,13 +174,10 @@ describe('CodeBlockComponent', () => {
           {key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
-      fixture.detectChanges();
-      
+      fixture.detectChanges();   
       expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(false);
-
       await blockService.executeBlocks();
-      fixture.detectChanges(); 
-
+      fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(true);
     });
   });

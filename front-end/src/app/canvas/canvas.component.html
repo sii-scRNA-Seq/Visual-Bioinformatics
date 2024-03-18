@@ -1,7 +1,14 @@
 <mat-card style="height: calc(85vh - 20px)">
     <mat-card-header>
         <mat-card-title class="component-title">Canvas</mat-card-title>
-        <button class="run-button" (click)='executeBlocks()'>Run</button>
+
+        <div *ngIf="executingBlocks; then thenBlock else elseBlock"></div>
+        <ng-template #thenBlock>
+            <mat-spinner class="run-spinner" [diameter]="32"></mat-spinner>
+        </ng-template>
+        <ng-template #elseBlock>
+            <button class="run-button" (click)='executeBlocks()'>Run</button>
+        </ng-template>
     </mat-card-header>
     <mat-card-content>
         <ul class="no-bullets">

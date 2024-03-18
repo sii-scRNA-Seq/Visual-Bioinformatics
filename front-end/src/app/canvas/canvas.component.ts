@@ -11,10 +11,14 @@ import { BlockService } from '../block.service';
 
 export class CanvasComponent {
   blockList: Block[] = [];
+  executingBlocks: boolean = false;
 
   constructor(private blockService: BlockService) {
     this.blockService.blocksOnCanvas.subscribe(
       (res) => { this.blockList = res; },
+    );
+    this.blockService.executingBlocks.subscribe(
+      (res) => { this.executingBlocks = res; },
     );
   }
 

@@ -1,11 +1,13 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BlockService } from '../block.service';
 import { CodeBlockComponent } from './code-block.component';
+import { MockBlockService } from '../mock-block.service';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -18,8 +20,11 @@ describe('CodeBlockComponent', () => {
         HttpClientTestingModule,
         MatCardModule,
         MatSnackBarModule,
+        FormsModule
       ],
-      providers: [BlockService],
+      providers: [
+        { provide: BlockService, useClass: MockBlockService }
+      ],
     });
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
@@ -140,6 +145,40 @@ describe('CodeBlockComponent', () => {
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.removeBlock).toHaveBeenCalledOnceWith('runumap');
+    });
+
+    it ('should be disabled while blocks are being executed', () => {
+      component.block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [],
+      };
+      fixture.detectChanges();
+      const blockService: BlockService = TestBed.inject(BlockService);
+      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(false);
+      blockService.executeBlocks();
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(true);
+    });
+  });
+
+  describe('Parameter Inputs', () => {
+    it('should be disabled while blocks are being executed', async () => {
+      const blockService: BlockService = TestBed.inject(BlockService);
+      component.block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [
+          {key: 'test_param', text: 'Test Parameter', value: 0},
+        ],
+      };
+      fixture.detectChanges();   
+      expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(false);
+      await blockService.executeBlocks();
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(true);
     });
   });
 });

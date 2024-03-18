@@ -12,6 +12,9 @@ export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
+  private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
+  readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
+
   constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
   addBlock(id: BlockId): void {
@@ -153,9 +156,11 @@ export class BlockService {
   }
 
   async executeBlocks(): Promise<void> {
+    this.executingBlocks$.next(true);
     this.outputService.resetOutputs();
     for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
       await this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
     }
+    this.executingBlocks$.next(false);
   }
 }

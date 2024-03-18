@@ -10,7 +10,13 @@ import { BlockService } from '../block.service';
 })
 
 export class BlockLibraryComponent {
-  constructor(private blockService: BlockService) { }
+  executingBlocks: boolean = false;
+
+  constructor(private blockService: BlockService) {
+    this.blockService.executingBlocks.subscribe(
+      (res) => { this.executingBlocks = res; },
+    );
+  }
 
   addBlock(id: BlockId): void {
     this.blockService.addBlock(id);

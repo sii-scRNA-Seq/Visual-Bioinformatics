@@ -5,31 +5,31 @@
     <mat-card-content>
         <p class="left-right-container">
             Load Data
-            <button class="add-button" id="load-data" (click)='addBlock("loaddata")'>Add</button>
+            <button class="add-button" id="load-data" (click)='addBlock("loaddata")' [disabled]="executingBlocks">Add</button>
         </p>
         <p class="left-right-container">
             Basic Filtering
-            <button class="add-button" id="basic-filtering" (click)='addBlock("basicfiltering")'>Add</button>
+            <button class="add-button" id="basic-filtering" (click)='addBlock("basicfiltering")' [disabled]="executingBlocks">Add</button>
         </p>
         <p class="left-right-container">
             Quality Control Plots
-            <button class="add-button" id="qc-plots" (click)='addBlock("qcplots")'>Add</button>
+            <button class="add-button" id="qc-plots" (click)='addBlock("qcplots")' [disabled]="executingBlocks">Add</button>
         </p>
         <p class="left-right-container">
             Quality Control Filtering
-            <button class="add-button" id="qc-filtering" (click)='addBlock("qcfiltering")'>Add</button>
+            <button class="add-button" id="qc-filtering" (click)='addBlock("qcfiltering")' [disabled]="executingBlocks">Add</button>
         </p>
         <p class="left-right-container">
             Identify Highly Variable Genes
-            <button class="add-button" id="variable-genes" (click)='addBlock("variablegenes")'>Add</button>
+            <button class="add-button" id="variable-genes" (click)='addBlock("variablegenes")' [disabled]="executingBlocks">Add</button>
         </p>
         <p class="left-right-container">
             Principle Component Analysis
-            <button class="add-button" id="pca" (click)='addBlock("pca")'>Add</button>
+            <button class="add-button" id="pca" (click)='addBlock("pca")' [disabled]="executingBlocks">Add</button>
         </p>
         <p class="left-right-container">
             Run UMAP
-            <button class="add-button" id="run-umap" (click)='addBlock("runumap")'>Add</button>
+            <button class="add-button" id="run-umap" (click)='addBlock("runumap")' [disabled]="executingBlocks">Add</button>
         </p>
     </mat-card-content>
 </mat-card>

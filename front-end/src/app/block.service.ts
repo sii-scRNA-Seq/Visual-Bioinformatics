@@ -15,7 +15,11 @@ export class BlockService {
   private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
   readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
 
-  constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar) {
+    this.outputService.executingBlocks.subscribe(
+      (res) => { this.executingBlocks$.next(res); }
+    );
+  }
 
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
@@ -155,10 +159,8 @@ export class BlockService {
     }
   }
 
-  async executeBlocks(): Promise<void> {
-    this.executingBlocks$.next(true);
+  executeBlocks(): void {
     this.outputService.resetOutputs();
-    await this.outputService.executeBlocks(this.blocksOnCanvas$.getValue());
-    this.executingBlocks$.next(false);
+    this.outputService.executeBlocks(this.blocksOnCanvas$.getValue());
   }
 }

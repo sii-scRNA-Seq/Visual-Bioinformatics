@@ -8,5 +8,5 @@ export interface BlockServiceInterface {
 
   addBlock(id: BlockId): void;
   removeBlock(id: BlockId): void;
-  executeBlocks(): Promise<void>;
+  executeBlocks(): void;
 }

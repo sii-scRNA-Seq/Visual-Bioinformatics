@@ -6,5 +6,5 @@ import { Output } from './output';
 export interface OutputServiceInterface {
   outputs: Observable<Output[]>;
 
-  executeBlocks(block: Block[]): Promise<void>;
+  executeBlocks(block: Block[]): void;
 }

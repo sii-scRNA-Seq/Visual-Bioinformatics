@@ -1,6 +1,5 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
@@ -14,6 +13,9 @@ import { UserIdService } from './user-id.service';
   providedIn: 'root',
 })
 export class OutputService implements OutputServiceInterface {
+  private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
+  readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
+
   private readonly outputs$: BehaviorSubject<Output[]> = new BehaviorSubject<Output[]> ([]);
   readonly outputs: Observable<Output[]> = this.outputs$.asObservable();
 
@@ -38,10 +40,11 @@ export class OutputService implements OutputServiceInterface {
     this.outputs$.next([]);
   }
   
-  async executeBlocks(blocks: Block[]): Promise<void> {
+  executeBlocks(blocks: Block[]): void {
     if (this.userId === null) {
       this.snackBar.open('No User ID, please refresh the page and try again', 'Close', { duration: 5000 });
     } else {
+      this.executingBlocks$.next(true);
 
       const blockStringArray: string[] = [];
       for (let i = 0; i < blocks.length; i++) {
@@ -60,7 +63,6 @@ export class OutputService implements OutputServiceInterface {
       const params: Params = {};
       params['user_id'] = this.userId;
       params['block_strings'] = blockStrings;
-      
 
       this.subject.subscribe(
         (msg: any) => {
@@ -76,6 +78,7 @@ export class OutputService implements OutputServiceInterface {
             processedResponse.alttext = msg.alttext;
           } else if (msg.end_connection) {
             this.subject.complete();
+            this.executingBlocks$.next(false);
           }
           const outputs = this.outputs$.getValue();
           outputs.push(processedResponse);

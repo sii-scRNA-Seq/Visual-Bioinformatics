@@ -12,8 +12,8 @@ export class MockOutputService implements OutputServiceInterface {
   private readonly outputs$: BehaviorSubject<Output[]> = new BehaviorSubject<Output[]> ([]);
   readonly outputs: Observable<Output[]> = this.outputs$.asObservable();
   
-  async executeBlock(block: Block): Promise<void> {
-    block;
+  async executeBlocks(blocks: Block[]): Promise<void> {
+    blocks;
     const outputs = [];
     const output: Output = {text: 'Some text here'};
     outputs.push(output);

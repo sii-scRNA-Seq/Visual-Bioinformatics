@@ -158,9 +158,7 @@ export class BlockService {
   async executeBlocks(): Promise<void> {
     this.executingBlocks$.next(true);
     this.outputService.resetOutputs();
-    for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      await this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
-    }
+    await this.outputService.executeBlocks(this.blocksOnCanvas$.getValue());
     this.executingBlocks$.next(false);
   }
 }

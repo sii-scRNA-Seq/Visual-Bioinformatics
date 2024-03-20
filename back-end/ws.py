@@ -32,26 +32,19 @@ def get_user_id():
 
 
 @sockets.on_message
-def execute_blocks(message1):
-    message = json.loads(message1)
+def execute_blocks(message_json):
+    message = json.loads(message_json)
     user_id = message['user_id']
     user_data = None
-    block_strings = message['block_strings']
-    for block_string in block_strings:
-        split_on_comma = block_string.split(',')
-        block_id = split_on_comma[0]
-        params = dict()
-        for param in split_on_comma[1:]:
-            param_name = param.split('=')[0]
-            param_value = param.split('=')[1]
-            params[param_name] = param_value
-        if block_id == 'loaddata':
+    blocks = message['blocks']
+    for block in blocks:
+        if block['block_id'] == 'loaddata':
             user_data, output_message = load_data(user_data)
-        elif block_id == 'basicfiltering':
-            min_genes = params['min_genes']
-            min_cells = params['min_cells']
+        elif block['block_id'] == 'basicfiltering':
+            min_genes = block['min_genes']
+            min_cells = block['min_cells']
             user_data, output_message = basic_filtering(user_data, min_genes, min_cells)
-        elif block_id == 'qcplots':
+        elif block['block_id'] == 'qcplots':
             user_data, output_message = qc_plots(user_data)
         else:
             raise ValueError

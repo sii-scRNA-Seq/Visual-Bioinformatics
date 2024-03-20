@@ -46,24 +46,6 @@ export class OutputService implements OutputServiceInterface {
     } else {
       this.executingBlocks$.next(true);
 
-      const blockStringArray: string[] = [];
-      for (let i = 0; i < blocks.length; i++) {
-        const block: Block = blocks[i];
-        let blockString: string = block.blockId;
-        for (let j = 0; j < block.parameters.length; j++) {
-          blockString = blockString.concat(',');
-          blockString = blockString.concat(block.parameters[j].key);
-          blockString = blockString.concat('=');
-          blockString = blockString.concat(block.parameters[j].value.toString());
-        }
-        blockStringArray.push(blockString);
-      }
-      const blockStrings: ReadonlyArray<string> = blockStringArray;
-      type Params = { [key: string]: string | ReadonlyArray<string>};
-      const params: Params = {};
-      params['user_id'] = this.userId;
-      params['block_strings'] = blockStrings;
-
       this.subject.subscribe(
         (msg: any) => {
           const processedResponse: Output = {};
@@ -86,7 +68,21 @@ export class OutputService implements OutputServiceInterface {
         }
       );
 
-      this.subject.next(params);
+      type NewBlock = { [key: string]: string | number };
+      const newBlocksArray: NewBlock[] = [];
+      for (let i = 0; i < blocks.length; i++) {
+        const block: NewBlock = {}
+        block['block_id'] = blocks[i].blockId;
+        for (let j = 0; j < blocks[i].parameters.length; j++) {
+          block[blocks[i].parameters[j].key] = blocks[i].parameters[j].value;
+        }
+        newBlocksArray.push(block);
+      }    
+      type Message = { [key: string]: string | NewBlock[] };
+      const message: Message = {};
+      message['user_id'] = this.userId;
+      message['blocks'] = newBlocksArray;
+      this.subject.next(message);
 
       // try {
       //   null;

@@ -61,6 +61,14 @@ export class OutputService implements OutputServiceInterface {
           } else if (msg.end_connection) {
             this.subject.complete();
             this.executingBlocks$.next(false);
+          } else if (msg.error) {
+            this.snackBar.open(msg.error, 'Close', { duration: 5000 });
+            this.subject.complete();
+            this.executingBlocks$.next(false);
+          } else {
+            this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
+            this.subject.complete();
+            this.executingBlocks$.next(false);
           }
           const outputs = this.outputs$.getValue();
           outputs.push(processedResponse);
@@ -71,7 +79,7 @@ export class OutputService implements OutputServiceInterface {
       type NewBlock = { [key: string]: string | number };
       const newBlocksArray: NewBlock[] = [];
       for (let i = 0; i < blocks.length; i++) {
-        const block: NewBlock = {}
+        const block: NewBlock = {};
         block['block_id'] = blocks[i].blockId;
         for (let j = 0; j < blocks[i].parameters.length; j++) {
           block[blocks[i].parameters[j].key] = blocks[i].parameters[j].value;
@@ -83,19 +91,6 @@ export class OutputService implements OutputServiceInterface {
       message['user_id'] = this.userId;
       message['blocks'] = newBlocksArray;
       this.subject.next(message);
-
-      // try {
-      //   null;
-      // } catch (e) {
-      //   if (e instanceof HttpErrorResponse && e.status == 406) {
-      //     this.snackBar.open('The blocks you have executed are not a valid order. Please check the blocks and try again.', 'Close', { duration: 5000 });
-      //   } else if (e instanceof HttpErrorResponse && e.status == 400 && e.error) {
-      //     this.snackBar.open(e.error.description, 'Close', { duration: 5000 });
-      //   } else {
-      //     this.snackBar.open('There has been an error. Please refresh the page and try again.', 'Close', { duration: 5000 });
-      //   }
-      // }
-
     }
   }
 }

@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
+from flask_caching import Cache
 from flask_cors import CORS
-from flask_websockets import WebSockets, ws, has_socket_context
+from flask_websockets import WebSockets, ws
 from matplotlib import pyplot as plt
 import codecs
 import io
@@ -8,9 +9,24 @@ import json
 import scanpy as sc
 import uuid
 
+sc.settings.verbosity = 0
 plt.switch_backend('agg')
 
+THREE_DAYS = 3 * 24 * 60 * 60
+
 app = Flask(__name__)
+
+file_cache_config = {
+    "CACHE_TYPE": "FileSystemCache",
+    "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
+    "CACHE_IGNORE_ERRORS": False,  # Default
+    "CACHE_DIR": 'back-end-cache',
+    "CACHE_THRESHOLD": 500,        # Default
+}
+user_cache_config = file_cache_config
+accepting_user_requests = Cache(config=user_cache_config)
+accepting_user_requests.init_app(app)
+
 CORS(app)
 sockets = WebSockets(app)
 
@@ -31,26 +47,52 @@ def get_user_id():
         return jsonify(message)
 
 
+class UserIDException(Exception):
+    pass
+
+
+class NotAcceptingRequestException(Exception):
+    pass
+
+
 @sockets.on_message
 def execute_blocks(message_json):
-    message = json.loads(message_json)
-    user_id = message['user_id']
-    user_data = None
-    blocks = message['blocks']
-    for block in blocks:
-        if block['block_id'] == 'loaddata':
-            user_data, output_message = load_data(user_data)
-        elif block['block_id'] == 'basicfiltering':
-            min_genes = block['min_genes']
-            min_cells = block['min_cells']
-            user_data, output_message = basic_filtering(user_data, min_genes, min_cells)
-        elif block['block_id'] == 'qcplots':
-            user_data, output_message = qc_plots(user_data)
-        else:
-            raise ValueError
-        ws.send(json.dumps(output_message))
-    end_connection = json.dumps({ 'end_connection': 'end_connection' })
-    ws.send(end_connection)
+    try:
+        message = json.loads(message_json)
+        user_id = message['user_id']
+        if user_id is None or user_id == '':
+            raise UserIDException
+        elif accepting_user_requests.get(user_id) is False:
+            raise NotAcceptingRequestException
+        user_data = None
+        accepting_user_requests.set(user_id, False)
+        blocks = message['blocks']
+        for block in blocks:
+            if block['block_id'] == 'loaddata':
+                user_data, output_message = load_data(user_data)
+            elif block['block_id'] == 'basicfiltering':
+                min_genes = block['min_genes']
+                min_cells = block['min_cells']
+                user_data, output_message = basic_filtering(user_data, min_genes, min_cells)
+            elif block['block_id'] == 'qcplots':
+                user_data, output_message = qc_plots(user_data)
+            else:
+                raise ValueError
+            ws.send(json.dumps(output_message))
+        end_connection = json.dumps({'end_connection': 'end_connection'})
+    except UserIDException:
+        end_connection = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    except NotAcceptingRequestException:
+        end_connection = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+    except KeyError:
+        end_connection = json.dumps({'error': 'Received an incomplete request, please refresh the page and try again'})
+    except ValueError:
+        end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    except Exception:
+        end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    finally:
+        ws.send(end_connection)
+        accepting_user_requests.set(user_id, True)
 
 
 def load_data(user_data):

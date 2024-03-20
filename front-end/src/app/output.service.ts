@@ -27,12 +27,7 @@ export class OutputService implements OutputServiceInterface {
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },
     );
-    let url = '';
-    if (isDevMode()) {
-      url = 'ws://127.0.0.1:5000';
-    } else {
-      url = '';
-    }
+    const url = isDevMode() ? 'ws://127.0.0.1:5000' : '';
     this.subject = webSocket(url);
   }
 

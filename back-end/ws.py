@@ -1,8 +1,8 @@
 from anndata import AnnData
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_caching import Cache
 from flask_cors import CORS
-from flask_websockets import WebSockets, ws
+from flask_socketio import SocketIO
 from matplotlib import pyplot as plt
 from threadpoolctl import threadpool_limits
 import codecs
@@ -65,12 +65,17 @@ def create_app(test_mode=False):
     logger.info("Finished loading raw data")
 
     app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
+    app.config['SECRET_KEY'] = 'secret!'
 
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
 
     CORS(app)
-    sockets = WebSockets(app)
+    socketio = SocketIO(app)
+
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
     @app.route('/api/getuserid')
     def get_user_id():
@@ -92,8 +97,9 @@ def create_app(test_mode=False):
     class NotAcceptingRequestException(Exception):
         pass
 
-    @sockets.on_message
+    @socketio.on('json')
     def execute_blocks(message_json):
+        print('here')
         try:
             message = json.loads(message_json)
             user_id = message['user_id']
@@ -122,7 +128,7 @@ def create_app(test_mode=False):
                     user_data, output_message = run_umap(user_data, block)
                 else:
                     raise ValueError
-                ws.send(json.dumps(output_message))
+                socketio.send(json.dumps(output_message))
             end_connection = json.dumps({'end_connection': 'end_connection'})
         except UserIDException:
             end_connection = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
@@ -135,7 +141,7 @@ def create_app(test_mode=False):
         except Exception:
             end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
         finally:
-            ws.send(end_connection)
+            socketio.send(end_connection)
             accepting_user_requests.set(user_id, True)
 
     def load_data(user_data, block):
@@ -270,13 +276,15 @@ def create_app(test_mode=False):
     def serve_spa_default():
         return app.send_static_file('index.html')
 
-    return app
+    return socketio, app
 
 
-app = create_app()
+# app = create_app()
+socketio, app = create_app()
 
 if __name__ == '__main__':
-    from gevent import pywsgi
-    from geventwebsocket.handler import WebSocketHandler
-    server = pywsgi.WSGIServer(('127.0.0.1', 5000), app, handler_class=WebSocketHandler)
-    server.serve_forever()
+    socketio.run(app)
+    # from gevent import pywsgi
+    # from geventwebsocket.handler import WebSocketHandler
+    # server = pywsgi.WSGIServer(('127.0.0.1', 5000), app, handler_class=WebSocketHandler)
+    # server.serve_forever()

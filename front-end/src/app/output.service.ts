@@ -1,6 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Injectable, isDevMode } from '@angular/core';
+import { Socket, io } from "socket.io-client";
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 
@@ -21,14 +22,16 @@ export class OutputService implements OutputServiceInterface {
 
   private userId: string | null = null;
 
-  private subject: WebSocketSubject<unknown>;
+  private socket: Socket;
 
   constructor(private userIdService: UserIdService, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },
     );
     const url = isDevMode() ? 'ws://127.0.0.1:5000' : '';
-    this.subject = webSocket(url);
+    this.socket = io(url, {
+      autoConnect: false
+    });
   }
 
   resetOutputs(): void {
@@ -41,9 +44,9 @@ export class OutputService implements OutputServiceInterface {
     } else {
       this.executingBlocks$.next(true);
 
-      this.subject.subscribe(
-        (msg: any) => {
-          const processedResponse: Output = {};
+      this.socket.connect();
+      this.socket.on("json", (msg: any) => {
+        const processedResponse: Output = {};
           if (msg.text) {
             processedResponse.text = msg.text;
           } else if (msg.img && msg.alttext) {
@@ -54,22 +57,21 @@ export class OutputService implements OutputServiceInterface {
             processedResponse.img = newImg;
             processedResponse.alttext = msg.alttext;
           } else if (msg.end_connection) {
-            this.subject.complete();
+            this.socket.disconnect();
             this.executingBlocks$.next(false);
           } else if (msg.error) {
             this.snackBar.open(msg.error, 'Close', { duration: 5000 });
-            this.subject.complete();
+            this.socket.disconnect();
             this.executingBlocks$.next(false);
           } else {
             this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
-            this.subject.complete();
+            this.socket.disconnect();
             this.executingBlocks$.next(false);
           }
           const outputs = this.outputs$.getValue();
           outputs.push(processedResponse);
           this.outputs$.next(outputs);
-        }
-      );
+      });
 
       type NewBlock = { [key: string]: string | number };
       const newBlocksArray: NewBlock[] = [];
@@ -85,7 +87,7 @@ export class OutputService implements OutputServiceInterface {
       const message: Message = {};
       message['user_id'] = this.userId;
       message['blocks'] = newBlocksArray;
-      this.subject.next(message);
+      this.socket.emit("json", message);
     }
   }
 }

@@ -1,9 +1,8 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Injectable, isDevMode } from '@angular/core';
-import { Socket, io } from "socket.io-client";
+import { Socket, io } from 'socket.io-client';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 
 import { Block } from './block.interface';
 import { Output } from './output';
@@ -45,32 +44,34 @@ export class OutputService implements OutputServiceInterface {
       this.executingBlocks$.next(true);
 
       this.socket.connect();
-      this.socket.on("json", (msg: any) => {
+      this.socket.on('json', (msg: string) => {
+        const res = JSON.parse(msg);
+        console.log('res', typeof msg, msg);
         const processedResponse: Output = {};
-          if (msg.text) {
-            processedResponse.text = msg.text;
-          } else if (msg.img && msg.alttext) {
-            const imageString = msg.img as string;
-            const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
-            const objectURL = 'data:image/png;base64,' + processedString;
-            const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
-            processedResponse.img = newImg;
-            processedResponse.alttext = msg.alttext;
-          } else if (msg.end_connection) {
-            this.socket.disconnect();
-            this.executingBlocks$.next(false);
-          } else if (msg.error) {
-            this.snackBar.open(msg.error, 'Close', { duration: 5000 });
-            this.socket.disconnect();
-            this.executingBlocks$.next(false);
-          } else {
-            this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
-            this.socket.disconnect();
-            this.executingBlocks$.next(false);
-          }
-          const outputs = this.outputs$.getValue();
-          outputs.push(processedResponse);
-          this.outputs$.next(outputs);
+        if (res.text) {
+          processedResponse.text = res.text;
+        } else if (res.img && res.alttext) {
+          const imageString = res.img as string;
+          const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
+          const objectURL = 'data:image/png;base64,' + processedString;
+          const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          processedResponse.img = newImg;
+          processedResponse.alttext = res.alttext;
+        } else if (res.end_connection) {
+          this.socket.disconnect();
+          this.executingBlocks$.next(false);
+        } else if (res.error) {
+          this.snackBar.open(res.error, 'Close', { duration: 5000 });
+          this.socket.disconnect();
+          this.executingBlocks$.next(false);
+        } else {
+          this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
+          this.socket.disconnect();
+          this.executingBlocks$.next(false);
+        }
+        const outputs = this.outputs$.getValue();
+        outputs.push(processedResponse);
+        this.outputs$.next(outputs);
       });
 
       type NewBlock = { [key: string]: string | number };
@@ -87,7 +88,7 @@ export class OutputService implements OutputServiceInterface {
       const message: Message = {};
       message['user_id'] = this.userId;
       message['blocks'] = newBlocksArray;
-      this.socket.emit("json", message);
+      this.socket.emit('json', message);
     }
   }
 }

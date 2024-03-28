@@ -46,10 +46,13 @@ def create_app(test_mode=False):
         logger = logging.getLogger('scampi')
         user_cache_config = file_cache_config
 
+    logger.debug("DEBUG logs enabled")
+
     external_loggers = [
         logging.getLogger('werkzeug'),
         logging.getLogger('waitress'),
-        logging.getLogger('scanpy')
+        logging.getLogger('scanpy'),
+        logging.getLogger('geventwebsocket.handler')
     ]
     for external_logger in external_loggers:
         external_logger.handlers.clear()
@@ -70,8 +73,9 @@ def create_app(test_mode=False):
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
 
+    # TODO, should we really be accepting CORS requests *all* the time?
     CORS(app)
-    socketio = SocketIO(app)
+    socketio = SocketIO(app, cors_allowed_origins="*")
 
     @app.route('/')
     def index():
@@ -86,6 +90,8 @@ def create_app(test_mode=False):
             if user_id == '':
                 user_id = str(uuid.uuid4())
                 logger.info(f"created user_id={user_id}")
+            else:
+                logger.info(f"User ID kept user_id={user_id}")
             message = {
                 'user_id': user_id
             }
@@ -98,20 +104,23 @@ def create_app(test_mode=False):
         pass
 
     @socketio.on('json')
-    def execute_blocks(message_json):
-        print('here')
+    def execute_blocks(message):
+        logger.info('here')
+        logger.info(f"Executing blocks, json={message}")
         try:
-            message = json.loads(message_json)
             user_id = message['user_id']
             logger.info(f"user_id={user_id}")
             if user_id is None or user_id == '':
+                logger.error("User id not in message")
                 raise UserIDException
             elif accepting_user_requests.get(user_id) is False:
+                logger.error("User already processing blocks")
                 raise NotAcceptingRequestException
             user_data = None
             accepting_user_requests.set(user_id, False)
             blocks = message['blocks']
             for block in blocks:
+                logger.debug(f"Executing block={block} user={user_id}")
                 if block['block_id'] == 'loaddata':
                     user_data, output_message = load_data(user_data, block)
                 elif block['block_id'] == 'basicfiltering':
@@ -128,7 +137,8 @@ def create_app(test_mode=False):
                     user_data, output_message = run_umap(user_data, block)
                 else:
                     raise ValueError
-                socketio.send(json.dumps(output_message))
+                socketio.emit("json", json.dumps(output_message))
+            logger.debug("Finished processing blocks for user={user_id}")
             end_connection = json.dumps({'end_connection': 'end_connection'})
         except UserIDException:
             end_connection = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
@@ -141,7 +151,7 @@ def create_app(test_mode=False):
         except Exception:
             end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
         finally:
-            socketio.send(end_connection)
+            socketio.emit("json", end_connection)
             accepting_user_requests.set(user_id, True)
 
     def load_data(user_data, block):

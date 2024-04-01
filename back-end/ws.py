@@ -68,7 +68,7 @@ def create_app(test_mode=False):
     logger.info("Finished loading raw data")
 
     app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
-    app.config['SECRET_KEY'] = 'secret!'
+    # app.config['SECRET_KEY'] = 'secret!'
 
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
@@ -105,7 +105,6 @@ def create_app(test_mode=False):
 
     @socketio.on('json')
     def execute_blocks(message):
-        logger.info('here')
         logger.info(f"Executing blocks, json={message}")
         try:
             user_id = message['user_id']

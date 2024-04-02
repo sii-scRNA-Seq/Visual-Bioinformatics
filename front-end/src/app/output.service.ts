@@ -29,8 +29,10 @@ export class OutputService implements OutputServiceInterface {
     );
     const url = isDevMode() ? 'ws://127.0.0.1:5000' : '';
     this.socket = io(url, {
-      autoConnect: false
+      autoConnect: false,
+      timeout: 100000
     });
+    this.socket.connect();
   }
 
   resetOutputs(): void {
@@ -43,35 +45,38 @@ export class OutputService implements OutputServiceInterface {
     } else {
       this.executingBlocks$.next(true);
 
-      this.socket.connect();
       this.socket.on('json', (msg: string) => {
         const res = JSON.parse(msg);
         console.log('res', typeof msg, msg);
-        const processedResponse: Output = {};
         if (res.text) {
+          const processedResponse: Output = {};
           processedResponse.text = res.text;
+          const outputs = this.outputs$.getValue();
+          outputs.push(processedResponse);
+          this.outputs$.next(outputs);
         } else if (res.img && res.alttext) {
           const imageString = res.img as string;
           const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
           const objectURL = 'data:image/png;base64,' + processedString;
           const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          const processedResponse: Output = {};
           processedResponse.img = newImg;
           processedResponse.alttext = res.alttext;
+          const outputs = this.outputs$.getValue();
+          outputs.push(processedResponse);
+          this.outputs$.next(outputs);
         } else if (res.end_connection) {
-          this.socket.disconnect();
+          this.socket.off();
           this.executingBlocks$.next(false);
         } else if (res.error) {
           this.snackBar.open(res.error, 'Close', { duration: 5000 });
-          this.socket.disconnect();
+          this.socket.off();
           this.executingBlocks$.next(false);
         } else {
           this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
-          this.socket.disconnect();
+          this.socket.off();
           this.executingBlocks$.next(false);
         }
-        const outputs = this.outputs$.getValue();
-        outputs.push(processedResponse);
-        this.outputs$.next(outputs);
       });
 
       type NewBlock = { [key: string]: string | number };

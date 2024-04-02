@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 from anndata import AnnData
 from flask import Flask, jsonify, request, render_template
 from flask_caching import Cache
@@ -137,27 +140,32 @@ def create_app(test_mode=False):
                 else:
                     raise ValueError
                 socketio.emit("json", json.dumps(output_message))
-                print('emitted')
+                logger.debug('emitted:' + json.dumps(output_message))
             logger.debug("Finished processing blocks for user={user_id}")
             end_connection = json.dumps({'end_connection': 'end_connection'})
-        except UserIDException:
+        except UserIDException as e:
+            logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
-        except NotAcceptingRequestException:
+        except NotAcceptingRequestException as e:
+            logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'You have another request in progress, please wait and try again'})
-        except KeyError:
+        except KeyError as e:
+            logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Received an incomplete request, please refresh the page and try again'})
-        except ValueError:
+        except ValueError as e:
+            logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
-        except Exception:
+        except Exception as e:
+            logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
         finally:
             socketio.emit("json", end_connection)
-            print('--------')
             accepting_user_requests.set(user_id, True)
 
     def load_data(user_data, block):
         logger.info("")
         user_data = raw_data_cache.get('pbmc3k').copy()
+        logger.debug(user_data)
         message = {
             'text': adata_text(user_data)
         }
@@ -293,10 +301,8 @@ def create_app(test_mode=False):
     return socketio, app
 
 
-# app = create_app()
-socketio, app = create_app()
-
 if __name__ == '__main__':
+    socketio, app = create_app(True)
     socketio.run(app)
     # from gevent import pywsgi
     # from geventwebsocket.handler import WebSocketHandler

@@ -28,10 +28,11 @@ export class OutputService implements OutputServiceInterface {
       (res) => { this.userId = res; },
     );
     const url = isDevMode() ? 'ws://127.0.0.1:5000' : '';
+    // TODO: Are these timeouts required?
     this.socket = io(url, {
       autoConnect: false,
-      timeout: 100000 // 100 seconds,
-      
+      timeout: 1000000,   // 1000 seconds,
+      ackTimeout: 1000000 // 1000 seconds,
     });
 
     this.socket.on('json', (msg: string) => {

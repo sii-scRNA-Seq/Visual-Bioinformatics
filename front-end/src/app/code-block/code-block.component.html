@@ -7,7 +7,7 @@
         <ul class="no-bullets">
             <li class="left-right-container" *ngFor="let parameter of block.parameters">
                 {{parameter.text}}
-                <input class="parameter-input" [(ngModel)]="parameter.value" placeholder="0" [attr.disabled]="executingBlocks">
+                <input class="parameter-input" [(ngModel)]="parameter.value" placeholder="0" [attr.disabled]="executingBlocks ? executingBlocks : undefined">
             </li>
         </ul>
     </mat-card-content>

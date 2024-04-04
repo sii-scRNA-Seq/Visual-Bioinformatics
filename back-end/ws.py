@@ -1,4 +1,5 @@
 from gevent import monkey
+import gevent
 from joblib import parallel_backend
 monkey.patch_all()
 
@@ -82,6 +83,8 @@ def create_app(test_mode=False):
     CORS(app)
     socketio = SocketIO(app, cors_allowed_origins="*")
 
+    logger.info(f"Server async mode: {socketio.server.eio.async_mode}")
+
     @app.route('/')
     def index():
         return render_template('index.html')
@@ -143,6 +146,9 @@ def create_app(test_mode=False):
                     raise ValueError
                 socketio.emit("json", json.dumps(output_message))
                 logger.debug('emitted:' + json.dumps(output_message))
+                # Allow other threads to execute
+                #https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
+                gevent.sleep()
             logger.debug(f"Finished processing blocks for user={user_id}")
             end_connection = json.dumps({'end_connection': 'end_connection'})
         except UserIDException as e:
@@ -255,7 +261,7 @@ def create_app(test_mode=False):
 
         # TODO: Why is this breaking the websocket?
         # with parallel_backend('threading', n_jobs=1):
-        #     sc.pp.regress_out(user_data, ['total_UMIs', 'pct_counts_mt'], n_jobs=1)
+        sc.pp.regress_out(user_data, ['total_UMIs', 'pct_counts_mt'], n_jobs=1)
         sc.pp.scale(user_data, max_value=10)
 
         with threadpool_limits(limits=1, user_api='blas'):
@@ -306,6 +312,11 @@ def create_app(test_mode=False):
 
 if __name__ == '__main__':
     socketio, app = create_app(True)
+
+    # By default, threading is handled by gevent.spawn:
+    # https://github.com/miguelgrinberg/Flask-SocketIO/blob/40007fded6228013ce7e408ea1d9628da8b125fa/src/flask_socketio/__init__.py#L700C36-L700C42
+    # https://www.gevent.org/api/gevent.baseserver.html#gevent.baseserver.BaseServer
+
     socketio.run(app)
     # from gevent import pywsgi
     # from geventwebsocket.handler import WebSocketHandler

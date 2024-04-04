@@ -78,4 +78,5 @@ dependencies:
       - zipp==3.17.0
       - zope-event==5.0
       - zope-interface==6.2
+      - flask_socketio==5.3.6
 

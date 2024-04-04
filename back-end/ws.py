@@ -57,7 +57,8 @@ def create_app(test_mode=False):
         logging.getLogger('werkzeug'),
         logging.getLogger('waitress'),
         logging.getLogger('scanpy'),
-        logging.getLogger('geventwebsocket.handler')
+        logging.getLogger('geventwebsocket.handler'),
+        logging.getLogger('ws')
     ]
     for external_logger in external_loggers:
         external_logger.handlers.clear()
@@ -86,8 +87,14 @@ def create_app(test_mode=False):
     logger.info(f"Server async mode: {socketio.server.eio.async_mode}")
 
     @app.route('/')
-    def index():
-        return render_template('index.html')
+    def serve_spa_default():
+        logger.warning("Serving default")
+        return app.send_static_file('index.html')
+    
+    @app.route('/<path:path>')
+    def serve_spa_files(path):
+        logger.warning("Serving " + path)
+        return app.send_static_file(path)
 
     @app.route('/api/getuserid')
     def get_user_id():
@@ -261,11 +268,12 @@ def create_app(test_mode=False):
 
         # TODO: Why is this breaking the websocket?
         # with parallel_backend('threading', n_jobs=1):
-        sc.pp.regress_out(user_data, ['total_UMIs', 'pct_counts_mt'], n_jobs=1)
-        sc.pp.scale(user_data, max_value=10)
+        # sc.pp.regress_out(user_data, ['total_UMIs', 'pct_counts_mt'], n_jobs=1)
+        with parallel_backend('threading', n_jobs=1):
+            with threadpool_limits(limits=1, user_api='blas'):
+                sc.pp.scale(user_data, max_value=10)
+                sc.tl.pca(user_data, svd_solver='arpack')
 
-        with threadpool_limits(limits=1, user_api='blas'):
-            sc.tl.pca(user_data, svd_solver='arpack')
         sc.pl.pca_variance_ratio(user_data, log=True)
         
         image_stream = io.BytesIO()
@@ -282,10 +290,12 @@ def create_app(test_mode=False):
         n_pcs = int(block['n_pcs'])
         logger.info(f"n_neighbors={n_neighbors} n_pcs={n_pcs}")
         
-        sc.pp.neighbors(user_data, n_neighbors=n_neighbors, n_pcs=n_pcs)
-        sc.tl.umap(user_data)
-        sc.tl.leiden(user_data)
-        sc.pl.umap(user_data, color=['leiden'], legend_loc='on data')
+        with parallel_backend('threading', n_jobs=1):
+            with threadpool_limits(limits=1, user_api='blas'):
+                sc.pp.neighbors(user_data, n_neighbors=n_neighbors, n_pcs=n_pcs)
+                sc.tl.umap(user_data)
+                sc.tl.leiden(user_data)
+                sc.pl.umap(user_data, color=['leiden'], legend_loc='on data')
         
         image_stream = io.BytesIO()
         plt.savefig(image_stream, format='png')
@@ -299,26 +309,18 @@ def create_app(test_mode=False):
     def adata_text(adata: AnnData) -> str:
         return f'Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes'
 
-    @app.route('/<path:path>')
-    def serve_spa_files(path):
-        return app.send_static_file(path)
-
-    @app.route('/')
-    def serve_spa_default():
-        return app.send_static_file('index.html')
-
     return socketio, app
 
 
 if __name__ == '__main__':
-    socketio, app = create_app(True)
 
     # By default, threading is handled by gevent.spawn:
     # https://github.com/miguelgrinberg/Flask-SocketIO/blob/40007fded6228013ce7e408ea1d9628da8b125fa/src/flask_socketio/__init__.py#L700C36-L700C42
     # https://www.gevent.org/api/gevent.baseserver.html#gevent.baseserver.BaseServer
 
+    socketio, app = create_app(True)
     socketio.run(app)
-    # from gevent import pywsgi
-    # from geventwebsocket.handler import WebSocketHandler
-    # server = pywsgi.WSGIServer(('127.0.0.1', 5000), app, handler_class=WebSocketHandler)
-    # server.serve_forever()
+
+    # # Production configuration
+    # socketio, app = create_app(False)
+    # socketio.run(app, port=8080)

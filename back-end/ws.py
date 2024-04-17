@@ -22,11 +22,11 @@ monkey.patch_all()
 sc.settings.verbosity = 0
 plt.switch_backend('agg')
 
-THREE_DAYS = 3 * 24 * 60 * 60
-
 with open('logging.yml', 'rt') as f:
     config = yaml.safe_load(f.read())
 logging.config.dictConfig(config)
+
+THREE_DAYS = 3 * 24 * 60 * 60
 
 simple_cache_config = {
     "CACHE_TYPE": "SimpleCache",
@@ -74,8 +74,6 @@ def create_app(test_mode=False):
     logger.info("Finished loading raw data")
 
     app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
-    # TODO: I don't know if this is required but it was in all the flask_socketio examples
-    app.config['SECRET_KEY'] = 'secret!'
 
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
@@ -121,6 +119,7 @@ def create_app(test_mode=False):
     @socketio.on('json')
     def execute_blocks(message):
         logger.info(f"Executing blocks, json={message}")
+
         try:
             user_id = message['user_id']
             if user_id is None or user_id == '':
@@ -158,6 +157,7 @@ def create_app(test_mode=False):
                 gevent.sleep()
             logger.debug(f"Finished processing blocks for user={user_id}")
             end_connection = json.dumps({'end_connection': 'end_connection'})
+
         except UserIDException as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
@@ -179,8 +179,9 @@ def create_app(test_mode=False):
 
     def load_data(user_data, block):
         logger.info("")
+
         user_data = raw_data_cache.get('pbmc3k').copy()
-        logger.debug(user_data)
+
         message = {
             'text': adata_text(user_data)
         }
@@ -265,15 +266,12 @@ def create_app(test_mode=False):
         sc.pp.calculate_qc_metrics(user_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
         user_data.obs['total_UMIs'] = user_data.obs['total_counts']
         user_data.obs = user_data.obs.drop('total_counts', axis=1)
-
-        # TODO: Why is this breaking the websocket?
-        # with parallel_backend('threading', n_jobs=1):
+        # TODO: Fix this or remove it and document bug
         # sc.pp.regress_out(user_data, ['total_UMIs', 'pct_counts_mt'], n_jobs=1)
         with parallel_backend('threading', n_jobs=1):
             with threadpool_limits(limits=1, user_api='blas'):
                 sc.pp.scale(user_data, max_value=10)
                 sc.tl.pca(user_data, svd_solver='arpack')
-
         sc.pl.pca_variance_ratio(user_data, log=True)
 
         image_stream = io.BytesIO()
@@ -318,9 +316,10 @@ if __name__ == '__main__':
     # https://github.com/miguelgrinberg/Flask-SocketIO/blob/40007fded6228013ce7e408ea1d9628da8b125fa/src/flask_socketio/__init__.py#L700C36-L700C42
     # https://www.gevent.org/api/gevent.baseserver.html#gevent.baseserver.BaseServer
 
+    # Testing configuration
     socketio, app = create_app(True)
     socketio.run(app)
 
-    # # Production configuration
+    # Production configuration
     # socketio, app = create_app(False)
     # socketio.run(app, port=8080)

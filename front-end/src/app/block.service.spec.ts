@@ -6,6 +6,8 @@ import { TestBed } from '@angular/core/testing';
 import { BlockService } from './block.service';
 import { OutputService } from './output.service';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 describe('BlockService', () => {
   let service: BlockService;
   let snackBar: MatSnackBar;
@@ -13,6 +15,7 @@ describe('BlockService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
+        BrowserAnimationsModule,
         HttpClientTestingModule,
         MatSnackBarModule,
       ],
@@ -164,34 +167,11 @@ describe('BlockService', () => {
       expect(outputService.resetOutputs).toHaveBeenCalledTimes(1);
     });
 
-    it('should result in no calls of outputService.executeBlock when no blocks are on the canvas', async () => {
+    it('should result in a call of outputService.executeBlocks', async () => {
       const outputService: OutputService = TestBed.inject(OutputService);
-      spyOn(outputService, 'executeBlock');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks.length).toBe(0);
+      spyOn(outputService, 'executeBlocks');
       service.executeBlocks();
-      expect(outputService.executeBlock).toHaveBeenCalledTimes(0);
-    });
-
-    it('should result in one call of outputService.executeBlock when one block is on the canvas', async () => {
-      const outputService: OutputService = TestBed.inject(OutputService);
-      spyOn(outputService, 'executeBlock');
-      service.addBlock('loaddata');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks.length).toBe(1);
-      service.executeBlocks();
-      expect(outputService.executeBlock).toHaveBeenCalledTimes(1);
-    });
-
-    it('should result in two calls of outputService.executeBlock when two blocks are on the canvas', async () => {
-      const outputService: OutputService = TestBed.inject(OutputService);
-      spyOn(outputService, 'executeBlock');
-      service.addBlock('loaddata');
-      service.addBlock('basicfiltering');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks.length).toBe(2);
-      await service.executeBlocks();
-      expect(outputService.executeBlock).toHaveBeenCalledTimes(2);
+      expect(outputService.executeBlocks).toHaveBeenCalledTimes(1);
     });
   });
 });

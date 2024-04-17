@@ -37,14 +37,9 @@ describe('OutputDisplayComponent', () => {
   describe('OutputList', () => {
     it('should update when OutputService.outputs updates', () => {
       expect(component.outputList.length).toBe(0);
-      const block: Block = {
-        blockId: 'loaddata',
-        title: 'Load Data',
-        possibleChildBlocks: [],
-        parameters: [],
-      };
+      const blocks: Block[] = [];
       const outputService: OutputService = TestBed.inject(OutputService);
-      outputService.executeBlock(block);
+      outputService.executeBlocks(blocks);
       expect(component.outputList.length).toBe(1);
     });
   });

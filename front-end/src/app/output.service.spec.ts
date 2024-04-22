@@ -16,6 +16,7 @@ describe('OutputService', () => {
   let service: OutputService;
   let snackBar: MatSnackBar;
   let sanitizer: DomSanitizer;
+  let clientMock = jasmine.createSpyObj("backend", ["listen", "sendRequest"])
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -26,10 +27,11 @@ describe('OutputService', () => {
       ], 
       providers: [
         { provide: UserIdService, useClass: MockUserIdService },
-        { provide: BackendSocketClient, useClass: MockBackendSocketClient }
+        // { provide: BackendSocketClient, useClass: MockBackendSocketClient },
+        { provide: BackendSocketClient, useValue: clientMock}
       ],
     });
-    service = TestBed.inject(OutputService);
+    
     snackBar = TestBed.inject(MatSnackBar);
     sanitizer = TestBed.inject(DomSanitizer);
   });
@@ -39,6 +41,10 @@ describe('OutputService', () => {
   });
 
   describe('outputs', () => {
+    beforeEach(()=>{
+      service = TestBed.inject(OutputService);
+    });
+
     it('should initially be empty', async () => {
       const outputs = await firstValueFrom(service.outputs.pipe(first()));
       expect(outputs.length).toBe(0);
@@ -46,6 +52,10 @@ describe('OutputService', () => {
   });
 
   describe('resetOutputs', () => {
+    beforeEach(()=>{
+      service = TestBed.inject(OutputService);
+    });
+
     it('should set the outputs list to be empty', async () => {
       let outputs = await firstValueFrom(service.outputs.pipe(first()));
       expect(outputs.length).toBe(0);
@@ -62,6 +72,10 @@ describe('OutputService', () => {
   });
 
   describe('executeBlocks', () => {
+    beforeEach(()=>{
+      service = TestBed.inject(OutputService);
+    });
+
     it('should open snack bar when userId is null', () => {
       const spy = spyOn(snackBar, 'open');
       const blocks: Block[] = [];
@@ -95,55 +109,85 @@ describe('OutputService', () => {
 
   describe('backendSocketClient subscription', () => {
     it('should add text to outputs array when it receives a valid text response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled()
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      backendSocketClient.sendRequest('text');
+      cb('{"text": "Dummy text"}');
       outputs = await firstValueFrom(service.outputs);
       expect(outputs.length).toBe(1);
       expect(outputs[0].text).toBe('Dummy text');
     });
 
     it('should add sanitised SafeUrl image and alt text to outputs array when it receives a valid image response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled()
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
       const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
-      backendSocketClient.sendRequest("image");
-      expect(spy).toHaveBeenCalledTimes(1);
+      cb('{"img": "Image text", "alttext": "Alt text"}');
       outputs = await firstValueFrom(service.outputs);
       expect(outputs.length).toBe(1);
-      const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image string');
+      expect(spy).toHaveBeenCalledTimes(1);
+      const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image text');
       expect(outputs[0].img).toBe(expectedValue);
       expect(outputs[0].alttext).toBe('Alt text');
     });
 
     it('should not change the outputs array when it receives an end_connection response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled()
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      backendSocketClient.sendRequest("end_connection");
+      cb('{"end_connection": "end_connection"}');
       outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
     });
 
     it('should open snack bar with given message when response is a known error', async() => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled()
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
       const spy = spyOn(snackBar, 'open');
-      backendSocketClient.sendRequest("error");
+      cb('{"error": "error"}');
       expect(spy).toHaveBeenCalledOnceWith('error', 'Close', { duration: 5000 });
       outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
     });
 
     it('should open snack bar with generic message for invalid responses', async() => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled()
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
       const spy = spyOn(snackBar, 'open');
-      backendSocketClient.sendRequest("invalid response");
+      cb('{}');
       expect(spy).toHaveBeenCalledOnceWith('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
       outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
@@ -151,6 +195,10 @@ describe('OutputService', () => {
   });
 
   describe('executingBlocks', () => {
+    beforeEach(()=>{
+      service = TestBed.inject(OutputService);
+    });
+
     it('should be false by default', async () => {
       const executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();

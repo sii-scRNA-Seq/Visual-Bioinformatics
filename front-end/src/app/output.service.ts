@@ -25,36 +25,36 @@ export class OutputService implements OutputServiceInterface {
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },
     );
-    this.backendSocketClient.response.subscribe(
-      (res: any) => {
-        if (res.text) {
-          const processedResponse: Output = {};
-          processedResponse.text = res.text;
-          const outputs = this.outputs$.getValue();
-          outputs.push(processedResponse);
-          this.outputs$.next(outputs);
-        } else if (res.img && res.alttext) {
-          const imageString = res.img as string;
-          const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
-          const objectURL = 'data:image/png;base64,' + processedString;
-          const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
-          const processedResponse: Output = {};
-          processedResponse.img = newImg;
-          processedResponse.alttext = res.alttext;
-          const outputs = this.outputs$.getValue();
-          outputs.push(processedResponse);
-          this.outputs$.next(outputs);
-        } else if (res.end_connection) {
-          this.executingBlocks$.next(false);
-        } else if (res.error) {
-          this.snackBar.open(res.error, 'Close', { duration: 5000 });
-          this.executingBlocks$.next(false);
-        } else {
-          this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
-          this.executingBlocks$.next(false);
-        }
+
+    this.backendSocketClient.listen((msg: string) => {
+      const res = JSON.parse(msg);
+      if (res.text) {
+        const processedResponse: Output = {};
+        processedResponse.text = res.text;
+        const outputs = this.outputs$.getValue();
+        outputs.push(processedResponse);
+        this.outputs$.next(outputs);
+      } else if (res.img && res.alttext) {
+        const imageString = res.img as string;
+        const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
+        const objectURL = 'data:image/png;base64,' + processedString;
+        const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+        const processedResponse: Output = {};
+        processedResponse.img = newImg;
+        processedResponse.alttext = res.alttext;
+        const outputs = this.outputs$.getValue();
+        outputs.push(processedResponse);
+        this.outputs$.next(outputs);
+      } else if (res.end_connection) {
+        this.executingBlocks$.next(false);
+      } else if (res.error) {
+        this.snackBar.open(res.error, 'Close', { duration: 5000 });
+        this.executingBlocks$.next(false);
+      } else {
+        this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
+        this.executingBlocks$.next(false);
       }
-    );
+    });
   }
 
   resetOutputs(): void {

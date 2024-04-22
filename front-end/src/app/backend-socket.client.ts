@@ -23,14 +23,16 @@ export class BackendSocketClient implements BackendSocketClientInterface {
       ackTimeout: 1000000 // 1000 seconds,
     });
     
-    this.socket.on('json', (msg: string) => {
-      const res = JSON.parse(msg);
-      this.response$.next(res);
-    });
     this.socket.connect();
   }
 
   sendRequest(message: any): void {
     this.socket.emit('json', message);
+  }
+
+  listen(foo: (res: string) => void): void {
+    this.socket.on('json', (msg: string) => {
+      foo(msg);  
+    })
   }
 }

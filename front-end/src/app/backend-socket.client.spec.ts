@@ -13,4 +13,21 @@ describe('BackendSocketService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  describe('sendRequest', () => {
+    it('should appropriately emit the given message', () => {
+      const message = {
+        user_id: 'mock_user_id',
+        blocks: [{ block_id: 'loaddata', foo: 42}],
+      };
+      const spy = spyOn(service, 'sendRequest');
+      service.sendRequest(message);
+
+      expect(true).toBe(false);
+    });
+
+    it('should break', () => {
+      expect(true).toBe(false);
+    });
+  });
 });

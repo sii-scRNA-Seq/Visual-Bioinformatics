@@ -156,10 +156,65 @@ describe('OutputService', () => {
   });
 
   describe('executingBlocks', () => {
-    it('should work', async () => {
+    it('should be false by default', async () => {
+      const executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
+    });
+
+    it('should be set to true by executeBlocks function', async () => {
+      let executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
       const userIdService: UserIdService = TestBed.inject(UserIdService);
       userIdService.setUserId();
-      expect(false).toBe(true);
+      const blocks: Block[] = [];
+      service.executeBlocks(blocks);
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeTrue();
+    });
+
+    it('should be set to false after an end_connection response', async () => {
+      let executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
+      const userIdService: UserIdService = TestBed.inject(UserIdService);
+      userIdService.setUserId();
+      const blocks: Block[] = [];
+      service.executeBlocks(blocks);
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeTrue();
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      backendSocketClient.sendRequest("end_connection");
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
+    });
+
+    it('should be set to false after a known error response', async () => {
+      let executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
+      const userIdService: UserIdService = TestBed.inject(UserIdService);
+      userIdService.setUserId();
+      const blocks: Block[] = [];
+      service.executeBlocks(blocks);
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeTrue();
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      backendSocketClient.sendRequest("error");
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
+    });
+
+    it('should be set to false after an invalid response', async () => {
+      let executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
+      const userIdService: UserIdService = TestBed.inject(UserIdService);
+      userIdService.setUserId();
+      const blocks: Block[] = [];
+      service.executeBlocks(blocks);
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeTrue();
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      backendSocketClient.sendRequest("invalid response");
+      executingBlocks = await firstValueFrom(service.executingBlocks);
+      expect(executingBlocks).toBeFalse();
     });
   });
 });

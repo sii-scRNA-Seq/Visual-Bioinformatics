@@ -1,7 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Injectable, isDevMode } from '@angular/core';
-import { Socket, io } from 'socket.io-client';
+import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { BackendSocketClient } from './backend-socket.client';

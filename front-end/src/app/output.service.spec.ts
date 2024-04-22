@@ -1,26 +1,21 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DomSanitizer } from '@angular/platform-browser';
-import { fakeAsync, tick, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { first, firstValueFrom } from 'rxjs';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
+import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
+import { MockBackendSocketClient } from './mock-backend-socket.client';
 import { MockUserIdService } from './mock-user-id.service';
 import { OutputService } from './output.service';
 import { UserIdService } from './user-id.service';
-
-import { createServer, Server } from "http";
-import { AddressInfo } from "net";
-import { io as ioc, Socket } from "socket.io-client";
-import { BackendSocketClient } from './backend-socket.client';
-import { MockBackendSocketClient } from './mock-backend-socket.client';
 
 describe('OutputService', () => {
   let service: OutputService;
   let snackBar: MatSnackBar;
   let sanitizer: DomSanitizer;
-  let io: Server, serverSocket: Socket;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -103,7 +98,7 @@ describe('OutputService', () => {
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      backendSocketClient.sendRequest("text");
+      backendSocketClient.sendRequest('text');
       outputs = await firstValueFrom(service.outputs);
       expect(outputs.length).toBe(1);
       expect(outputs[0].text).toBe('Dummy text');

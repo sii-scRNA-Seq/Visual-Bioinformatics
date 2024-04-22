@@ -96,100 +96,70 @@ describe('OutputService', () => {
       };
       expect(spy).toHaveBeenCalledOnceWith(message);
     });
+  });
 
+  describe('backendSocketClient subscription', () => {
+    it('should add text to outputs array when it receives a valid text response', async () => {
+      let outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      backendSocketClient.sendRequest("text");
+      outputs = await firstValueFrom(service.outputs);
+      expect(outputs.length).toBe(1);
+      expect(outputs[0].text).toBe('Dummy text');
+    });
 
+    it('should add sanitised SafeUrl image and alt text to outputs array when it receives a valid image response', async () => {
+      let outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
+      backendSocketClient.sendRequest("image");
+      expect(spy).toHaveBeenCalledTimes(1);
+      outputs = await firstValueFrom(service.outputs);
+      expect(outputs.length).toBe(1);
+      const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image string');
+      expect(outputs[0].img).toBe(expectedValue);
+      expect(outputs[0].alttext).toBe('Alt text');
+    });
 
-    it('should add a response to outputs array when it receives a valid response', fakeAsync(() => {
-      // const block: Block = {
-      //   blockId: 'loaddata',
-      //   title: 'Load Data',
-      //   possibleChildBlocks: [],
-      //   parameters: [],
-      // };
-      // const userIdService: UserIdService = TestBed.inject(UserIdService);
-      // userIdService.setUserId();
-      // const mockHttp = TestBed.inject(HttpTestingController);
-      // service.executeBlock(block).then(async () => {
-      //   const outputs = await firstValueFrom(service.outputs);
-      //   expect(outputs).toEqual([{text: 'Hello World'}]);
-      // });
-      // tick();
-      // const req = mockHttp.expectOne('http://localhost:5000/api/loaddata?user_id=mock_user_id');
-      // expect(req.request.method).toBe('GET');
-      // req.flush({text: 'Hello World'});
-      // mockHttp.verify();
+    it('should not change the outputs array when it receives an end_connection response', async () => {
+      let outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      backendSocketClient.sendRequest("end_connection");
+      outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+    });
+
+    it('should open snack bar with given message when response is a known error', async() => {
+      let outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      const spy = spyOn(snackBar, 'open');
+      backendSocketClient.sendRequest("error");
+      expect(spy).toHaveBeenCalledOnceWith('error', 'Close', { duration: 5000 });
+      outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+    });
+
+    it('should open snack bar with generic message for invalid responses', async() => {
+      let outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
+      const spy = spyOn(snackBar, 'open');
+      backendSocketClient.sendRequest("invalid response");
+      expect(spy).toHaveBeenCalledOnceWith('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
+      outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+    });
+  });
+
+  describe('executingBlocks', () => {
+    it('should work', async () => {
+      const userIdService: UserIdService = TestBed.inject(UserIdService);
+      userIdService.setUserId();
       expect(false).toBe(true);
-    }));
-
-    it('should replace image outputs with a sanitised SafeUrl', fakeAsync(() => {
-      // const block: Block = {
-      //   blockId: 'qcplots',
-      //   title: 'Quality Control Plots',
-      //   possibleChildBlocks: [],
-      //   parameters: [],
-      // };
-      // const userIdService: UserIdService = TestBed.inject(UserIdService);
-      // userIdService.setUserId();
-      // const mockHttp = TestBed.inject(HttpTestingController);
-      // const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
-      // service.executeBlock(block).then(async () => {
-      //   expect(spy).toHaveBeenCalledTimes(1);
-      //   const outputs = await firstValueFrom(service.outputs);
-      //   expect(outputs.length).toBe(1);
-      //   const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image string');
-      //   expect(outputs[0].img).toBe(expectedValue);
-      //   expect(outputs[0].alttext).toBe('Alt text');
-      // });
-      // tick();
-      // const req = mockHttp.expectOne('http://localhost:5000/api/qcplots?user_id=mock_user_id');
-      // expect(req.request.method).toBe('GET');
-      // req.flush({img: 'Image string', alttext: 'Alt text'});
-      // mockHttp.verify();
-      expect(false).toBe(true);
-    }));
-
-    it('should open snack bar with appropriate message when response is a 406 error', fakeAsync(() => {
-      // const block: Block = {
-      //   blockId: 'loaddata',
-      //   title: 'Load Data',
-      //   possibleChildBlocks: [],
-      //   parameters: [],
-      // };
-      // const userIdService: UserIdService = TestBed.inject(UserIdService);
-      // userIdService.setUserId();
-      // const mockHttp = TestBed.inject(HttpTestingController);
-      // const spy = spyOn(snackBar, 'open');
-      // service.executeBlock(block).then(async () => {
-      //   expect(spy).toHaveBeenCalledOnceWith('The blocks you have executed are not a valid order. Please check the blocks and try again.', 'Close', { duration: 5000 });
-      // });
-      // tick();
-      // const req = mockHttp.expectOne('http://localhost:5000/api/loaddata?user_id=mock_user_id');
-      // expect(req.request.method).toBe('GET');
-      // req.flush('', { status: 406, statusText: 'Bad Request'});
-      // mockHttp.verify();
-      expect(false).toBe(true);
-    }));
-
-    it('should open snack bar with appropriate message for other errors', fakeAsync(() => {
-      // const block: Block = {
-      //   blockId: 'runumap',
-      //   title: 'Run UMAP',
-      //   possibleChildBlocks: [],
-      //   parameters: [],
-      // };
-      // const userIdService: UserIdService = TestBed.inject(UserIdService);
-      // userIdService.setUserId();
-      // const mockHttp = TestBed.inject(HttpTestingController);
-      // const spy = spyOn(snackBar, 'open');
-      // service.executeBlock(block).then(async () => {
-      //   expect(spy).toHaveBeenCalledOnceWith('There has been an error. Please refresh the page and try again.', 'Close', { duration: 5000 });
-      // });
-      // tick();
-      // const req = mockHttp.expectOne('http://localhost:5000/api/runumap?user_id=mock_user_id');
-      // expect(req.request.method).toBe('GET');
-      // req.flush('', { status: 400, statusText: 'Bad Request'});
-      // mockHttp.verify();
-      expect(false).toBe(true);
-    }));
-  }); 
+    });
+  });
 });

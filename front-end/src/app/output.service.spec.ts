@@ -16,7 +16,7 @@ describe('OutputService', () => {
   let service: OutputService;
   let snackBar: MatSnackBar;
   let sanitizer: DomSanitizer;
-  let clientMock = jasmine.createSpyObj("backend", ["listen", "sendRequest"])
+  const clientMock = jasmine.createSpyObj('backend', ['listen', 'sendRequest']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -27,16 +27,15 @@ describe('OutputService', () => {
       ], 
       providers: [
         { provide: UserIdService, useClass: MockUserIdService },
-        // { provide: BackendSocketClient, useClass: MockBackendSocketClient },
         { provide: BackendSocketClient, useValue: clientMock}
       ],
     });
-    
     snackBar = TestBed.inject(MatSnackBar);
     sanitizer = TestBed.inject(DomSanitizer);
   });
 
   it('should be created', () => {
+    service = TestBed.inject(OutputService);
     expect(service).toBeTruthy();
   });
 
@@ -52,19 +51,20 @@ describe('OutputService', () => {
   });
 
   describe('resetOutputs', () => {
-    beforeEach(()=>{
-      service = TestBed.inject(OutputService);
-    });
-
     it('should set the outputs list to be empty', async () => {
-      let outputs = await firstValueFrom(service.outputs.pipe(first()));
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled();
+      let outputs = await firstValueFrom(service.outputs);
       expect(outputs.length).toBe(0);
-      const userIdService: UserIdService = TestBed.inject(UserIdService);
-      userIdService.setUserId();
-      const blocks: Block[] = [];
-      service.executeBlocks(blocks);
-      outputs = await firstValueFrom(service.outputs.pipe(first()));
+      cb('{"text": "Dummy text"}');
+      outputs = await firstValueFrom(service.outputs);
       expect(outputs.length).toBe(1);
+      expect(outputs[0].text).toBe('Dummy text');
       service.resetOutputs();
       outputs = await firstValueFrom(service.outputs.pipe(first()));
       expect(outputs.length).toBe(0);
@@ -86,8 +86,8 @@ describe('OutputService', () => {
     it('should call backendSocketClient.sendRequest() with the appropriate message', () => {
       const userIdService: UserIdService = TestBed.inject(UserIdService);
       userIdService.setUserId();
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      const spy = spyOn(backendSocketClient, 'sendRequest');
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      backendSocketClient.sendRequest.calls.reset();
       const block: Block = {
         blockId: 'loaddata',
         title: 'Load Data',
@@ -103,19 +103,19 @@ describe('OutputService', () => {
         user_id: 'mock_user_id',
         blocks: [{ block_id: 'loaddata', foo: 42}],
       };
-      expect(spy).toHaveBeenCalledOnceWith(message);
+      expect(backendSocketClient.sendRequest).toHaveBeenCalledOnceWith(message);
     });
   });
 
-  describe('backendSocketClient subscription', () => {
+  describe('Function passed to backendSocketClient.listen', () => {
     it('should add text to outputs array when it receives a valid text response', async () => {
       const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
-      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
       backendSocketClient.listen.and.callFake(func => {
         cb = func;
       });
       service = TestBed.inject(OutputService);
-      expect(backendSocketClient.listen).toHaveBeenCalled()
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       cb('{"text": "Dummy text"}');
@@ -126,12 +126,12 @@ describe('OutputService', () => {
 
     it('should add sanitised SafeUrl image and alt text to outputs array when it receives a valid image response', async () => {
       const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
-      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
       backendSocketClient.listen.and.callFake(func => {
         cb = func;
       });
       service = TestBed.inject(OutputService);
-      expect(backendSocketClient.listen).toHaveBeenCalled()
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
@@ -146,12 +146,12 @@ describe('OutputService', () => {
 
     it('should not change the outputs array when it receives an end_connection response', async () => {
       const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
-      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
       backendSocketClient.listen.and.callFake(func => {
         cb = func;
       });
       service = TestBed.inject(OutputService);
-      expect(backendSocketClient.listen).toHaveBeenCalled()
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       cb('{"end_connection": "end_connection"}');
@@ -161,12 +161,12 @@ describe('OutputService', () => {
 
     it('should open snack bar with given message when response is a known error', async() => {
       const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
-      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
       backendSocketClient.listen.and.callFake(func => {
         cb = func;
       });
       service = TestBed.inject(OutputService);
-      expect(backendSocketClient.listen).toHaveBeenCalled()
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       const spy = spyOn(snackBar, 'open');
@@ -178,12 +178,12 @@ describe('OutputService', () => {
 
     it('should open snack bar with generic message for invalid responses', async() => {
       const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
-      let cb: (res: string) => void = () => { throw Error("Should have been changed") };
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
       backendSocketClient.listen.and.callFake(func => {
         cb = func;
       });
       service = TestBed.inject(OutputService);
-      expect(backendSocketClient.listen).toHaveBeenCalled()
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       const spy = spyOn(snackBar, 'open');
@@ -195,16 +195,14 @@ describe('OutputService', () => {
   });
 
   describe('executingBlocks', () => {
-    beforeEach(()=>{
-      service = TestBed.inject(OutputService);
-    });
-
     it('should be false by default', async () => {
+      service = TestBed.inject(OutputService);
       const executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
     });
 
     it('should be set to true by executeBlocks function', async () => {
+      service = TestBed.inject(OutputService);
       let executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
       const userIdService: UserIdService = TestBed.inject(UserIdService);
@@ -216,6 +214,13 @@ describe('OutputService', () => {
     });
 
     it('should be set to false after an end_connection response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
       const userIdService: UserIdService = TestBed.inject(UserIdService);
@@ -224,13 +229,19 @@ describe('OutputService', () => {
       service.executeBlocks(blocks);
       executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeTrue();
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      backendSocketClient.sendRequest("end_connection");
+      cb('{"end_connection": "end_connection"}');
       executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
     });
 
     it('should be set to false after a known error response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
       const userIdService: UserIdService = TestBed.inject(UserIdService);
@@ -239,13 +250,19 @@ describe('OutputService', () => {
       service.executeBlocks(blocks);
       executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeTrue();
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      backendSocketClient.sendRequest("error");
+      cb('{"error": "error"}');
       executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
     });
 
     it('should be set to false after an invalid response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled();
       let executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
       const userIdService: UserIdService = TestBed.inject(UserIdService);
@@ -254,8 +271,7 @@ describe('OutputService', () => {
       service.executeBlocks(blocks);
       executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeTrue();
-      const backendSocketClient: BackendSocketClient = TestBed.inject(BackendSocketClient);
-      backendSocketClient.sendRequest("invalid response");
+      cb('{}');
       executingBlocks = await firstValueFrom(service.executingBlocks);
       expect(executingBlocks).toBeFalse();
     });

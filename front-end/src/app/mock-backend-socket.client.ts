@@ -29,7 +29,7 @@ export class MockBackendSocketClient implements BackendSocketClientInterface {
   listen(foo: (res: string) => void): void {
     this.socket.on('json', (msg: string) => {
       foo(msg);  
-    })
+    });
   }
 
   sendRequest(message: any): void {

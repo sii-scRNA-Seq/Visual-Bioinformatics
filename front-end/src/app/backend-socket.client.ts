@@ -33,6 +33,6 @@ export class BackendSocketClient implements BackendSocketClientInterface {
   listen(foo: (res: string) => void): void {
     this.socket.on('json', (msg: string) => {
       foo(msg);  
-    })
+    });
   }
 }

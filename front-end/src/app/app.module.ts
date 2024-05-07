@@ -12,6 +12,7 @@ import { BlockLibraryComponent } from './block-library/block-library.component';
 import { CanvasComponent } from './canvas/canvas.component';
 import { CodeBlockComponent } from './code-block/code-block.component';
 import { OutputDisplayComponent } from './output-display/output-display.component';
+import { SOCKET, socket } from './socket';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,9 @@ import { OutputDisplayComponent } from './output-display/output-display.componen
     MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
-  providers: [],
+  providers: [
+    {provide: SOCKET, useValue: socket},
+  ],
   bootstrap: [AppComponent],
 })
 

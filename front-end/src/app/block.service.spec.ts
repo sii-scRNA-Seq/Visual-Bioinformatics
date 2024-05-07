@@ -1,12 +1,13 @@
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { first, firstValueFrom } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { BlockService } from './block.service';
+import { MockSocket } from './mock-socket';
 import { OutputService } from './output.service';
-
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SOCKET } from './socket';
 
 describe('BlockService', () => {
   let service: BlockService;
@@ -18,6 +19,9 @@ describe('BlockService', () => {
         BrowserAnimationsModule,
         HttpClientTestingModule,
         MatSnackBarModule,
+      ],
+      providers: [
+        { provide: SOCKET, useClass: MockSocket },
       ],
     });
     service = TestBed.inject(BlockService);

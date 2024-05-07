@@ -7,7 +7,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
-import { MockBackendSocketClient } from './mock-backend-socket.client';
 import { MockUserIdService } from './mock-user-id.service';
 import { OutputService } from './output.service';
 import { UserIdService } from './user-id.service';

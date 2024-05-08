@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
+import { NewBlock, Request } from './request';
 import { Output } from './output';
 import { OutputServiceInterface } from './output.service.interface';
 import { UserIdService } from './user-id.service';
@@ -66,7 +67,6 @@ export class OutputService implements OutputServiceInterface {
       this.snackBar.open('No User ID, please refresh the page and try again', 'Close', { duration: 5000 });
     } else {
       this.executingBlocks$.next(true);
-      type NewBlock = { [key: string]: string | number };
       const newBlocksArray: NewBlock[] = [];
       for (let i = 0; i < blocks.length; i++) {
         const block: NewBlock = {};
@@ -76,11 +76,11 @@ export class OutputService implements OutputServiceInterface {
         }
         newBlocksArray.push(block);
       }    
-      type Message = { [key: string]: string | NewBlock[] };
-      const message: Message = {};
-      message['user_id'] = this.userId;
-      message['blocks'] = newBlocksArray;
-      this.backendSocketClient.sendRequest(message);
+      const request: Request = {
+        'user_id': this.userId,
+        'blocks': newBlocksArray,
+      };
+      this.backendSocketClient.sendRequest(request);
     }
   }
 }

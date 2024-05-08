@@ -54,7 +54,7 @@ describe('BackendSocketService', () => {
     });
 
     it('should make an appropriate call to socket.on()', () => {
-      const foo = jasmine.createSpy('foo', (res: string) => {});
+      const foo = jasmine.createSpy('foo', (res: string) => { }); // eslint-disable-line @typescript-eslint/no-unused-vars
       const socket: Socket = TestBed.inject(SOCKET);
       const spy = spyOn(socket, 'on').and.callFake((str: string, callback: ReservedOrUserListener<EventsMap, EventsMap, string>) => {
         callback('test string!');

@@ -1,9 +1,7 @@
-import { Observable } from 'rxjs';
+import { Request } from './request';
 
 export interface BackendSocketClientInterface {
-  response: Observable<any>;
-
   listen(foo: (res: string) => void): void;
 
-  sendRequest(message: any): void;
+  sendRequest(message: Request): void;
 }

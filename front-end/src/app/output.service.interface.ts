@@ -8,5 +8,7 @@ export interface OutputServiceInterface {
 
   outputs: Observable<Output[]>;
 
+  resetOutputs(): void;
+
   executeBlocks(block: Block[]): void;
 }

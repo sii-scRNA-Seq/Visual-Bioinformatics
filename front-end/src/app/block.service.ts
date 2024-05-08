@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Block, BlockId } from './block.interface';
+import { BlockServiceInterface } from './block.service.interface';
 import { OutputService } from './output.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BlockService {
+export class BlockService implements BlockServiceInterface {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 

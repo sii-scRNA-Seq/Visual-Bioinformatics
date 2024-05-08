@@ -5,9 +5,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { BlockService } from './block.service';
-import { MockSocket } from './mock-socket';
+import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
-import { SOCKET } from './socket';
 
 describe('BlockService', () => {
   let service: BlockService;
@@ -21,7 +20,7 @@ describe('BlockService', () => {
         MatSnackBarModule,
       ],
       providers: [
-        { provide: SOCKET, useClass: MockSocket },
+        { provide: OutputService, useClass: MockOutputService },
       ],
     });
     service = TestBed.inject(BlockService);

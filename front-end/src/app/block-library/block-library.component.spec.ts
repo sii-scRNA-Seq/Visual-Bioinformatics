@@ -7,6 +7,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BlockLibraryComponent } from './block-library.component';
 import { BlockService } from '../block.service';
 import { MockBlockService } from '../mock-block.service';
+import { MockOutputService } from '../mock-output.service';
+import { OutputService } from '../output.service';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -21,7 +23,8 @@ describe('BlockLibraryComponent', () => {
         MatSnackBarModule,
       ],
       providers: [
-        { provide: BlockService, useClass: MockBlockService }
+        { provide: BlockService, useClass: MockBlockService },
+        { provide: OutputService, useClass: MockOutputService },
       ],
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);
@@ -97,8 +100,9 @@ describe('BlockLibraryComponent', () => {
       expect(blockService.addBlock).toHaveBeenCalledOnceWith('runumap');
     });
 
-    it ('should be disabled while blocks are being executed', () => {
-      const blockService: BlockService = TestBed.inject(BlockService);
+    it ('should be available when blocks are not being executed', () => {
+      component.executingBlocks = false;
+      fixture.detectChanges(); 
       expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(false);
       expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(false);
       expect(fixture.debugElement.query(By.css('#qc-plots')).nativeElement.disabled).toEqual(false);
@@ -106,7 +110,19 @@ describe('BlockLibraryComponent', () => {
       expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(false);
       expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(false);
       expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(false);
-      blockService.executeBlocks();
+    });
+
+    it ('should become disabled while blocks are being executed', () => {
+      component.executingBlocks = false;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#qc-plots')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#qc-filtering')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(false);
+      component.executingBlocks = true;
       fixture.detectChanges(); 
       expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(true);
       expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(true);
@@ -115,6 +131,27 @@ describe('BlockLibraryComponent', () => {
       expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(true);
       expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(true);
       expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(true);
+    });
+
+    it ('should become available once blocks have stopped being executed', () => {
+      component.executingBlocks = true;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#qc-plots')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#qc-filtering')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(true);
+      component.executingBlocks = false;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('#load-data')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#basic-filtering')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#qc-plots')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#qc-filtering')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#variable-genes')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#pca')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#run-umap')).nativeElement.disabled).toEqual(false);
     });
   });
 });

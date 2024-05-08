@@ -8,6 +8,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BlockService } from '../block.service';
 import { CanvasComponent } from './canvas.component';
 import { MockBlockService } from '../mock-block.service';
+import { OutputService } from '../output.service';
+import { MockOutputService } from '../mock-output.service';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -23,7 +25,8 @@ describe('CanvasComponent', () => {
         MatSnackBarModule,
       ],
       providers: [
-        { provide: BlockService, useClass: MockBlockService }
+        { provide: BlockService, useClass: MockBlockService },
+        { provide: OutputService, useClass: MockOutputService },
       ],
     });
     fixture = TestBed.createComponent(CanvasComponent);
@@ -45,22 +48,54 @@ describe('CanvasComponent', () => {
       expect(blockService.executeBlocks).toHaveBeenCalledTimes(1);
     });
 
-    it('should not be available while blocks are being executed', () => {
-      const blockService: BlockService = TestBed.inject(BlockService);
+    it('should be available when blocks are not being executed', () => {
+      component.executingBlocks = false;
+      fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('button'))).not.toBeNull();
-      blockService.executeBlocks();
-      fixture.detectChanges(); 
+    });
+    
+    it('should not be available while blocks are being executed', () => {
+      component.executingBlocks = false;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('button'))).not.toBeNull();
+      component.executingBlocks = true;
+      fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('button'))).toBeNull();
+    });
+
+    it ('should become available once blocks have stopped being executed', () => {
+      component.executingBlocks = true;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('button'))).toBeNull();
+      component.executingBlocks = false;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('button'))).not.toBeNull();
     });
   });
 
   describe('Progress spinner', () => {
-    it('should appear while blocks are being executed', () => {
-      const blockService: BlockService = TestBed.inject(BlockService);
+    it('should not appear when blocks are not being executed', () => {
+      component.executingBlocks = false;
+      fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('mat-spinner'))).toBeNull();
-      blockService.executeBlocks();
+    });
+
+    it('should appear while blocks are being executed', () => {
+      component.executingBlocks = false;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('mat-spinner'))).toBeNull();
+      component.executingBlocks = true;
       fixture.detectChanges(); 
       expect(fixture.debugElement.query(By.css('mat-spinner'))).not.toBeNull();
+    });
+
+    it('should disappear once blocks have stopped being executed', () => {
+      component.executingBlocks = true;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('mat-spinner'))).not.toBeNull();
+      component.executingBlocks = false;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('mat-spinner'))).toBeNull();
     });
   });
 });

@@ -12,14 +12,7 @@ export class BlockService {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
-  private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
-  readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
-
-  constructor(private outputService: OutputService, private snackBar: MatSnackBar) {
-    this.outputService.executingBlocks.subscribe(
-      (res) => { this.executingBlocks$.next(res); }
-    );
-  }
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();

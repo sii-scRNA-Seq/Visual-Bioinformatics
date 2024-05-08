@@ -9,6 +9,9 @@ import { OutputServiceInterface } from './output.service.interface';
   providedIn: 'root'
 })
 export class MockOutputService implements OutputServiceInterface {
+  private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
+  readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
+
   private readonly outputs$: BehaviorSubject<Output[]> = new BehaviorSubject<Output[]> ([]);
   readonly outputs: Observable<Output[]> = this.outputs$.asObservable();
   

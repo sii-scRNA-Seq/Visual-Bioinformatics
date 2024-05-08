@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import { Block } from '../block.interface';
 import { BlockService } from '../block.service';
+import { OutputService } from '../output.service';
 
 @Component({
   selector: 'app-canvas',
@@ -13,11 +14,11 @@ export class CanvasComponent {
   blockList: Block[] = [];
   executingBlocks: boolean = false;
 
-  constructor(private blockService: BlockService) {
+  constructor(private blockService: BlockService, private outputService: OutputService) {
     this.blockService.blocksOnCanvas.subscribe(
       (res) => { this.blockList = res; },
     );
-    this.blockService.executingBlocks.subscribe(
+    this.outputService.executingBlocks.subscribe(
       (res) => { this.executingBlocks = res; },
     );
   }

@@ -14,15 +14,9 @@ export class MockBlockService implements BlockServiceInterface {
   private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
   readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
 
-  addBlock(id: BlockId): void {
-    id;
-  }
+  addBlock(id: BlockId): void { }
 
-  removeBlock(id: BlockId): void {
-    id;
-  }
+  removeBlock(id: BlockId): void { }
 
-  executeBlocks(): void {
-    this.executingBlocks$.next(true);
-  }
+  executeBlocks(): void { }
 }

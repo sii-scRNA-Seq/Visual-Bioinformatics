@@ -59,28 +59,48 @@ def get_AnnData(qc_filtering=False):
 
 
 def test(socketio_client, app_client):
-    #response = client.get('/api/getuserid')
-    #assert response.status_code == 400
-    #message = {
-    #    "code": 400,
-    #    "name": 'Bad Request',
-    #    "description": 'Not a valid user_id',
-    #}
-    #assert json.loads(response.data) == message
-    assert True == True
-
     socketio_client.get_received()
     message = {
-        'user_id': ''
+        'user_id': 'abc',
+        'blocks': []
     }
-    socketio_client.emit('json', message) # HERE!
-    received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()[0]["args"]
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert received == expected
 
-    assert True == True
+##########################################################
 
-    # assert len(received) == 1
-    # self.assertEqual(len(received), 1)
-    # self.assertEqual(len(received[0]['args']), 1)
-    # self.assertEqual(received[0]['name'], 'my custom response')
-    # self.assertEqual(received[0]['args'][0]['a'], 'b')
+def test_getuserid_WarnsUserWhenUserIdIsNone(app_client):
+    response = app_client.get('/api/getuserid')
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Not a valid user_id',
+    }
+    assert json.loads(response.data) == message
+
+
+@patch('uuid.uuid4')
+def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, app_client):
+    mock.return_value = 'bob'
+    response = app_client.get('/api/getuserid', query_string={
+        'user_id': ''
+    })
+    assert response.status_code == 200
+    message = {
+        'user_id': 'bob'
+    }
+    assert json.loads(response.data) == message
+
+
+def test_getuserid_ReturnsUserIdWhenUserIdIsSupplied(app_client):
+    response = app_client.get('/api/getuserid', query_string={
+        'user_id': 'bob'
+    })
+    assert response.status_code == 200
+    message = {
+        'user_id': 'bob'
+    }
+    assert json.loads(response.data) == message

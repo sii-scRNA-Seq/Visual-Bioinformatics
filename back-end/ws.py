@@ -15,6 +15,7 @@ import logging
 import logging.config
 import scanpy as sc
 import uuid
+import werkzeug.exceptions as we
 import yaml
 
 monkey.patch_all()
@@ -82,6 +83,18 @@ def create_app(test_mode=False):
     CORS(app)
     socketio = SocketIO(app, cors_allowed_origins="*")
 
+    def handle_exception(e):
+        response = e.get_response()
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        response.content_type = "application/json"
+        return response
+
+    app.register_error_handler(we.BadRequest, handle_exception)
+
     logger.info(f"Server async mode: {socketio.server.eio.async_mode}")
 
     @app.route('/')
@@ -98,7 +111,7 @@ def create_app(test_mode=False):
     def get_user_id():
         user_id = request.args.get('user_id')
         if user_id is None:
-            raise ValueError
+            raise we.BadRequest('Not a valid user_id')
         else:
             if user_id == '':
                 user_id = str(uuid.uuid4())
@@ -119,18 +132,24 @@ def create_app(test_mode=False):
     @socketio.on('json')
     def execute_blocks(message):
         logger.info(f"Executing blocks, json={message}")
+        
+        #accepting_user_requests.set("abc", True)
+        #accepting_user_requests.set("", True)
 
         try:
             user_id = message['user_id']
-            if user_id is None or user_id == '':
-                logger.error("User id not in message")
+            if user_id is None:
+                logger.error("User ID is None")
                 raise UserIDException
-            elif accepting_user_requests.get(user_id) is False:
-                logger.error("User already processing blocks")
-                raise NotAcceptingRequestException
+            elif user_id == '':
+                logger.error("User ID is empty")
+                raise UserIDException
+            #elif accepting_user_requests.get(user_id) is False:
+            #    logger.error("User already processing blocks")
+            #    raise NotAcceptingRequestException
             logger.info(f"user_id={user_id}")
             user_data = None
-            accepting_user_requests.set(user_id, False)
+            #accepting_user_requests.set(user_id, False)
             blocks = message['blocks']
             for block in blocks:
                 logger.debug(f"Executing block={block} user={user_id}")
@@ -175,7 +194,7 @@ def create_app(test_mode=False):
             end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
         finally:
             socketio.emit("json", end_connection)
-            accepting_user_requests.set(user_id, True)
+            #accepting_user_requests.set(user_id, True)
 
     def load_data(user_data, block):
         logger.info("")

@@ -129,6 +129,12 @@ def create_app(test_mode=False):
     class NotAcceptingRequestException(Exception):
         pass
 
+    class BadRequestException(Exception):
+        pass
+
+    class MissingParametersException(Exception):
+        pass
+
     @socketio.on('json')
     def execute_blocks(message):
         logger.info(f"Executing blocks, json={message}")
@@ -137,23 +143,40 @@ def create_app(test_mode=False):
         #accepting_user_requests.set("", True)
 
         try:
-            user_id = message['user_id']
-            if user_id is None:
-                logger.error("User ID is None")
+            
+            if 'user_id' not in message:
+                logger.error("User ID is missing from message")
                 raise UserIDException
-            elif user_id == '':
+            elif not isinstance(message['user_id'], str):
+                logger.error("User ID is not a string")
+                raise UserIDException
+            elif message['user_id'] == '':
                 logger.error("User ID is empty")
                 raise UserIDException
-            #elif accepting_user_requests.get(user_id) is False:
+            user_id = message['user_id']
+            logger.info(f"user_id={user_id}")
+
+            #if accepting_user_requests.get(user_id) is False:
             #    logger.error("User already processing blocks")
             #    raise NotAcceptingRequestException
-            logger.info(f"user_id={user_id}")
-            user_data = None
             #accepting_user_requests.set(user_id, False)
+            user_data = None
+
+            if 'blocks' not in message:
+                logger.error("Blocks is missing from message")
+                raise BadRequestException
+            elif not isinstance(message['blocks'], list):
+                logger.error("Blocks is not a list")
+                raise BadRequestException
             blocks = message['blocks']
+
             for block in blocks:
                 logger.debug(f"Executing block={block} user={user_id}")
-                if block['block_id'] == 'loaddata':
+
+                if 'block_id' not in block:
+                    logger.error("Block ID is missing from Blocks")
+                    raise BadRequestException
+                elif block['block_id'] == 'loaddata':
                     user_data, output_message = load_data(user_data, block)
                 elif block['block_id'] == 'basicfiltering':
                     user_data, output_message = basic_filtering(user_data, block)
@@ -168,12 +191,15 @@ def create_app(test_mode=False):
                 elif block['block_id'] == 'runumap':
                     user_data, output_message = run_umap(user_data, block)
                 else:
-                    raise ValueError
+                    logger.error("Block ID does not match expected values")
+                    raise BadRequestException
+
                 socketio.emit("json", json.dumps(output_message))
                 logger.debug('emitted:' + json.dumps(output_message))
                 # Allow other threads to execute
                 # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
                 gevent.sleep()
+
             logger.debug(f"Finished processing blocks for user={user_id}")
             end_connection = json.dumps({'end_connection': 'end_connection'})
 
@@ -183,6 +209,10 @@ def create_app(test_mode=False):
         except NotAcceptingRequestException as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+        except BadRequestException as e:
+            logger.error(e, exc_info=True)
+            end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+
         except KeyError as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Received an incomplete request, please refresh the page and try again'})
@@ -207,6 +237,9 @@ def create_app(test_mode=False):
         return user_data, message
 
     def basic_filtering(user_data, block):
+        if 'min_genes' not in block or 'min_cells' not in block:
+            logger.error("Parameters missing from Block")
+            raise MissingParametersException
         min_genes = float(block['min_genes'])
         min_cells = float(block['min_cells'])
         logger.info(f"min_genes={min_genes} min_cells={min_cells}")

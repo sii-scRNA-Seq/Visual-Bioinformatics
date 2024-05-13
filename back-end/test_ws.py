@@ -58,20 +58,10 @@ def get_AnnData(qc_filtering=False):
     return adata
 
 
-def test(socketio_client, app_client):
-    socketio_client.get_received()
-    message = {
-        'user_id': 'abc',
-        'blocks': []
-    }
-    socketio_client.emit('json', message)
-    received = socketio_client.get_received()[0]["args"]
-    expected = json.dumps({'end_connection': 'end_connection'})
-    assert received == expected
+#################### TESTS BEGIN HERE ####################
 
-##########################################################
 
-def test_getuserid_WarnsUserWhenUserIdIsNone(app_client):
+def test_getuserid_WarnsWhenUserIDIsNone(app_client):
     response = app_client.get('/api/getuserid')
     assert response.status_code == 400
     message = {
@@ -83,7 +73,7 @@ def test_getuserid_WarnsUserWhenUserIdIsNone(app_client):
 
 
 @patch('uuid.uuid4')
-def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, app_client):
+def test_getuserid_CreatesUserIdWhenUserIDIsEmpty(mock, app_client):
     mock.return_value = 'bob'
     response = app_client.get('/api/getuserid', query_string={
         'user_id': ''
@@ -95,7 +85,7 @@ def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, app_client):
     assert json.loads(response.data) == message
 
 
-def test_getuserid_ReturnsUserIdWhenUserIdIsSupplied(app_client):
+def test_getuserid_ReturnsUserIdWhenUserIDIsSupplied(app_client):
     response = app_client.get('/api/getuserid', query_string={
         'user_id': 'bob'
     })
@@ -104,3 +94,144 @@ def test_getuserid_ReturnsUserIdWhenUserIdIsSupplied(app_client):
         'user_id': 'bob'
     }
     assert json.loads(response.data) == message
+
+
+def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {}
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': None,
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenUserIDIsNotAString(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 42,
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': '',
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': None,
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsNotAList(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': 42,
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [{}],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [{
+            'block_id': 'Expecttheunexpected',
+        }],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlockIsMissingParameters(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata',},
+            {'block_id': 'basicfiltering'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+### TEMPLATE ###
+def test(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'abc',
+        'blocks': []
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()[0]["args"]
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert received == expected

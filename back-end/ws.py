@@ -141,9 +141,6 @@ def create_app(test_mode=False):
     def execute_blocks(message):
         logger.info(f"Executing blocks, json={message}")
 
-        # accepting_user_requests.set("abc", True)
-        # accepting_user_requests.set("", True)
-
         try:
 
             if 'user_id' not in message:
@@ -158,10 +155,11 @@ def create_app(test_mode=False):
             user_id = message['user_id']
             logger.info(f"user_id={user_id}")
 
-            # if accepting_user_requests.get(user_id) is False:
-            #     logger.error("User already processing blocks")
-            #     raise NotAcceptingRequestException
-            # accepting_user_requests.set(user_id, False)
+            with app.app_context():
+                if accepting_user_requests.get(user_id) is False:
+                    logger.error("User already processing blocks")
+                    raise NotAcceptingRequestException
+                accepting_user_requests.set(user_id, False)
             user_data = None
 
             if 'blocks' not in message:
@@ -209,6 +207,8 @@ def create_app(test_mode=False):
 
             logger.debug(f"Finished processing blocks for user={user_id}")
             end_connection = json.dumps({'end_connection': 'end_connection'})
+            with app.app_context():
+                accepting_user_requests.set(user_id, True)
 
         except UserIDException as e:
             logger.error(e, exc_info=True)
@@ -219,15 +219,20 @@ def create_app(test_mode=False):
         except BadRequestException as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+            with app.app_context():
+                accepting_user_requests.set(user_id, True)
         except MissingParametersException as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': e.message})
+            with app.app_context():
+                accepting_user_requests.set(user_id, True)
         except Exception as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+            with app.app_context():
+                accepting_user_requests.set(user_id, True)
         finally:
             socketio.emit("json", end_connection)
-            # accepting_user_requests.set(user_id, True)
 
     def load_data(user_data, block):
         logger.info("")

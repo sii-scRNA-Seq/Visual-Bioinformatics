@@ -97,7 +97,7 @@ def test_getuserid_ReturnsUserIdWhenUserIDIsSupplied(app_client):
     assert json.loads(response.data) == message
 
 
-def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client, app_client):
+def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client):
     socketio_client.get_received()
     message = {}
     socketio_client.emit('json', message)
@@ -107,7 +107,7 @@ def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client, app_client):
+def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': None,
@@ -119,7 +119,7 @@ def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenUserIDIsNotAString(socketio_client, app_client):
+def test_executeblocks_WarnsWhenUserIDIsNotAString(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 42,
@@ -131,7 +131,7 @@ def test_executeblocks_WarnsWhenUserIDIsNotAString(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client, app_client):
+def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': '',
@@ -143,7 +143,71 @@ def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client, app_client)
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client, app_client):
+def test_executeblocks_AcceptsRequestsAfterEndConnection(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterBadRequestException(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterMissingParametersException(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -155,7 +219,7 @@ def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client, app_client):
+def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -168,7 +232,7 @@ def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBlocksIsNotAList(socketio_client, app_client):
+def test_executeblocks_WarnsWhenBlocksIsNotAList(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -181,7 +245,7 @@ def test_executeblocks_WarnsWhenBlocksIsNotAList(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client, app_client):
+def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -194,7 +258,7 @@ def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client, app_client):
+def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -210,7 +274,7 @@ def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client, ap
     assert received[1]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client, app_client):
+def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -225,7 +289,7 @@ def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client, 
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client, app_client):
+def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -240,7 +304,7 @@ def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client, app_cli
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client, app_client):
+def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -255,7 +319,7 @@ def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client, app
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client, app_client):
+def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -270,7 +334,7 @@ def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client, a
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client, app_client):
+def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -286,7 +350,7 @@ def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client, app_cl
     assert received[1]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client, app_client):
+def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -303,7 +367,7 @@ def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client, app_client):
     assert received[2]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_client, app_client):
+def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -318,7 +382,7 @@ def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_clien
     assert received[0]["args"] == expected
 
 
-def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client, app_client):
+def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -334,7 +398,7 @@ def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client, 
     assert received[1]["args"] == expected
 
 
-def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client, app_client):
+def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -350,7 +414,7 @@ def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client, app_client):
     assert received[1]["args"] == expected
 
 
-def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client, app_client):
+def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -366,7 +430,7 @@ def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client, app_client):
     assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client, app_client):
+def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -382,7 +446,7 @@ def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client, app_clien
     assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client, app_client):
+def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -398,7 +462,7 @@ def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client, app_cl
     assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client, app_client):
+def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -414,7 +478,7 @@ def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client, app_cl
     assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client, app_client):
+def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -430,7 +494,7 @@ def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client, app_client):
     assert received[1]["args"] == expected
 
 
-def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client, app_client):
+def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -446,7 +510,7 @@ def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client, app_cli
     assert received[1]["args"] == expected
 
 
-def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client, app_client):
+def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -462,7 +526,7 @@ def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client, app_client):
     assert received[1]["args"] == expected
 
 
-def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client, app_client):
+def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -478,7 +542,7 @@ def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client, app_client):
     assert received[1]["args"] == expected
 
 
-def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client, app_client):
+def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
@@ -520,7 +584,7 @@ def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
     assert received[3]["args"] == expected
 
 
-def test_runumap_WarnsWhenNNeighborsIsMissing(socketio_client, app_client):
+def test_runumap_WarnsWhenNNeighborsIsMissing(socketio_client):
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
@@ -546,7 +610,7 @@ def test_runumap_WarnsWhenNNeighborsIsMissing(socketio_client, app_client):
     assert received[3]["args"] == expected
 
 
-def test_runumap_WarnsWhenNPcsIsMissing(socketio_client, app_client):
+def test_runumap_WarnsWhenNPcsIsMissing(socketio_client):
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
@@ -572,7 +636,7 @@ def test_runumap_WarnsWhenNPcsIsMissing(socketio_client, app_client):
     assert received[3]["args"] == expected
 
 
-# def test(socketio_client, app_client):
+# def test(socketio_client):
 #     socketio_client.get_received()
 #     message = {
 #         'user_id': 'abc',

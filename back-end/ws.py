@@ -171,6 +171,7 @@ def create_app(test_mode=False):
                 logger.error("Blocks is not a list")
                 raise BadRequestException
             blocks = message['blocks']
+            executed_blocks = []
 
             for block in blocks:
                 logger.debug(f"Executing block={block} user={user_id}")
@@ -178,24 +179,28 @@ def create_app(test_mode=False):
                 if 'block_id' not in block:
                     logger.error("Block ID is missing from Blocks")
                     raise BadRequestException
-                elif block['block_id'] == 'loaddata':
+                elif block['block_id'] == 'loaddata' and not executed_blocks:
                     user_data, output_message = load_data(user_data, block)
-                elif block['block_id'] == 'basicfiltering':
+                elif block['block_id'] == 'basicfiltering' and 'loaddata' in executed_blocks:
                     user_data, output_message = basic_filtering(user_data, block)
-                elif block['block_id'] == 'qcplots':
+                elif block['block_id'] == 'qcplots' and 'loaddata' in executed_blocks:
                     user_data, output_message = qc_plots(user_data, block)
-                elif block['block_id'] == 'qcfiltering':
+                elif block['block_id'] == 'qcfiltering' and 'loaddata' in executed_blocks:
                     user_data, output_message = qc_filtering(user_data, block)
-                elif block['block_id'] == 'variablegenes':
+                elif block['block_id'] == 'variablegenes' and 'loaddata' in executed_blocks:
                     user_data, output_message = variable_genes(user_data, block)
-                elif block['block_id'] == 'pca':
+                elif block['block_id'] == 'pca' and 'variablegenes' in executed_blocks:
                     user_data, output_message = pca(user_data, block)
-                elif block['block_id'] == 'runumap':
+                elif block['block_id'] == 'runumap' and 'pca' in executed_blocks:
                     user_data, output_message = run_umap(user_data, block)
+                elif block['block_id'] in ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'runumap']:
+                    logger.error("Blocks have been supplied in an invalid order")
+                    raise BadRequestException
                 else:
                     logger.error("Block ID does not match expected values")
                     raise BadRequestException
 
+                executed_blocks.append(block['block_id'])
                 socketio.emit("json", json.dumps(output_message))
                 logger.debug('emitted:' + json.dumps(output_message))
                 # Allow other threads to execute

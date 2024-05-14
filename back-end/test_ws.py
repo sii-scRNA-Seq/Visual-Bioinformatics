@@ -194,13 +194,122 @@ def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client, app_client):
     assert received[0]["args"] == expected
 
 
+def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'loaddata'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'qcplots'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 0, 'pct_counts_mt': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'pca'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'runumap', 'n_neighbors': 0, 'n_pcs': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    assert len(received) == 3
+    assert received[2]["args"] == expected
+
+
 def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_client, app_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
-        'blocks': [{
-            'block_id': 'Expecttheunexpected',
-        }],
+        'blocks': [
+            {'block_id': 'Expecttheunexpected'}
+        ],
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()

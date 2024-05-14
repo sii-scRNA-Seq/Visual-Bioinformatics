@@ -133,17 +133,19 @@ def create_app(test_mode=False):
         pass
 
     class MissingParametersException(Exception):
-        pass
+        def __init__(self, message):
+            self.message = message
+            super().__init__(message)
 
     @socketio.on('json')
     def execute_blocks(message):
         logger.info(f"Executing blocks, json={message}")
-        
-        #accepting_user_requests.set("abc", True)
-        #accepting_user_requests.set("", True)
+
+        # accepting_user_requests.set("abc", True)
+        # accepting_user_requests.set("", True)
 
         try:
-            
+
             if 'user_id' not in message:
                 logger.error("User ID is missing from message")
                 raise UserIDException
@@ -156,10 +158,10 @@ def create_app(test_mode=False):
             user_id = message['user_id']
             logger.info(f"user_id={user_id}")
 
-            #if accepting_user_requests.get(user_id) is False:
-            #    logger.error("User already processing blocks")
-            #    raise NotAcceptingRequestException
-            #accepting_user_requests.set(user_id, False)
+            # if accepting_user_requests.get(user_id) is False:
+            #     logger.error("User already processing blocks")
+            #     raise NotAcceptingRequestException
+            # accepting_user_requests.set(user_id, False)
             user_data = None
 
             if 'blocks' not in message:
@@ -212,19 +214,15 @@ def create_app(test_mode=False):
         except BadRequestException as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
-
-        except KeyError as e:
+        except MissingParametersException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Received an incomplete request, please refresh the page and try again'})
-        except ValueError as e:
-            logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+            end_connection = json.dumps({'error': e.message})
         except Exception as e:
             logger.error(e, exc_info=True)
             end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
         finally:
             socketio.emit("json", end_connection)
-            #accepting_user_requests.set(user_id, True)
+            # accepting_user_requests.set(user_id, True)
 
     def load_data(user_data, block):
         logger.info("")
@@ -237,9 +235,11 @@ def create_app(test_mode=False):
         return user_data, message
 
     def basic_filtering(user_data, block):
-        if 'min_genes' not in block or 'min_cells' not in block:
-            logger.error("Parameters missing from Block")
-            raise MissingParametersException
+        missing_parameters = get_missing_parameters(['min_genes', 'min_cells'], block)
+        if missing_parameters:
+            logger.error("Parameters missing from Block: " + str(missing_parameters))
+            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+
         min_genes = float(block['min_genes'])
         min_cells = float(block['min_cells'])
         logger.info(f"min_genes={min_genes} min_cells={min_cells}")
@@ -272,6 +272,11 @@ def create_app(test_mode=False):
         return user_data, message
 
     def qc_filtering(user_data, block):
+        missing_parameters = get_missing_parameters(['min_n_genes_by_counts', 'max_n_genes_by_counts', 'pct_counts_mt'], block)
+        if missing_parameters:
+            logger.error("Parameters missing from Block: " + str(missing_parameters))
+            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+
         min_n_genes_by_counts = float(block['min_n_genes_by_counts'])
         max_n_genes_by_counts = float(block['max_n_genes_by_counts'])
         pct_counts_mt = float(block['pct_counts_mt'])
@@ -291,6 +296,11 @@ def create_app(test_mode=False):
         return user_data, message
 
     def variable_genes(user_data, block):
+        missing_parameters = get_missing_parameters(['min_mean', 'max_mean', 'min_disp'], block)
+        if missing_parameters:
+            logger.error("Parameters missing from Block: " + str(missing_parameters))
+            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+
         min_mean = float(block['min_mean'])
         max_mean = float(block['max_mean'])
         min_disp = float(block['min_disp'])
@@ -336,6 +346,11 @@ def create_app(test_mode=False):
         return user_data, message
 
     def run_umap(user_data, block):
+        missing_parameters = get_missing_parameters(['n_neighbors', 'n_pcs'], block)
+        if missing_parameters:
+            logger.error("Parameters missing from Block: " + str(missing_parameters))
+            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+
         n_neighbors = int(block['n_neighbors'])
         n_pcs = int(block['n_pcs'])
         logger.info(f"n_neighbors={n_neighbors} n_pcs={n_pcs}")
@@ -358,6 +373,13 @@ def create_app(test_mode=False):
 
     def adata_text(adata: AnnData) -> str:
         return f'Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes'
+
+    def get_missing_parameters(params, block):
+        missing_params = []
+        for param in params:
+            if param not in block:
+                missing_params.append(param)
+        return missing_params
 
     return socketio, app
 

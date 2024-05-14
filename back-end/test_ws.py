@@ -13,6 +13,7 @@ def socketio():
         socketio, app = create_app(test_mode=True)
         yield socketio
 
+
 @pytest.fixture()
 def app():
     with patch('scanpy.datasets.pbmc3k', get_AnnData):
@@ -58,7 +59,7 @@ def get_AnnData(qc_filtering=False):
     return adata
 
 
-#################### TESTS BEGIN HERE ####################
+#################### TESTS BEGIN HERE #################### (# noqa: E266)
 
 
 def test_getuserid_WarnsWhenUserIDIsNone(app_client):
@@ -208,30 +209,267 @@ def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_clien
     assert received[0]["args"] == expected
 
 
-def test_executeblocks_WarnsWhenBlockIsMissingParameters(socketio_client, app_client):
+def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client, app_client):
     socketio_client.get_received()
     message = {
         'user_id': 'bob',
         'blocks': [
-            {'block_id': 'loaddata',},
+            {'block_id': 'loaddata'},
             {'block_id': 'basicfiltering'}
         ],
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
 
-### TEMPLATE ###
-def test(socketio_client, app_client):
+def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client, app_client):
     socketio_client.get_received()
     message = {
-        'user_id': 'abc',
-        'blocks': []
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_cells': 42}
+        ],
     }
     socketio_client.emit('json', message)
-    received = socketio_client.get_received()[0]["args"]
-    expected = json.dumps({'end_connection': 'end_connection'})
-    assert received == expected
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_cells\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\', \'max_n_genes_by_counts\', \'pct_counts_mt\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'max_n_genes_by_counts': 42, 'pct_counts_mt': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 42, 'pct_counts_mt': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'max_n_genes_by_counts\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 42, 'max_n_genes_by_counts': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'pct_counts_mt\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\', \'max_mean\', \'min_disp\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'max_mean': 42, 'min_disp': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'min_disp': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'max_mean\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client, app_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'max_mean': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_disp\']'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0.0125, 'max_mean': 3, 'min_disp': 0.5},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap'}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\', \'n_pcs\']'})
+    assert len(received) == 4
+    assert received[3]["args"] == expected
+
+
+def test_runumap_WarnsWhenNNeighborsIsMissing(socketio_client, app_client):
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'max_mean': 42, 'min_disp': 42},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_pcs': 42}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\']'})
+    assert len(received) == 4
+    assert received[3]["args"] == expected
+
+
+def test_runumap_WarnsWhenNPcsIsMissing(socketio_client, app_client):
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'max_mean': 42, 'min_disp': 42},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_neighbors': 42}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'n_pcs\']'})
+    assert len(received) == 4
+    assert received[3]["args"] == expected
+
+
+# def test(socketio_client, app_client):
+#     socketio_client.get_received()
+#     message = {
+#         'user_id': 'abc',
+#         'blocks': []
+#     }
+#     socketio_client.emit('json', message)
+#     received = socketio_client.get_received()[0]["args"]
+#     expected = json.dumps({'end_connection': 'end_connection'})
+#     assert received == expected

@@ -79,7 +79,7 @@ def create_app(test_mode=False):
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
 
-    # TODO, should we really be accepting CORS requests *all* the time?
+    # Consider permitted sources for CORS requests (see Trello)
     CORS(app)
     socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -201,6 +201,7 @@ def create_app(test_mode=False):
                 executed_blocks.append(block['block_id'])
                 socketio.emit("json", json.dumps(output_message))
                 logger.debug('emitted:' + json.dumps(output_message))
+
                 # Allow other threads to execute
                 # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
                 gevent.sleep()
@@ -338,8 +339,10 @@ def create_app(test_mode=False):
         sc.pp.calculate_qc_metrics(user_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
         user_data.obs['total_UMIs'] = user_data.obs['total_counts']
         user_data.obs = user_data.obs.drop('total_counts', axis=1)
-        # TODO: Fix this or remove it and document bug
+
+        # Consider adding Regress Out PCA step (see Trello)
         # sc.pp.regress_out(user_data, ['total_UMIs', 'pct_counts_mt'], n_jobs=1)
+
         with parallel_backend('threading', n_jobs=1):
             with threadpool_limits(limits=1, user_api='blas'):
                 sc.pp.scale(user_data, max_value=10)

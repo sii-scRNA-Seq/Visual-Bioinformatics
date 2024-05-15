@@ -51,8 +51,9 @@ def get_AnnData(qc_filtering=False):
         counts = csr_matrix(np.array([[0, 1, 2, 0],
                                       [0, 3, 4, 1],
                                       [0, 5, 6, 2],
-                                      [0, 1, 1, 98],
-                                      [1, 1, 1, 1]]))
+                                      [1, 0, 0, 0],
+                                      [1, 1, 1, 1],
+                                      [0, 1, 1, 98]]))
         adata = anndata.AnnData(counts)
         adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
         adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars - 1)] + ["MT-Gene"]
@@ -382,6 +383,22 @@ def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_clien
     assert received[0]["args"] == expected
 
 
+def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 5 cells and 3 genes'})
+    assert len(received) == 2
+    assert received[0]["args"] == expected
+    assert received[1]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
 def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):
     socketio_client.get_received()
     message = {
@@ -428,6 +445,128 @@ def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client):
     expected = json.dumps({'error': 'Missing parameters: [\'min_cells\']'})
     assert len(received) == 2
     assert received[1]["args"] == expected
+
+
+def test_basicfiltering_CallsScanpyFunctions(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 0}
+        ],
+    }
+    with patch('scanpy.pp.filter_cells') as mock1, patch('scanpy.pp.filter_genes') as mock2:
+        socketio_client.emit('json', message)
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+
+
+def test_basicfiltering_NoFilteringWorks(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 5 cells and 3 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_FilterCellsWorks(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 1, 'min_cells': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 4 cells and 3 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_FilterGenesWorks(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 1}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 5 cells and 2 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 1, 'min_cells': 1}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 4 cells and 2 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcplots_CallsScanpyFunctions():
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcplots'}
+        ],
+    }
+    with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pl.violin') as mock2:
+        socketio_client.emit('json', message)
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+
+
+def test_qcplots_ReturnsCorrectString(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcplots'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    assert len(received) == 3
+    assert json.loads(received[1]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[1]["args"])['alttext'] == 'A violin plot displaying quality control metrics generated by a QC Plots block'
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
 def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client):
@@ -494,6 +633,137 @@ def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client):
     assert received[1]["args"] == expected
 
 
+def test_qcfiltering_CallsScanpyFunctions():
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 0, 'pct_counts_mt': 0}
+        ],
+    }
+    with patch('scanpy.pp.calculate_qc_metrics') as mock:
+        socketio_client.emit('json', message)
+        mock.assert_called_once()
+
+
+def test_qcfiltering_NoFilteringWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 5, 'pct_counts_mt': 100}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 6 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcfiltering_FilterByMinNGenesByCountsWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 1, 'max_n_genes_by_counts': 5, 'pct_counts_mt': 100}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 5 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcfiltering_FilterByMaxNGenesByCountsWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 4, 'pct_counts_mt': 100}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 5 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcfiltering_FilterByPctCountsMtWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 5, 'pct_counts_mt': 95}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 5 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcfiltering_FilterByAllParametersWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 1, 'max_n_genes_by_counts': 4, 'pct_counts_mt': 95}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 3 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
 def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client):
     socketio_client.get_received()
     message = {
@@ -558,6 +828,91 @@ def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client):
     assert received[1]["args"] == expected
 
 
+def test_variablegenes_CallsScanpyFunctions(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0}
+        ],
+    }
+    with patch('scanpy.pp.normalize_total') as mock1, patch('scanpy.pp.log1p') as mock2, patch('scanpy.pp.highly_variable_genes') as mock3, patch('scanpy.pl.highly_variable_genes') as mock4:
+        socketio_client.emit('json', message)
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+        mock3.assert_called_once()
+        mock4.assert_called_once()
+
+
+def test_variablegenes_ReturnsCorrectString(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    assert len(received) == 3
+    assert json.loads(received[1]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[1]["args"])['alttext'] == 'A scatter plot displaying dispersions of genes generated by an Identify Highly Variable Genes block'
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_pca_CallsScanpyFunctions():
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'}
+        ],
+    }
+    with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pp.scale') as mock2, patch('scanpy.tl.pca') as mock3, patch('scanpy.pl.pca_variance_ratio') as mock4:
+        socketio_client.emit('json', message)
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+        mock3.assert_called_once()
+        mock4.assert_called_once()
+
+
+def test_pca_ReturnsCorrectString():
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    assert len(received) == 4
+    assert json.loads(received[2]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[2]["args"])['alttext'] == 'A scatter plot displaying the contribution of each PC to the total variance in the data, generated by a Principle Component Analysis block'
+    assert received[3]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
 def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
@@ -571,7 +926,7 @@ def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
         'user_id': 'bob',
         'blocks': [
             {'block_id': 'loaddata'},
-            {'block_id': 'variablegenes', 'min_mean': 0.0125, 'max_mean': 3, 'min_disp': 0.5},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
             {'block_id': 'pca'},
             {'block_id': 'runumap'}
         ],
@@ -584,7 +939,7 @@ def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
     assert received[3]["args"] == expected
 
 
-def test_runumap_WarnsWhenNNeighborsIsMissing(socketio_client):
+def test_runumap_WarnsWhenNNeighborsIsMissing():
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
@@ -610,7 +965,7 @@ def test_runumap_WarnsWhenNNeighborsIsMissing(socketio_client):
     assert received[3]["args"] == expected
 
 
-def test_runumap_WarnsWhenNPcsIsMissing(socketio_client):
+def test_runumap_WarnsWhenNPcsIsMissing():
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
@@ -636,13 +991,48 @@ def test_runumap_WarnsWhenNPcsIsMissing(socketio_client):
     assert received[3]["args"] == expected
 
 
-# def test(socketio_client):
-#     socketio_client.get_received()
-#     message = {
-#         'user_id': 'abc',
-#         'blocks': []
-#     }
-#     socketio_client.emit('json', message)
-#     received = socketio_client.get_received()[0]["args"]
-#     expected = json.dumps({'end_connection': 'end_connection'})
-#     assert received == expected
+def test_runumap_CallsScanpyFunctions(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_neighbors': 0, 'n_pcs': 0}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        with patch('scanpy.pp.neighbors') as mock1, patch('scanpy.tl.umap') as mock2, patch('scanpy.tl.leiden') as mock3, patch('scanpy.pl.umap') as mock4:
+            socketio_client.emit('json', message)
+            mock1.assert_called_once()
+            mock2.assert_called_once()
+            mock3.assert_called_once()
+            mock4.assert_called_once()
+
+
+def test_runumap_ReturnsCorrectString():
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_neighbors': 10, 'n_pcs': 40}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    assert len(received) == 5
+    assert json.loads(received[3]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[3]["args"])['alttext'] == 'A UMAP of Leiden clusters using the principle components generated by a Run UMAP block'
+    assert received[4]["args"] == json.dumps({'end_connection': 'end_connection'})

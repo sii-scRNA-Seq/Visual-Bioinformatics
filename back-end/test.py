@@ -4,7 +4,7 @@ from unittest.mock import call, patch
 import anndata
 import json
 import numpy as np
-from ws import create_app
+from back_end import create_app
 
 
 @pytest.fixture()

@@ -5,5 +5,4 @@ back-end/cache/
 back-end/back-end-cache/
 back-end/data/
 back-end/dist/
-back-end/src/flask-websockets
 **/*.log

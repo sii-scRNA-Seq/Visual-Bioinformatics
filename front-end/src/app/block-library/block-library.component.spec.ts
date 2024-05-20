@@ -43,11 +43,11 @@ describe('BlockLibraryComponent', () => {
       spyOn(blockService, 'addBlock');
       const blockIDs: BlockId[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'runumap'];
       blockIDs.forEach(blockID => {
-        let button = fixture.debugElement.query(By.css('#'.concat(blockID)));
+        const button = fixture.debugElement.query(By.css('#'.concat(blockID)));
         button.triggerEventHandler('click', {});
         fixture.detectChanges();
         expect(blockService.addBlock).toHaveBeenCalledWith(blockID);
-      })
+      });
       expect(blockService.addBlock).toHaveBeenCalledTimes(blockIDs.length);
     });
 
@@ -57,7 +57,7 @@ describe('BlockLibraryComponent', () => {
       const blockIDs: string[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'runumap'];
       blockIDs.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
-      })
+      });
     });
 
     it ('should become disabled while blocks are being executed', () => {
@@ -66,12 +66,12 @@ describe('BlockLibraryComponent', () => {
       const blockIDs: string[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'runumap'];
       blockIDs.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
-      })
+      });
       component.executingBlocks = true;
       fixture.detectChanges(); 
       blockIDs.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
-      })
+      });
     });
 
     it ('should become available once blocks have stopped being executed', () => {
@@ -80,12 +80,12 @@ describe('BlockLibraryComponent', () => {
       const blockIDs: string[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'runumap'];
       blockIDs.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
-      })
+      });
       component.executingBlocks = false;
       fixture.detectChanges();
       blockIDs.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
-      })
+      });
     });
   });
 });

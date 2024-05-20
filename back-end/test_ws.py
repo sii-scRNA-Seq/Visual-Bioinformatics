@@ -1,6 +1,6 @@
 import pytest
 from scipy.sparse import csr_matrix
-from unittest.mock import patch
+from unittest.mock import call, patch
 import anndata
 import json
 import numpy as np
@@ -144,6 +144,36 @@ def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client):
     assert received[0]["args"] == expected
 
 
+def test_executeblocks_ChangesValueOfAcceptingUserRequests(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    with patch('flask_caching.Cache.set') as mock:
+        socketio_client.emit('json', message)
+        assert mock.call_count == 2
+        assert mock.mock_calls == [call('bob', False), call('bob', True)]
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenNotAcceptingRequestsFromUser(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    with patch('flask_caching.Cache.get', lambda x, y: False):
+        socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
 def test_executeblocks_AcceptsRequestsAfterEndConnection(socketio_client):
     socketio_client.get_received()
     message = {
@@ -155,6 +185,27 @@ def test_executeblocks_AcceptsRequestsAfterEndConnection(socketio_client):
     expected = json.dumps({'end_connection': 'end_connection'})
     assert len(received) == 1
     assert received[0]["args"] == expected
+
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterNotAcceptingRequestException(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    with patch('flask_caching.Cache.get', lambda x, y: False):
+        socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
     expected = json.dumps({'end_connection': 'end_connection'})
@@ -172,6 +223,7 @@ def test_executeblocks_AcceptsRequestsAfterBadRequestException(socketio_client):
     expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
     assert len(received) == 1
     assert received[0]["args"] == expected
+
     message = {
         'user_id': 'bob',
         'blocks': [],
@@ -197,6 +249,33 @@ def test_executeblocks_AcceptsRequestsAfterMissingParametersException(socketio_c
     expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']'})
     assert len(received) == 2
     assert received[1]["args"] == expected
+
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterOtherErrors(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 'min_genes', 'min_cells': 'min_cells'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
     message = {
         'user_id': 'bob',
         'blocks': [],
@@ -381,6 +460,22 @@ def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_clien
     expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
     assert len(received) == 1
     assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsForOtherErrors(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 'min_genes', 'min_cells': 'min_cells'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
 
 
 def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):

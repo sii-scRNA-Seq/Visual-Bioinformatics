@@ -79,7 +79,7 @@ describe('OutputService', () => {
       const spy = spyOn(snackBar, 'open');
       const blocks: Block[] = [];
       service.executeBlocks(blocks);
-      expect(spy).toHaveBeenCalledOnceWith('No User ID, please refresh the page and try again', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('No User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });
     });
 
     it('should call backendSocketClient.sendRequest() with the appropriate message', () => {
@@ -187,7 +187,7 @@ describe('OutputService', () => {
       expect(outputs).toEqual([]);
       const spy = spyOn(snackBar, 'open');
       cb('{}');
-      expect(spy).toHaveBeenCalledOnceWith('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Received a bad response. Please refresh the page and try again.', 'Close', { duration: 5000 });
       outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
     });

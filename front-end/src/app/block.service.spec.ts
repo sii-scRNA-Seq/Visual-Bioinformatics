@@ -99,7 +99,7 @@ describe('BlockService', () => {
       const spy = spyOn(snackBar, 'open');
       service.addBlock('loaddata');
       service.addBlock('loaddata');
-      expect(spy).toHaveBeenCalledOnceWith('Load Data block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Load Data block cannot be added.', 'Close', { duration: 5000 });
     });
     
     it('should open snack bar when ordering is not valid - basic filtering before load data', async() => {
@@ -107,7 +107,7 @@ describe('BlockService', () => {
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');
       service.addBlock('basicfiltering');
-      expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added.', 'Close', { duration: 5000 });
     });
 
     it('should open snack bar when ordering is not valid - pca before variable genes', async() => {
@@ -116,7 +116,7 @@ describe('BlockService', () => {
       const spy = spyOn(snackBar, 'open');
       service.addBlock('loaddata');
       service.addBlock('pca');
-      expect(spy).toHaveBeenCalledOnceWith('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Principle Component Analysis block cannot be added.', 'Close', { duration: 5000 });
     });
 
     it('should open snack bar when ordering is not valid - run umap before pca', async() => {
@@ -126,7 +126,7 @@ describe('BlockService', () => {
       service.addBlock('loaddata');
       service.addBlock('variablegenes');
       service.addBlock('runumap');
-      expect(spy).toHaveBeenCalledOnceWith('Run UMAP block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
     });
   });
 

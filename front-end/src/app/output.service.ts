@@ -52,7 +52,7 @@ export class OutputService implements OutputServiceInterface {
         this.snackBar.open(res.error, 'Close', { duration: 5000 });
         this.executingBlocks$.next(false);
       } else {
-        this.snackBar.open('Received a bad response, please refresh the page and try again', 'Close', { duration: 5000 });
+        this.snackBar.open('Received a bad response. Please refresh the page and try again.', 'Close', { duration: 5000 });
         this.executingBlocks$.next(false);
       }
     });
@@ -64,7 +64,7 @@ export class OutputService implements OutputServiceInterface {
   
   executeBlocks(blocks: Block[]): void {
     if (this.userId === null) {
-      this.snackBar.open('No User ID, please refresh the page and try again', 'Close', { duration: 5000 });
+      this.snackBar.open('No User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });
     } else {
       this.executingBlocks$.next(true);
       const newBlocksArray: NewBlock[] = [];

@@ -29,7 +29,7 @@ export class BlockService implements BlockServiceInterface {
           }]);
         }
         else {
-          this.snackBar.open('Load Data block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Load Data block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -47,7 +47,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Basic Filtering block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -62,7 +62,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Quality Control Plots block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Quality Control Plots block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -81,7 +81,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Quality Control Filtering block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Quality Control Filtering block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -100,7 +100,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Identify Highly Variable Genes block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -115,7 +115,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Principle Component Analysis block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -133,7 +133,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Run UMAP block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }

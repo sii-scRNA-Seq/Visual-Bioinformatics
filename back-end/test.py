@@ -60,7 +60,7 @@ def get_AnnData(qc_filtering=False):
     return adata
 
 
-#################### TESTS BEGIN HERE #################### (# noqa: E266)
+# -------------------- TESTS BEGIN HERE -------------------- #
 
 
 def test_getuserid_WarnsWhenUserIDIsNone(app_client):

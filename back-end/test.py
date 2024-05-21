@@ -103,7 +103,7 @@ def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client):
     message = {}
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is missing. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -115,7 +115,7 @@ def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is not a string. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -127,7 +127,7 @@ def test_executeblocks_WarnsWhenUserIDIsNotAString(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is not a string. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -139,7 +139,7 @@ def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is empty. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -169,7 +169,7 @@ def test_executeblocks_WarnsWhenNotAcceptingRequestsFromUser(socketio_client):
     with patch('flask_caching.Cache.get', lambda x, y: False):
         socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+    expected = json.dumps({'error': 'You have another request in progress. Please wait and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -202,7 +202,7 @@ def test_executeblocks_AcceptsRequestsAfterNotAcceptingRequestException(socketio
     with patch('flask_caching.Cache.get', lambda x, y: False):
         socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+    expected = json.dumps({'error': 'You have another request in progress. Please wait and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -220,7 +220,7 @@ def test_executeblocks_AcceptsRequestsAfterBadRequestException(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks is missing. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -246,7 +246,7 @@ def test_executeblocks_AcceptsRequestsAfterMissingParametersException(socketio_c
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -272,7 +272,7 @@ def test_executeblocks_AcceptsRequestsAfterOtherErrors(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Unknown error. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -294,7 +294,7 @@ def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks is missing. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -307,7 +307,7 @@ def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks is not a list. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -320,7 +320,7 @@ def test_executeblocks_WarnsWhenBlocksIsNotAList(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks is not a list. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -333,7 +333,7 @@ def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Block ID is missing. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -349,7 +349,7 @@ def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -364,7 +364,7 @@ def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -379,7 +379,7 @@ def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -394,7 +394,7 @@ def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -409,7 +409,7 @@ def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -425,7 +425,7 @@ def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -442,7 +442,7 @@ def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
     assert len(received) == 3
     assert received[2]["args"] == expected
 
@@ -457,7 +457,7 @@ def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_clien
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Received a bad request: Block ID does not match expected values. Please refresh the page and try again.'})
     assert len(received) == 1
     assert received[0]["args"] == expected
 
@@ -473,7 +473,7 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+    expected = json.dumps({'error': 'Unknown error. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -505,7 +505,7 @@ def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -521,7 +521,7 @@ def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -537,7 +537,7 @@ def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_cells\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_cells\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -675,7 +675,7 @@ def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\', \'max_n_genes_by_counts\', \'pct_counts_mt\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\', \'max_n_genes_by_counts\', \'pct_counts_mt\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -691,7 +691,7 @@ def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -707,7 +707,7 @@ def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'max_n_genes_by_counts\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'max_n_genes_by_counts\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -723,7 +723,7 @@ def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'pct_counts_mt\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'pct_counts_mt\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -870,7 +870,7 @@ def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\', \'max_mean\', \'min_disp\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\', \'max_mean\', \'min_disp\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -886,7 +886,7 @@ def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -902,7 +902,7 @@ def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'max_mean\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'max_mean\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -918,7 +918,7 @@ def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client):
     }
     socketio_client.emit('json', message)
     received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'min_disp\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'min_disp\']. Please refresh the page and try again.'})
     assert len(received) == 2
     assert received[1]["args"] == expected
 
@@ -1029,7 +1029,7 @@ def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
     with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
         socketio_client.emit('json', message)
         received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\', \'n_pcs\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\', \'n_pcs\']. Please refresh the page and try again.'})
     assert len(received) == 4
     assert received[3]["args"] == expected
 
@@ -1055,7 +1055,7 @@ def test_runumap_WarnsWhenNNeighborsIsMissing():
     with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
         socketio_client.emit('json', message)
         received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\']. Please refresh the page and try again.'})
     assert len(received) == 4
     assert received[3]["args"] == expected
 
@@ -1081,7 +1081,7 @@ def test_runumap_WarnsWhenNPcsIsMissing():
     with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
         socketio_client.emit('json', message)
         received = socketio_client.get_received()
-    expected = json.dumps({'error': 'Missing parameters: [\'n_pcs\']'})
+    expected = json.dumps({'error': 'Missing parameters: [\'n_pcs\']. Please refresh the page and try again.'})
     assert len(received) == 4
     assert received[3]["args"] == expected
 

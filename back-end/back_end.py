@@ -124,13 +124,19 @@ def create_app(test_mode=False):
             return jsonify(message)
 
     class UserIDException(Exception):
-        pass
+        def __init__(self, message):
+            self.message = message
+            super().__init__(message)
 
     class NotAcceptingRequestException(Exception):
-        pass
+        def __init__(self, message):
+            self.message = message
+            super().__init__(message)
 
     class BadRequestException(Exception):
-        pass
+        def __init__(self, message):
+            self.message = message
+            super().__init__(message)
 
     class MissingParametersException(Exception):
         def __init__(self, message):
@@ -144,39 +150,32 @@ def create_app(test_mode=False):
         try:
 
             if 'user_id' not in message:
-                logger.error("User ID is missing from message")
-                raise UserIDException
+                raise UserIDException("User ID is missing")
             elif not isinstance(message['user_id'], str):
-                logger.error("User ID is not a string")
-                raise UserIDException
+                raise UserIDException("User ID is not a string")
             elif message['user_id'] == '':
-                logger.error("User ID is empty")
-                raise UserIDException
+                raise UserIDException("User ID is empty")
             user_id = message['user_id']
             logger.info(f"user_id={user_id}")
 
             with app.app_context():
                 if accepting_user_requests.get(user_id) is False:
-                    logger.error("User already processing blocks")
-                    raise NotAcceptingRequestException
+                    raise NotAcceptingRequestException("Not accepting requests from user")
                 accepting_user_requests.set(user_id, False)
             user_data = None
 
             if 'blocks' not in message:
-                logger.error("Blocks is missing from message")
-                raise BadRequestException
+                raise BadRequestException("Blocks is missing")
             elif not isinstance(message['blocks'], list):
-                logger.error("Blocks is not a list")
-                raise BadRequestException
+                raise BadRequestException("Blocks is not a list")
             blocks = message['blocks']
             executed_blocks = []
 
             for block in blocks:
-                logger.debug(f"Executing block={block} user={user_id}")
+                logger.info(f"Executing block={block} user={user_id}")
 
                 if 'block_id' not in block:
-                    logger.error("Block ID is missing from Blocks")
-                    raise BadRequestException
+                    raise BadRequestException("Block ID is missing")
                 elif block['block_id'] == 'loaddata' and not executed_blocks:
                     user_data, output_message = load_data(user_data, block)
                 elif block['block_id'] == 'basicfiltering' and 'loaddata' in executed_blocks:
@@ -192,11 +191,9 @@ def create_app(test_mode=False):
                 elif block['block_id'] == 'runumap' and 'pca' in executed_blocks:
                     user_data, output_message = run_umap(user_data, block)
                 elif block['block_id'] in ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'runumap']:
-                    logger.error("Blocks have been supplied in an invalid order")
-                    raise BadRequestException
+                    raise BadRequestException("Blocks have an invalid order")
                 else:
-                    logger.error("Block ID does not match expected values")
-                    raise BadRequestException
+                    raise BadRequestException("Block ID does not match expected values")
 
                 executed_blocks.append(block['block_id'])
                 socketio.emit("json", json.dumps(output_message))
@@ -213,31 +210,29 @@ def create_app(test_mode=False):
 
         except UserIDException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Your UserID is invalid, please refresh the page and try again'})
+            end_connection = json.dumps({'error': 'Your UserID is invalid: ' + e.message + '. Please refresh the page and try again.'})
         except NotAcceptingRequestException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'You have another request in progress, please wait and try again'})
+            end_connection = json.dumps({'error': 'You have another request in progress. Please wait and try again.'})
         except BadRequestException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Received a bad request, please refresh the page and try again'})
+            end_connection = json.dumps({'error': 'Received a bad request: ' + e.message + '. Please refresh the page and try again.'})
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         except MissingParametersException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': e.message})
+            end_connection = json.dumps({'error': e.message + '. Please refresh the page and try again.'})
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         except Exception as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Unknown error, please refresh the page and try again'})
+            end_connection = json.dumps({'error': 'Unknown error. Please refresh the page and try again.'})
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         finally:
             socketio.emit("json", end_connection)
 
     def load_data(user_data, block):
-        logger.info("")
-
         user_data = raw_data_cache.get('pbmc3k').copy()
 
         message = {
@@ -253,7 +248,6 @@ def create_app(test_mode=False):
 
         min_genes = float(block['min_genes'])
         min_cells = float(block['min_cells'])
-        logger.info(f"min_genes={min_genes} min_cells={min_cells}")
 
         sc.pp.filter_cells(user_data, min_genes=min_genes)
         sc.pp.filter_genes(user_data, min_cells=min_cells)
@@ -264,8 +258,6 @@ def create_app(test_mode=False):
         return user_data, message
 
     def qc_plots(user_data, block):
-        logger.info("")
-
         user_data.var['mt'] = user_data.var_names.str.startswith('MT-')
         sc.pp.calculate_qc_metrics(user_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
         user_data.obs['total_UMIs'] = user_data.obs['total_counts']
@@ -291,7 +283,6 @@ def create_app(test_mode=False):
         min_n_genes_by_counts = float(block['min_n_genes_by_counts'])
         max_n_genes_by_counts = float(block['max_n_genes_by_counts'])
         pct_counts_mt = float(block['pct_counts_mt'])
-        logger.info(f"min_n_genes_by_counts={min_n_genes_by_counts} max_n_genes_by_counts={max_n_genes_by_counts} pct_counts_mt={pct_counts_mt}")
 
         user_data.var['mt'] = user_data.var_names.str.startswith('MT-')
         sc.pp.calculate_qc_metrics(user_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
@@ -315,7 +306,6 @@ def create_app(test_mode=False):
         min_mean = float(block['min_mean'])
         max_mean = float(block['max_mean'])
         min_disp = float(block['min_disp'])
-        logger.info(f"min_mean={min_mean} max_mean={max_mean} min_disp={min_disp}")
 
         sc.pp.normalize_total(user_data, target_sum=1e4)
         sc.pp.log1p(user_data)
@@ -333,8 +323,6 @@ def create_app(test_mode=False):
         return user_data, message
 
     def pca(user_data, block):
-        logger.info("")
-
         user_data.var['mt'] = user_data.var_names.str.startswith('MT-')
         sc.pp.calculate_qc_metrics(user_data, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
         user_data.obs['total_UMIs'] = user_data.obs['total_counts']
@@ -366,7 +354,6 @@ def create_app(test_mode=False):
 
         n_neighbors = int(block['n_neighbors'])
         n_pcs = int(block['n_pcs'])
-        logger.info(f"n_neighbors={n_neighbors} n_pcs={n_pcs}")
 
         with parallel_backend('threading', n_jobs=1):
             with threadpool_limits(limits=1, user_api='blas'):

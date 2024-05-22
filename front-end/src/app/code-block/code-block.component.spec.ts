@@ -121,7 +121,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with pca when remove button is clicked', () => {
       component.block = {
         blockId: 'pca',
-        title: 'Principle Component Analysis',
+        title: 'Principal Component Analysis',
         possibleChildBlocks: [],
         parameters: [],
       };

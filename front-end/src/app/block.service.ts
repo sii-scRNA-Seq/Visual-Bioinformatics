@@ -108,14 +108,14 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('pca') > -1) {
           blockList.push({
             blockId: 'pca',
-            title: 'Principle Component Analysis',
+            title: 'Principal Component Analysis',
             possibleChildBlocks: ['pca', 'runumap'],
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Principle Component Analysis block cannot be added.', 'Close', { duration: 5000 });
+          this.snackBar.open('Principal Component Analysis block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -127,7 +127,7 @@ export class BlockService implements BlockServiceInterface {
             possibleChildBlocks: ['runumap'],
             parameters: [
               {key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
-              {key: 'n_pcs', text: 'Number of Principle Components', value: 40},
+              {key: 'n_pcs', text: 'Number of Principal Components', value: 40},
             ],
           });
           this.blocksOnCanvas$.next(blockList);

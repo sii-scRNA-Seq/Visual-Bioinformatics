@@ -1,4 +1,4 @@
-name: visual-bioinformatics
+name: scampi
 channels:
   - conda-forge
   - defaults
@@ -79,4 +79,3 @@ dependencies:
       - zope-event==5.0
       - zope-interface==6.2
       - flask_socketio==5.3.6
-

@@ -7,7 +7,7 @@ Welcome to the Visual Bioinformatics project.
 - Open an Anaconda terminal
 - Navigate to the back-end directory
 - Run `conda env create -f environment.yml`
-- Run `conda activate visual-bioinformatics`
+- Run `conda activate scampi`
 - Run `python back_end.py` to launch the back-end in development mode
 ### Starting the front-end
 - Open a new terminal prompt

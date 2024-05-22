@@ -74,7 +74,7 @@ def create_app(test_mode=False):
     }
     logger.info("Finished loading raw data")
 
-    app = Flask(__name__, static_folder='dist/visual-bioinformatics', static_url_path='/dist/visual-bioinformatics')
+    app = Flask(__name__, static_folder='dist/scampi', static_url_path='/dist/scampi')
 
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)

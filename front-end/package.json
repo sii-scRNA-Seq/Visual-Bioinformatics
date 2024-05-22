@@ -1,5 +1,5 @@
 {
-  "name": "visual-bioinformatics",
+  "name": "scampi",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

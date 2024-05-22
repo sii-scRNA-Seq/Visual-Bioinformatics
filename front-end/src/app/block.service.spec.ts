@@ -1,9 +1,11 @@
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { first, firstValueFrom } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { BlockService } from './block.service';
+import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
 
 describe('BlockService', () => {
@@ -13,8 +15,12 @@ describe('BlockService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
+        BrowserAnimationsModule,
         HttpClientTestingModule,
         MatSnackBarModule,
+      ],
+      providers: [
+        { provide: OutputService, useClass: MockOutputService },
       ],
     });
     service = TestBed.inject(BlockService);
@@ -93,7 +99,7 @@ describe('BlockService', () => {
       const spy = spyOn(snackBar, 'open');
       service.addBlock('loaddata');
       service.addBlock('loaddata');
-      expect(spy).toHaveBeenCalledOnceWith('Load Data block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Load Data block cannot be added.', 'Close', { duration: 5000 });
     });
     
     it('should open snack bar when ordering is not valid - basic filtering before load data', async() => {
@@ -101,7 +107,7 @@ describe('BlockService', () => {
       expect(blocks.length).toBe(0);
       const spy = spyOn(snackBar, 'open');
       service.addBlock('basicfiltering');
-      expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Basic Filtering block cannot be added.', 'Close', { duration: 5000 });
     });
 
     it('should open snack bar when ordering is not valid - pca before variable genes', async() => {
@@ -110,7 +116,7 @@ describe('BlockService', () => {
       const spy = spyOn(snackBar, 'open');
       service.addBlock('loaddata');
       service.addBlock('pca');
-      expect(spy).toHaveBeenCalledOnceWith('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Principle Component Analysis block cannot be added.', 'Close', { duration: 5000 });
     });
 
     it('should open snack bar when ordering is not valid - run umap before pca', async() => {
@@ -120,7 +126,7 @@ describe('BlockService', () => {
       service.addBlock('loaddata');
       service.addBlock('variablegenes');
       service.addBlock('runumap');
-      expect(spy).toHaveBeenCalledOnceWith('Run UMAP block cannot be added', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
     });
   });
 
@@ -164,34 +170,11 @@ describe('BlockService', () => {
       expect(outputService.resetOutputs).toHaveBeenCalledTimes(1);
     });
 
-    it('should result in no calls of outputService.executeBlock when no blocks are on the canvas', async () => {
+    it('should result in a call of outputService.executeBlocks', async () => {
       const outputService: OutputService = TestBed.inject(OutputService);
-      spyOn(outputService, 'executeBlock');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks.length).toBe(0);
+      spyOn(outputService, 'executeBlocks');
       service.executeBlocks();
-      expect(outputService.executeBlock).toHaveBeenCalledTimes(0);
-    });
-
-    it('should result in one call of outputService.executeBlock when one block is on the canvas', async () => {
-      const outputService: OutputService = TestBed.inject(OutputService);
-      spyOn(outputService, 'executeBlock');
-      service.addBlock('loaddata');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks.length).toBe(1);
-      service.executeBlocks();
-      expect(outputService.executeBlock).toHaveBeenCalledTimes(1);
-    });
-
-    it('should result in two calls of outputService.executeBlock when two blocks are on the canvas', async () => {
-      const outputService: OutputService = TestBed.inject(OutputService);
-      spyOn(outputService, 'executeBlock');
-      service.addBlock('loaddata');
-      service.addBlock('basicfiltering');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks.length).toBe(2);
-      await service.executeBlocks();
-      expect(outputService.executeBlock).toHaveBeenCalledTimes(2);
+      expect(outputService.executeBlocks).toHaveBeenCalledTimes(1);
     });
   });
 });

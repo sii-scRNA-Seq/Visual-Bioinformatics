@@ -3,17 +3,15 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Block, BlockId } from './block.interface';
+import { BlockServiceInterface } from './block.service.interface';
 import { OutputService } from './output.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BlockService {
+export class BlockService implements BlockServiceInterface {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
-
-  private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
-  readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
 
   constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
 
@@ -31,7 +29,7 @@ export class BlockService {
           }]);
         }
         else {
-          this.snackBar.open('Load Data block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Load Data block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -49,7 +47,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Basic Filtering block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Basic Filtering block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -64,7 +62,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Quality Control Plots block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Quality Control Plots block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -83,7 +81,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Quality Control Filtering block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Quality Control Filtering block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -102,7 +100,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Identify Highly Variable Genes block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Identify Highly Variable Genes block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -117,7 +115,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Principle Component Analysis block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Principle Component Analysis block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -135,7 +133,7 @@ export class BlockService {
           this.blocksOnCanvas$.next(blockList);
         }
         else {
-          this.snackBar.open('Run UMAP block cannot be added', 'Close', { duration: 5000 });
+          this.snackBar.open('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }
@@ -155,12 +153,8 @@ export class BlockService {
     }
   }
 
-  async executeBlocks(): Promise<void> {
-    this.executingBlocks$.next(true);
+  executeBlocks(): void {
     this.outputService.resetOutputs();
-    for(let i=0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      await this.outputService.executeBlock(this.blocksOnCanvas$.getValue()[i]);
-    }
-    this.executingBlocks$.next(false);
+    this.outputService.executeBlocks(this.blocksOnCanvas$.getValue());
   }
 }

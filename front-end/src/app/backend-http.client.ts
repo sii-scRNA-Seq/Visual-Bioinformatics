@@ -24,7 +24,7 @@ export class BackendHttpClient {
     try {
       response = await firstValueFrom(this.http.get<Response>(url, {params: params}));
     } catch (e) {
-      this.snackBar.open('Error retrieving userId, please refresh the page and try again', 'Close', { duration: 5000 });
+      this.snackBar.open('Error retrieving User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });
     }
     return response.user_id;
   }

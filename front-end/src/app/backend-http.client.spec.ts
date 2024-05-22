@@ -39,7 +39,7 @@ describe('BackendHttpClient', () => {
       const mockHttp = TestBed.inject(HttpTestingController);
       const spy = spyOn(snackBar, 'open');
       service.getUserId('').then(async () => {
-        expect(spy).toHaveBeenCalledOnceWith('Error retrieving userId, please refresh the page and try again', 'Close', { duration: 5000 });
+        expect(spy).toHaveBeenCalledOnceWith('Error retrieving User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });
       });
       tick();
       const req = mockHttp.expectOne('http://localhost:5000/api/getuserid?user_id=');

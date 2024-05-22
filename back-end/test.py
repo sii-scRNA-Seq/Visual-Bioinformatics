@@ -1,6 +1,6 @@
 import pytest
 from scipy.sparse import csr_matrix
-from unittest.mock import patch
+from unittest.mock import call, patch
 import anndata
 import json
 import numpy as np
@@ -8,15 +8,27 @@ from back_end import create_app
 
 
 @pytest.fixture()
+def socketio():
+    with patch('scanpy.datasets.pbmc3k', get_AnnData):
+        socketio, app = create_app(test_mode=True)
+        yield socketio
+
+
+@pytest.fixture()
 def app():
     with patch('scanpy.datasets.pbmc3k', get_AnnData):
-        app = create_app(test_mode=True)
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         yield app
 
 
 @pytest.fixture()
-def client(app):
+def socketio_client(socketio, app):
+    return socketio.test_client(app)
+
+
+@pytest.fixture()
+def app_client(app):
     return app.test_client()
 
 
@@ -39,16 +51,20 @@ def get_AnnData(qc_filtering=False):
         counts = csr_matrix(np.array([[0, 1, 2, 0],
                                       [0, 3, 4, 1],
                                       [0, 5, 6, 2],
-                                      [0, 1, 1, 98],
-                                      [1, 1, 1, 1]]))
+                                      [1, 0, 0, 0],
+                                      [1, 1, 1, 1],
+                                      [0, 1, 1, 98]]))
         adata = anndata.AnnData(counts)
         adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
         adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars - 1)] + ["MT-Gene"]
     return adata
 
 
-def test_getuserid_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/getuserid')
+# -------------------- TESTS BEGIN HERE -------------------- #
+
+
+def test_getuserid_WarnsWhenUserIDIsNone(app_client):
+    response = app_client.get('/api/getuserid')
     assert response.status_code == 400
     message = {
         "code": 400,
@@ -59,9 +75,9 @@ def test_getuserid_WarnsUserWhenUserIdIsNone(client):
 
 
 @patch('uuid.uuid4')
-def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, client):
+def test_getuserid_CreatesUserIdWhenUserIDIsEmpty(mock, app_client):
     mock.return_value = 'bob'
-    response = client.get('/api/getuserid', query_string={
+    response = app_client.get('/api/getuserid', query_string={
         'user_id': ''
     })
     assert response.status_code == 200
@@ -71,8 +87,8 @@ def test_getuserid_CreatesUserIdWhenUserIdIsEmpty(mock, client):
     assert json.loads(response.data) == message
 
 
-def test_getuserid_ReturnsGivenUserId(client):
-    response = client.get('/api/getuserid', query_string={
+def test_getuserid_ReturnsUserIdWhenUserIDIsSupplied(app_client):
+    response = app_client.get('/api/getuserid', query_string={
         'user_id': 'bob'
     })
     assert response.status_code == 200
@@ -82,831 +98,1036 @@ def test_getuserid_ReturnsGivenUserId(client):
     assert json.loads(response.data) == message
 
 
-def test_loaddata_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/loaddata')
-    assert response.status_code == 400
+def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {}
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is missing. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': None,
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is not a string. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
 
 
-def test_loaddata_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/loaddata', query_string={
-        'user_id': ''
-    })
-    assert response.status_code == 400
+def test_executeblocks_WarnsWhenUserIDIsNotAString(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 42,
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is not a string. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
 
 
-def test_loaddata_AnnDataIsLoadedCorrectly(client):
-    response = client.get('/api/loaddata', query_string={
-        'user_id': 'bob'
-    })
-    assert response.status_code == 200
+def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client):
+    socketio_client.get_received()
     message = {
-        'text': "Object with: 5 cells and 3 genes"
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/basicfiltering')
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': ''
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenUserIdIsNotInCache(client):
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob'
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenMinGenesIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob',
-        'min_cells': 0
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'min_genes\']',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenMinCellsIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob',
-        'min_genes': 0
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'min_cells\']',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenMinGenesAndMinCellsAreMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob'
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'min_genes\', \'min_cells\']',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_WarnsUserWhenNoDataIsInUserCache(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob',
-        'min_genes': 1,
-        'min_cells': 1
-    })
-    assert response.status_code == 406
-    message = {
-        "code": 406,
-        "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_FilterGenesWorks(client):
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob',
-        'min_genes': 0,
-        'min_cells': 1
-    })
-    assert response.status_code == 200
-    message = {
-        'text': "Object with: 5 cells and 2 genes"
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_FilterCellsWorks(client):
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob',
-        'min_genes': 1,
-        'min_cells': 0
-    })
-    assert response.status_code == 200
-    message = {
-        'text': "Object with: 4 cells and 3 genes"
-    }
-    assert json.loads(response.data) == message
-
-
-def test_basicfiltering_FilterGenesAndCellsWork(client):
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob'
-    })
-    response = client.get('/api/basicfiltering', query_string={
-        'user_id': 'bob',
-        'min_genes': 1,
-        'min_cells': 1
-    })
-    assert response.status_code == 200
-    message = {
-        'text': "Object with: 4 cells and 2 genes"
-    }
-    assert json.loads(response.data) == message
-
-
-# def test_basicfiltering_UsesExistingDataForSameParameters(client):
-#     client.get('/api/loaddata', query_string={
-#         'user_id': 'bob'
-#     })
-#     with patch('scanpy.pp.filter_cells') as mock_fc, patch('scanpy.pp.filter_genes') as mock_fg:
-#         client.get('/api/basicfiltering', query_string={
-#             'user_id': 'bob',
-#             'min_genes': 1,
-#             'min_cells': 1
-#         })
-#         client.get('/api/basicfiltering', query_string={
-#             'user_id': 'bob',
-#             'min_genes': 1,
-#             'min_cells': 1
-#         })
-#         mock_fc.assert_called_once()
-#         mock_fg.assert_called_once()
-
-
-def test_qcplots_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/qcplots')
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_qcplots_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/qcplots', query_string={
         'user_id': '',
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Your UserID is invalid: User ID is empty. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
 
 
-def test_qcplots_WarnsUserWhenUserIdIsNotInCache(client):
-    response = client.get('/api/qcplots', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 400
+def test_executeblocks_ChangesValueOfAcceptingUserRequests(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [],
     }
-    assert json.loads(response.data) == message
+    with patch('flask_caching.Cache.set') as mock:
+        socketio_client.emit('json', message)
+        assert mock.call_count == 2
+        assert mock.mock_calls == [call('bob', False), call('bob', True)]
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
 
 
-def test_qcplots_WarnsUserWhenNoDataIsInUserCache(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcplots', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 406
+def test_executeblocks_WarnsWhenNotAcceptingRequestsFromUser(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 406,
-        "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
+        'user_id': 'bob',
+        'blocks': [],
     }
-    assert json.loads(response.data) == message
+    with patch('flask_caching.Cache.get', lambda x, y: False):
+        socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'You have another request in progress. Please wait and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
 
 
-def test_qcplots_CallsScanpyFunctions(client):
+def test_executeblocks_AcceptsRequestsAfterEndConnection(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterNotAcceptingRequestException(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    with patch('flask_caching.Cache.get', lambda x, y: False):
+        socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'You have another request in progress. Please wait and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterBadRequestException(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks is missing. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterMissingParametersException(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_AcceptsRequestsAfterOtherErrors(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 'min_genes', 'min_cells': 'min_cells'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Unknown error. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'end_connection': 'end_connection'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks is missing. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': None,
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks is not a list. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlocksIsNotAList(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': 42,
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks is not a list. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlockIDIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [{}],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Block ID is missing. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'loaddata'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'qcplots'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 0, 'pct_counts_mt': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'pca'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'runumap', 'n_neighbors': 0, 'n_pcs': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Blocks have an invalid order. Please refresh the page and try again.'})
+    assert len(received) == 3
+    assert received[2]["args"] == expected
+
+
+def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'Expecttheunexpected'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Received a bad request: Block ID does not match expected values. Please refresh the page and try again.'})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_executeblocks_WarnsForOtherErrors(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 'min_genes', 'min_cells': 'min_cells'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Unknown error. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 5 cells and 3 genes'})
+    assert len(received) == 2
+    assert received[0]["args"] == expected
+    assert received[1]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\', \'min_cells\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_cells': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_genes\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_cells\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_basicfiltering_CallsScanpyFunctions(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 0}
+        ],
+    }
+    with patch('scanpy.pp.filter_cells') as mock1, patch('scanpy.pp.filter_genes') as mock2:
+        socketio_client.emit('json', message)
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+
+
+def test_basicfiltering_NoFilteringWorks(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 5 cells and 3 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_FilterCellsWorks(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 1, 'min_cells': 0}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 4 cells and 3 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_FilterGenesWorks(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 0, 'min_cells': 1}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 5 cells and 2 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'basicfiltering', 'min_genes': 1, 'min_cells': 1}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': 'Object with: 4 cells and 2 genes'})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcplots_CallsScanpyFunctions():
     adata = get_AnnData()
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
-
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
-        app = create_app(test_mode=True)
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
-        client = app.test_client()
+        socketio_client = socketio.test_client(app)
 
-    client.get('/api/loaddata', query_string={
+    socketio_client.get_received()
+    message = {
         'user_id': 'bob',
-    })
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcplots'}
+        ],
+    }
     with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pl.violin') as mock2:
-        client.get('/api/qcplots', query_string={
-            'user_id': 'bob',
-        })
+        socketio_client.emit('json', message)
         mock1.assert_called_once()
         mock2.assert_called_once()
 
 
-def test_qcplots_ReturnsCorrectString(client):
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcplots', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 200
-    assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"
-    assert json.loads(response.data)['alttext'] == 'A violin plot displaying quality control metrics generated by a QC Plots block'
-
-
-def test_qcfiltering_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/qcfiltering')
-    assert response.status_code == 400
+def test_qcplots_ReturnsCorrectString(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcplots'}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    assert len(received) == 3
+    assert json.loads(received[1]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[1]["args"])['alttext'] == 'A violin plot displaying quality control metrics generated by a QC Plots block'
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_qcfiltering_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': '',
-    })
-    assert response.status_code == 400
+def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_qcfiltering_WarnsUserWhenUserIdIsNotInCache(client):
-    response = client.get('/api/qcfiltering', query_string={
         'user_id': 'bob',
-    })
-    assert response.status_code == 400
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering'}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\', \'max_n_genes_by_counts\', \'pct_counts_mt\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'max_n_genes_by_counts': 42, 'pct_counts_mt': 42}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_n_genes_by_counts\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsUserWhenGenesByCountsIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-        'pct_counts_mt': 0
-    })
-    assert response.status_code == 400
+def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": "Missing parameters: ['min_n_genes_by_counts', 'max_n_genes_by_counts']",
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 42, 'pct_counts_mt': 42}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'max_n_genes_by_counts\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsUserWhenPctCountsMtIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-        'min_n_genes_by_counts': 0,
-        'max_n_genes_by_counts': 0,
-    })
-    assert response.status_code == 400
+def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": "Missing parameters: ['pct_counts_mt']",
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 42, 'max_n_genes_by_counts': 42}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'pct_counts_mt\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
 
 
-def test_qcfiltering_WarnsUserWhenNGenesByCountsAndPctCountsMtAreMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": "Missing parameters: ['min_n_genes_by_counts', 'max_n_genes_by_counts', 'pct_counts_mt']",
-    }
-    assert json.loads(response.data) == message
-
-
-def test_qcfiltering_WarnsUserWhenNoDataIsInUserCache(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-        'min_n_genes_by_counts': 1,
-        'max_n_genes_by_counts': 10,
-        'pct_counts_mt': 1,
-    })
-    assert response.status_code == 406
-    message = {
-        "code": 406,
-        "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_qcfiltering_maxNGenesByCountsWorks(client):
-
-    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
-        app = create_app(test_mode=True)
+def test_qcfiltering_CallsScanpyFunctions():
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
-        client = app.test_client()
+        socketio_client = socketio.test_client(app)
 
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-        'min_n_genes_by_counts': 0,
-        'max_n_genes_by_counts': 4,
-        'pct_counts_mt': 100,
-    })
-    assert response.status_code == 200
+    socketio_client.get_received()
     message = {
-        'text': "Object with: 4 cells and 4 genes"
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 0, 'pct_counts_mt': 0}
+        ],
     }
-    assert json.loads(response.data) == message
+    with patch('scanpy.pp.calculate_qc_metrics') as mock:
+        socketio_client.emit('json', message)
+        mock.assert_called_once()
 
 
-def test_qcfiltering_PctCountsMtWorks(client):
-
+def test_qcfiltering_NoFilteringWorks():
     with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
-        app = create_app(test_mode=True)
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
-        client = app.test_client()
+        socketio_client = socketio.test_client(app)
 
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-        'min_n_genes_by_counts': 0,
-        'max_n_genes_by_counts': 5,
-        'pct_counts_mt': 95,
-    })
-    assert response.status_code == 200
+    socketio_client.get_received()
     message = {
-        'text': "Object with: 4 cells and 4 genes"
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 5, 'pct_counts_mt': 100}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 6 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_qcfiltering_maxNGenesByCountsAndPctCountsMtWork(client):
+def test_qcfiltering_FilterByMinNGenesByCountsWorks():
     with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
-        app = create_app(test_mode=True)
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
-        client = app.test_client()
+        socketio_client = socketio.test_client(app)
 
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/qcfiltering', query_string={
-        'user_id': 'bob',
-        'min_n_genes_by_counts': 1,
-        'max_n_genes_by_counts': 4,
-        'pct_counts_mt': 95,
-    })
-    assert response.status_code == 200
+    socketio_client.get_received()
     message = {
-        'text': "Object with: 3 cells and 4 genes"
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 1, 'max_n_genes_by_counts': 5, 'pct_counts_mt': 100}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 5 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_variablegenes_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/variablegenes')
-    assert response.status_code == 400
+def test_qcfiltering_FilterByMaxNGenesByCountsWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 4, 'pct_counts_mt': 100}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 5 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_variablegenes_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/variablegenes', query_string={
-        'user_id': '',
-    })
-    assert response.status_code == 400
+def test_qcfiltering_FilterByPctCountsMtWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_variablegenes_WarnsUserWhenUserIdIsNotInCache(client):
-    response = client.get('/api/variablegenes', query_string={
         'user_id': 'bob',
-    })
-    assert response.status_code == 400
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 0, 'max_n_genes_by_counts': 5, 'pct_counts_mt': 95}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 5 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
+def test_qcfiltering_FilterByAllParametersWorks():
+    with patch('scanpy.datasets.pbmc3k', lambda: get_AnnData(qc_filtering=True)):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'qcfiltering', 'min_n_genes_by_counts': 1, 'max_n_genes_by_counts': 4, 'pct_counts_mt': 95}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'text': "Object with: 3 cells and 4 genes"})
+    assert len(received) == 3
+    assert received[1]["args"] == expected
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_variablegenes_WarnsUserWhenMinMeanAndMaxMeanAreMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/variablegenes', query_string={
-        'user_id': 'bob',
-        'min_disp': 0,
-    })
-    assert response.status_code == 400
+def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'min_mean\', \'max_mean\']',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes'}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\', \'max_mean\', \'min_disp\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
 
 
-def test_variablegenes_WarnsUserWhenMinDispIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/variablegenes', query_string={
-        'user_id': 'bob',
-        'min_mean': 0,
-        'max_mean': 0,
-    })
-    assert response.status_code == 400
+def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'min_disp\']',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'max_mean': 42, 'min_disp': 42}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_mean\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
 
 
-def test_variablegenes_WarnsUserWhenNoDataIsInUserCache(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/variablegenes', query_string={
-        'user_id': 'bob',
-        'min_mean': 0,
-        'max_mean': 0,
-        'min_disp': 0,
-    })
-    assert response.status_code == 406
+def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 406,
-        "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
-    }
-    assert json.loads(response.data) == message
-
-
-@patch('scanpy.read_10x_mtx')
-def test_variablegenes_CallsScanpyFunctions(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
-    client.get('/api/loaddata', query_string={
         'user_id': 'bob',
-    })
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'min_disp': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'max_mean\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'max_mean': 42}
+        ],
+    }
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'min_disp\']. Please refresh the page and try again.'})
+    assert len(received) == 2
+    assert received[1]["args"] == expected
+
+
+def test_variablegenes_CallsScanpyFunctions(socketio_client):
+    socketio_client.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0}
+        ],
+    }
     with patch('scanpy.pp.normalize_total') as mock1, patch('scanpy.pp.log1p') as mock2, patch('scanpy.pp.highly_variable_genes') as mock3, patch('scanpy.pl.highly_variable_genes') as mock4:
-        client.get('/api/variablegenes', query_string={
-            'user_id': 'bob',
-            'min_mean': 0,
-            'max_mean': 0,
-            'min_disp': 0,
-        })
+        socketio_client.emit('json', message)
         mock1.assert_called_once()
         mock2.assert_called_once()
         mock3.assert_called_once()
         mock4.assert_called_once()
 
 
-@patch('scanpy.read_10x_mtx')
-def test_variablegenes_ReturnsCorrectString(mock, client):
-    mock.return_value = get_AnnData()
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/variablegenes', query_string={
-        'user_id': 'bob',
-        'min_mean': 0,
-        'max_mean': 0,
-        'min_disp': 0,
-    })
-    assert response.status_code == 200
-    assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"
-    assert json.loads(response.data)['alttext'] == 'A scatter plot displaying dispersions of genes generated by an Identify Highly Variable Genes block'
-
-
-def test_pca_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/pca')
-    assert response.status_code == 400
+def test_variablegenes_ReturnsCorrectString(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_pca_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/pca', query_string={
-        'user_id': '',
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_pca_WarnsUserWhenUserIdIsNotInCache(client):
-    response = client.get('/api/pca', query_string={
         'user_id': 'bob',
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0}
+        ],
     }
-    assert json.loads(response.data) == message
+    socketio_client.emit('json', message)
+    received = socketio_client.get_received()
+    assert len(received) == 3
+    assert json.loads(received[1]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[1]["args"])['alttext'] == 'A scatter plot displaying dispersions of genes generated by an Identify Highly Variable Genes block'
+    assert received[2]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_pca_WarnsUserWhenNoDataIsInUserCache(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/pca', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 406
+def test_pca_CallsScanpyFunctions():
+    adata = get_AnnData()
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 406,
-        "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'}
+        ],
     }
-    assert json.loads(response.data) == message
+    with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pp.scale') as mock2, patch('scanpy.tl.pca') as mock3, patch('scanpy.pl.pca_variance_ratio') as mock4:
+        socketio_client.emit('json', message)
+        mock1.assert_called_once()
+        mock2.assert_called_once()
+        mock3.assert_called_once()
+        mock4.assert_called_once()
 
 
-def test_pca_CallsScanpyFunctions(client):
-
+def test_pca_ReturnsCorrectString():
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
-
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
-        app = create_app(test_mode=True)
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
-        client = app.test_client()
+        socketio_client = socketio.test_client(app)
 
-    client.get('/api/loaddata', query_string={
+    socketio_client.get_received()
+    message = {
         'user_id': 'bob',
-    })
-    with patch('scanpy.pp.calculate_qc_metrics') as mock1, patch('scanpy.pp.regress_out') as mock2, patch('scanpy.pp.scale') as mock3, patch('scanpy.tl.pca') as mock4, patch('scanpy.pl.pca_variance_ratio') as mock5:
-        client.get('/api/pca', query_string={
-            'user_id': 'bob',
-        })
-        mock1.assert_called_once()
-        mock2.assert_called_once()
-        mock3.assert_called_once()
-        mock4.assert_called_once()
-        mock5.assert_called_once()
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    assert len(received) == 4
+    assert json.loads(received[2]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[2]["args"])['alttext'] == 'A scatter plot displaying the contribution of each PC to the total variance in the data, generated by a Principle Component Analysis block'
+    assert received[3]["args"] == json.dumps({'end_connection': 'end_connection'})
 
 
-def test_pca_ReturnsCorrectString(client):
+def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
     adata = get_AnnData(qc_filtering=True)
     adata.obs['total_counts'] = list(range(0, adata.n_obs))
-
     with patch('scanpy.datasets.pbmc3k', lambda: adata):
-        app = create_app(test_mode=True)
+        socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
-        client = app.test_client()
+        socketio_client = socketio.test_client(app)
 
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/pca', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 200
-    assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"
-    assert json.loads(response.data)['alttext'] == 'A scatter plot displaying the contribution of each PC to the total variance in the data, generated by a Principle Component Analysis block'
-
-
-def test_runumap_WarnsUserWhenUserIdIsNone(client):
-    response = client.get('/api/runumap')
-    assert response.status_code == 400
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap'}
+        ],
     }
-    assert json.loads(response.data) == message
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\', \'n_pcs\']. Please refresh the page and try again.'})
+    assert len(received) == 4
+    assert received[3]["args"] == expected
 
 
-def test_runumap_WarnsUserWhenUserIdIsEmpty(client):
-    response = client.get('/api/runumap', query_string={
-        'user_id': '',
-    })
-    assert response.status_code == 400
+def test_runumap_WarnsWhenNNeighborsIsMissing():
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_runumap_WarnsUserWhenUserIdIsNotInCache(client):
-    response = client.get('/api/runumap', query_string={
         'user_id': 'bob',
-    })
-    assert response.status_code == 400
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'max_mean': 42, 'min_disp': 42},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_pcs': 42}
+        ],
+    }
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'n_neighbors\']. Please refresh the page and try again.'})
+    assert len(received) == 4
+    assert received[3]["args"] == expected
+
+
+def test_runumap_WarnsWhenNPcsIsMissing():
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Not a valid user_id',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 42, 'max_mean': 42, 'min_disp': 42},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_neighbors': 42}
+        ],
     }
-    assert json.loads(response.data) == message
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    expected = json.dumps({'error': 'Missing parameters: [\'n_pcs\']. Please refresh the page and try again.'})
+    assert len(received) == 4
+    assert received[3]["args"] == expected
 
 
-def test_runumap_WarnsUserWhenNNeighborsIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/runumap', query_string={
-        'user_id': 'bob',
-        'n_pcs': 0,
-    })
-    assert response.status_code == 400
+def test_runumap_CallsScanpyFunctions(socketio_client):
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_neighbors\']',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_neighbors': 0, 'n_pcs': 0}
+        ],
     }
-    assert json.loads(response.data) == message
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        with patch('scanpy.pp.neighbors') as mock1, patch('scanpy.tl.umap') as mock2, patch('scanpy.tl.leiden') as mock3, patch('scanpy.pl.umap') as mock4:
+            socketio_client.emit('json', message)
+            mock1.assert_called_once()
+            mock2.assert_called_once()
+            mock3.assert_called_once()
+            mock4.assert_called_once()
 
 
-def test_runumap_WarnsUserWhenNPcsIsMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/runumap', query_string={
-        'user_id': 'bob',
-        'n_neighbors': 0,
-    })
-    assert response.status_code == 400
+def test_runumap_ReturnsCorrectString():
+    adata = get_AnnData(qc_filtering=True)
+    adata.obs['total_counts'] = list(range(0, adata.n_obs))
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
     message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_pcs\']',
+        'user_id': 'bob',
+        'blocks': [
+            {'block_id': 'loaddata'},
+            {'block_id': 'variablegenes', 'min_mean': 0, 'max_mean': 0, 'min_disp': 0},
+            {'block_id': 'pca'},
+            {'block_id': 'runumap', 'n_neighbors': 10, 'n_pcs': 40}
+        ],
     }
-    assert json.loads(response.data) == message
-
-
-def test_runumap_WarnsUserWhenNNeighborsAndNPcsAreMissing(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/runumap', query_string={
-        'user_id': 'bob',
-    })
-    assert response.status_code == 400
-    message = {
-        "code": 400,
-        "name": 'Bad Request',
-        "description": 'Missing parameters: [\'n_neighbors\', \'n_pcs\']',
-    }
-    assert json.loads(response.data) == message
-
-
-def test_runumap_WarnsUserWhenNoDataIsInUserCache(client):
-    client.get('/api/getuserid', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/runumap', query_string={
-        'user_id': 'bob',
-        'n_neighbors': 0,
-        'n_pcs': 0,
-    })
-    assert response.status_code == 406
-    message = {
-        "code": 406,
-        "name": 'Not Acceptable',
-        "description": 'The blocks you have executed are not a valid order. Please check the blocks and try again.',
-    }
-    assert json.loads(response.data) == message
-
-
-@patch('scanpy.read_10x_mtx')
-def test_runumap_CallsScanpyFunctions(mock_loaddata, client):
-    mock_loaddata.return_value = get_AnnData()
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    with patch('scanpy.pp.neighbors') as mock1, patch('scanpy.tl.umap') as mock2, patch('scanpy.tl.leiden') as mock3, patch('scanpy.pl.umap') as mock4:
-        client.get('/api/runumap', query_string={
-            'user_id': 'bob',
-            'n_neighbors': 0,
-            'n_pcs': 0,
-        })
-        mock1.assert_called_once()
-        mock2.assert_called_once()
-        mock3.assert_called_once()
-        mock4.assert_called_once()
-
-
-@patch('scanpy.read_10x_mtx')
-def test_runumap_ReturnsCorrectString(mock, client):
-    mock.return_value = get_AnnData(qc_filtering=True)
-    client.get('/api/loaddata', query_string={
-        'user_id': 'bob',
-    })
-    response = client.get('/api/runumap', query_string={
-        'user_id': 'bob',
-        'n_neighbors': 10,
-        'n_pcs': 40,
-    })
-    assert response.status_code == 200
-    assert json.loads(response.data)['img'][:20] == "b'iVBORw0KGgoAAAANSU"
-    assert json.loads(response.data)['alttext'] == 'A UMAP of Leiden clusters using the principle components generated by a Run UMAP block'
+    with patch('scanpy.pp.highly_variable_genes'), patch('scanpy.pl.highly_variable_genes'):
+        socketio_client.emit('json', message)
+        received = socketio_client.get_received()
+    assert len(received) == 5
+    assert json.loads(received[3]["args"])['img'][:20] == "b'iVBORw0KGgoAAAANSU"
+    assert json.loads(received[3]["args"])['alttext'] == 'A UMAP of Leiden clusters using the principle components generated by a Run UMAP block'
+    assert received[4]["args"] == json.dumps({'end_connection': 'end_connection'})

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -10,19 +12,10 @@ import { BlockServiceInterface } from './block.service.interface';
 export class MockBlockService implements BlockServiceInterface {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
-  
-  private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
-  readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
 
-  addBlock(id: BlockId): void {
-    id;
-  }
+  addBlock(id: BlockId): void { }
 
-  removeBlock(id: BlockId): void {
-    id;
-  }
+  removeBlock(id: BlockId): void { }
 
-  async executeBlocks(): Promise<void> {
-    this.executingBlocks$.next(true);
-  }
+  executeBlocks(): void { }
 }

@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 
 import { Block } from '../block.interface';
 import { BlockService } from '../block.service';
+import { OutputService } from '../output.service';
 
 @Component({
   selector: 'app-code-block',
@@ -13,8 +14,8 @@ export class CodeBlockComponent {
   @Input() block!: Block;
   executingBlocks: boolean = false;
 
-  constructor(private blockService: BlockService) { 
-    this.blockService.executingBlocks.subscribe(
+  constructor(private blockService: BlockService, private outputService: OutputService) { 
+    this.outputService.executingBlocks.subscribe(
       (res) => { this.executingBlocks = res; },
     );
   }

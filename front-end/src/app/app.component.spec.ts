@@ -6,7 +6,9 @@ import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { BlockLibraryComponent } from './block-library/block-library.component';
 import { CanvasComponent } from './canvas/canvas.component';
+import { MockSocket } from './mock-socket';
 import { OutputDisplayComponent } from './output-display/output-display.component';
+import { SOCKET } from './socket';
 
 describe('AppComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({
@@ -15,6 +17,9 @@ describe('AppComponent', () => {
       BlockLibraryComponent,
       CanvasComponent,
       OutputDisplayComponent,
+    ],
+    providers: [
+      { provide: SOCKET, useClass: MockSocket },
     ],
     imports: [
       HttpClientTestingModule,

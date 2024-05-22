@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import { BlockId } from '../block.interface';
 import { BlockService } from '../block.service';
+import { OutputService } from '../output.service';
 
 @Component({
   selector: 'app-block-library',
@@ -12,8 +13,8 @@ import { BlockService } from '../block.service';
 export class BlockLibraryComponent {
   executingBlocks: boolean = false;
 
-  constructor(private blockService: BlockService) {
-    this.blockService.executingBlocks.subscribe(
+  constructor(private blockService: BlockService, private outputService: OutputService) {
+    this.outputService.executingBlocks.subscribe(
       (res) => { this.executingBlocks = res; },
     );
   }

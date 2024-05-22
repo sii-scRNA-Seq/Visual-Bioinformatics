@@ -1,6 +1,6 @@
-# Visual Bioinformatics
+# SCAMPI
 
-Welcome to the Visual Bioinformatics project.
+Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactively).
 
 ## Starting a development version of the application
 ### Starting the back-end
@@ -16,7 +16,7 @@ Welcome to the Visual Bioinformatics project.
 - Run `ng serve --open` to launch the front-end in development mode
 
 ## Compiling the application
-- Run `ng build`
+- Run `npm run build`
 
 ## Starting the application in production
 ...

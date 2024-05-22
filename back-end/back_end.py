@@ -336,6 +336,7 @@ def create_app(test_mode=False):
                 sc.pp.scale(user_data, max_value=10)
                 sc.tl.pca(user_data, svd_solver='arpack')
         sc.pl.pca_variance_ratio(user_data, log=True)
+        plt.ylabel('log variance ratio')
 
         image_stream = io.BytesIO()
         plt.savefig(image_stream, format='png')

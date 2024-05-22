@@ -15,7 +15,8 @@ jobs:
           activate-environment: scampi
           environment-file: back-end/environment.yml
           auto-activate-base: false
-      - run: |
+      - name: Backend Tests
+        run: |
           conda info
           conda list
           flake8 --ignore=E501 back_end.py

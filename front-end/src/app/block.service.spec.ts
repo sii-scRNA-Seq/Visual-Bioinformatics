@@ -116,7 +116,7 @@ describe('BlockService', () => {
       const spy = spyOn(snackBar, 'open');
       service.addBlock('loaddata');
       service.addBlock('pca');
-      expect(spy).toHaveBeenCalledOnceWith('Principle Component Analysis block cannot be added.', 'Close', { duration: 5000 });
+      expect(spy).toHaveBeenCalledOnceWith('Principal Component Analysis block cannot be added.', 'Close', { duration: 5000 });
     });
 
     it('should open snack bar when ordering is not valid - run umap before pca', async() => {

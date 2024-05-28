@@ -13,8 +13,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install
-      - run: npm run lint
-      - run: npm run test -- --watch=false --browsers=ChromeHeadless
-      - run: npm run build
-      
+      - name: Frontend Tests
+        run: |
+          npm install
+          npm run lint
+          npm run test -- --watch=false --browsers=ChromeHeadless
+          npm run build

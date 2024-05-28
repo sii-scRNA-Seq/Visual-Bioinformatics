@@ -3,12 +3,19 @@ import { Socket } from 'socket.io-client';
 
 import { Request } from './request';
 import { SOCKET } from './socket';
+import { UserIdService } from './user-id.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BackendSocketClient {
-  constructor(@Inject(SOCKET) private socket: Socket) {
+
+  private userId: string | null = null;
+
+  constructor(@Inject(SOCKET) private socket: Socket, private userIdService: UserIdService) {
+    this.userIdService.userId.subscribe(
+      (res) => { this.userId = res; },
+    );
     this.socket.connect();
   }
 
@@ -18,7 +25,10 @@ export class BackendSocketClient {
 
   listen(foo: (res: string) => void): void {
     this.socket.on('json', (msg: string) => {
-      foo(msg);
+      if (JSON.parse(msg).user_id == this.userId) {
+        foo(msg);
+      }
     });
+    console.log(this.userId);
   }
 }

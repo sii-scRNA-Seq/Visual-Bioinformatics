@@ -110,7 +110,7 @@ def create_app(test_mode=False):
     @app.route('/api/getuserid')
     def get_user_id():
         user_id = request.args.get('user_id')
-        if user_id is None:
+        if not isinstance(user_id, str):
             raise we.BadRequest('Not a valid user_id')
         else:
             if user_id == '':
@@ -196,7 +196,8 @@ def create_app(test_mode=False):
                     raise BadRequestException("Block ID does not match expected values")
 
                 executed_blocks.append(block['block_id'])
-                socketio.emit("json", json.dumps(output_message))
+                output_message['user_id'] = user_id
+                socketio.emit('json', json.dumps(output_message))
                 logger.debug('emitted:' + json.dumps(output_message))
 
                 # Allow other threads to execute
@@ -204,33 +205,34 @@ def create_app(test_mode=False):
                 gevent.sleep()
 
             logger.debug(f"Finished processing blocks for user={user_id}")
-            end_connection = json.dumps({'end_connection': 'end_connection'})
+            end_connection = {'end_connection': 'end_connection'}
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
 
         except UserIDException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Your UserID is invalid: ' + e.message + '. Please refresh the page and try again.'})
+            end_connection = {'error': 'Your UserID is invalid: ' + e.message + '. Please refresh the page and try again.'}
         except NotAcceptingRequestException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'You have another request in progress. Please wait and try again.'})
+            end_connection = {'error': 'You have another request in progress. Please wait and try again.'}
         except BadRequestException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Received a bad request: ' + e.message + '. Please refresh the page and try again.'})
+            end_connection = {'error': 'Received a bad request: ' + e.message + '. Please refresh the page and try again.'}
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         except MissingParametersException as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': e.message + '. Please refresh the page and try again.'})
+            end_connection = {'error': e.message + '. Please refresh the page and try again.'}
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         except Exception as e:
             logger.error(e, exc_info=True)
-            end_connection = json.dumps({'error': 'Unknown error. Please refresh the page and try again.'})
+            end_connection = {'error': 'Unknown error. Please refresh the page and try again.'}
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         finally:
-            socketio.emit("json", end_connection)
+            end_connection['user_id'] = user_id
+            socketio.emit("json", json.dumps(end_connection))
 
     def load_data(user_data, block):
         user_data = raw_data_cache.get('pbmc3k').copy()

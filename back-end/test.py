@@ -478,6 +478,28 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
     assert received[1]["args"] == expected
 
 
+def test_executeblocks_OnlyOneClientReceivesResponse():
+    adata = get_AnnData()
+    with patch('scanpy.datasets.pbmc3k', lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        client1 = socketio.test_client(app)
+        client2 = socketio.test_client(app)
+
+    client1.get_received()
+    client2.get_received()
+    message = {
+        'user_id': 'bob',
+        'blocks': [],
+    }
+    client1.emit('json', message)
+    client1_received = client1.get_received()
+    client2_received = client2.get_received()
+    assert len(client1_received) == 1
+    assert len(client2_received) == 0
+    assert client1_received[0]["args"] == json.dumps({'end_connection': 'end_connection'})
+
+
 def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
     socketio_client.get_received()
     message = {

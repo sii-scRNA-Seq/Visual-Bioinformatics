@@ -149,6 +149,8 @@ def create_app(test_mode=False):
 
         try:
 
+            client = request.sid
+
             if 'user_id' not in message:
                 raise UserIDException("User ID is missing")
             elif not isinstance(message['user_id'], str):
@@ -196,8 +198,7 @@ def create_app(test_mode=False):
                     raise BadRequestException("Block ID does not match expected values")
 
                 executed_blocks.append(block['block_id'])
-                output_message['user_id'] = user_id
-                socketio.emit('json', json.dumps(output_message))
+                socketio.emit('json', json.dumps(output_message), room=client)
                 logger.debug('emitted:' + json.dumps(output_message))
 
                 # Allow other threads to execute
@@ -231,8 +232,7 @@ def create_app(test_mode=False):
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         finally:
-            end_connection['user_id'] = user_id
-            socketio.emit("json", json.dumps(end_connection))
+            socketio.emit("json", json.dumps(end_connection), room=client)
 
     def load_data(user_data, block):
         user_data = raw_data_cache.get('pbmc3k').copy()

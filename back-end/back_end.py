@@ -30,12 +30,12 @@ logging.config.dictConfig(config)
 THREE_DAYS = 3 * 24 * 60 * 60
 
 simple_cache_config = {
-    "CACHE_TYPE": "SimpleCache",
+    "CACHE_TYPE": 'SimpleCache',
     "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
 }
 
 file_cache_config = {
-    "CACHE_TYPE": "FileSystemCache",
+    "CACHE_TYPE": 'FileSystemCache',
     "CACHE_DEFAULT_TIMEOUT": THREE_DAYS,
     "CACHE_IGNORE_ERRORS": False,  # Default
     "CACHE_DIR": 'back-end-cache',
@@ -70,7 +70,7 @@ def create_app(test_mode=False):
 
     logger.info("Loading raw data...")
     raw_data_cache = {
-        "pbmc3k": sc.datasets.pbmc3k()
+        'pbmc3k': sc.datasets.pbmc3k()
     }
     logger.info("Finished loading raw data")
 
@@ -81,16 +81,16 @@ def create_app(test_mode=False):
 
     # Consider permitted sources for CORS requests (see Trello)
     CORS(app)
-    socketio = SocketIO(app, cors_allowed_origins="*")
+    socketio = SocketIO(app, cors_allowed_origins='*')
 
     def handle_exception(e):
         response = e.get_response()
         response.data = json.dumps({
-            "code": e.code,
-            "name": e.name,
-            "description": e.description,
+            'code': e.code,
+            'name': e.name,
+            'description': e.description,
         })
-        response.content_type = "application/json"
+        response.content_type = 'application/json'
         return response
 
     app.register_error_handler(we.BadRequest, handle_exception)
@@ -111,7 +111,7 @@ def create_app(test_mode=False):
     def get_user_id():
         user_id = request.args.get('user_id')
         if not isinstance(user_id, str):
-            raise we.BadRequest('Not a valid user_id')
+            raise we.BadRequest("Not a valid user_id")
         else:
             if user_id == '':
                 user_id = str(uuid.uuid4())
@@ -199,7 +199,7 @@ def create_app(test_mode=False):
 
                 executed_blocks.append(block['block_id'])
                 socketio.emit('json', json.dumps(output_message), room=client)
-                logger.debug('emitted:' + json.dumps(output_message))
+                logger.debug("emitted:" + json.dumps(output_message))
 
                 # Allow other threads to execute
                 # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
@@ -232,7 +232,7 @@ def create_app(test_mode=False):
             with app.app_context():
                 accepting_user_requests.set(user_id, True)
         finally:
-            socketio.emit("json", json.dumps(end_connection), room=client)
+            socketio.emit('json', json.dumps(end_connection), room=client)
 
     def load_data(user_data, block):
         user_data = raw_data_cache.get('pbmc3k').copy()
@@ -246,7 +246,7 @@ def create_app(test_mode=False):
         missing_parameters = get_missing_parameters(['min_genes', 'min_cells'], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + str(missing_parameters))
-            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+            raise MissingParametersException("Missing parameters: " + str(missing_parameters))
 
         min_genes = float(block['min_genes'])
         min_cells = float(block['min_cells'])
@@ -280,7 +280,7 @@ def create_app(test_mode=False):
         missing_parameters = get_missing_parameters(['min_n_genes_by_counts', 'max_n_genes_by_counts', 'pct_counts_mt'], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + str(missing_parameters))
-            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+            raise MissingParametersException("Missing parameters: " + str(missing_parameters))
 
         min_n_genes_by_counts = float(block['min_n_genes_by_counts'])
         max_n_genes_by_counts = float(block['max_n_genes_by_counts'])
@@ -303,7 +303,7 @@ def create_app(test_mode=False):
         missing_parameters = get_missing_parameters(['min_mean', 'max_mean', 'min_disp'], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + str(missing_parameters))
-            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+            raise MissingParametersException("Missing parameters: " + str(missing_parameters))
 
         min_mean = float(block['min_mean'])
         max_mean = float(block['max_mean'])
@@ -353,7 +353,7 @@ def create_app(test_mode=False):
         missing_parameters = get_missing_parameters(['n_neighbors', 'n_pcs'], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + str(missing_parameters))
-            raise MissingParametersException('Missing parameters: ' + str(missing_parameters))
+            raise MissingParametersException("Missing parameters: " + str(missing_parameters))
 
         n_neighbors = int(block['n_neighbors'])
         n_pcs = int(block['n_pcs'])

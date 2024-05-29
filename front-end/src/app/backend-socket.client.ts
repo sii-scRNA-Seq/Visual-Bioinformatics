@@ -9,8 +9,6 @@ import { SOCKET } from './socket';
 })
 export class BackendSocketClient {
 
-  private userId: string | null = null;
-
   constructor(@Inject(SOCKET) private socket: Socket) {
     this.socket.connect();
   }

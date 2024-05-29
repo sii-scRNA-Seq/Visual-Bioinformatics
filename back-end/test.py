@@ -74,6 +74,19 @@ def test_getuserid_WarnsWhenUserIDIsNone(app_client):
     assert json.loads(response.data) == message
 
 
+def test_getuserid_WarnsWhenUserIDIsNotAString(app_client):
+    response = app_client.get('/api/getuserid', query_string={
+        'user_id': []
+    })
+    assert response.status_code == 400
+    message = {
+        "code": 400,
+        "name": 'Bad Request',
+        "description": 'Not a valid user_id',
+    }
+    assert json.loads(response.data) == message
+
+
 @patch('uuid.uuid4')
 def test_getuserid_CreatesUserIdWhenUserIDIsEmpty(mock, app_client):
     mock.return_value = 'bob'

@@ -8,6 +8,7 @@ import { SOCKET } from './socket';
   providedIn: 'root'
 })
 export class BackendSocketClient {
+
   constructor(@Inject(SOCKET) private socket: Socket) {
     this.socket.connect();
   }

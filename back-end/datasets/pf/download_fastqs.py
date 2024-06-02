@@ -42,4 +42,3 @@ for assay in extended_metadata_obj_list:
         urllib.request.urlretrieve(f"ftp://{fastq}", fastq_filepath)
 
 print("DONE")
-

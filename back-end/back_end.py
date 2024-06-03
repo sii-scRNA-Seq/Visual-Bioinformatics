@@ -124,6 +124,14 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
+    @app.route("/api/getdatasetinfo")
+    def get_dataset_info():
+        logger.info("Sending dataset info")
+        message = {
+            "datasets": ["pbmc3k", "pfdogga"]
+        }
+        return jsonify(message)
+
     class UserIDException(Exception):
         def __init__(self, message):
             self.message = message
@@ -242,9 +250,9 @@ def create_app(test_mode=False):
             raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
 
         dataset = block["dataset"]
-        if dataset == "A":
+        if dataset == "pbmc3k":
             user_data = raw_data_cache.get("pbmc3k").copy()
-        elif dataset == "B":
+        elif dataset == "pfdogga":
             user_data = raw_data_cache.get("pf_dogga").copy()
         else:
             raise Exception("Selected dataset does not exist.")

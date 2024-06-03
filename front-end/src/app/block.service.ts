@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Block, BlockId } from './block.interface';
 import { BlockServiceInterface } from './block.service.interface';
 import { OutputService } from './output.service';
+import { DatasetInfoService } from './dataset-info.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,13 @@ export class BlockService implements BlockServiceInterface {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
-  constructor(private outputService: OutputService, private snackBar: MatSnackBar) { }
+  private datasetInfo: string[] = [];
+
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) {
+    this.datasetInfoService.datasetInfo.subscribe(
+      (res) => { this.datasetInfo = res; },
+    );
+  }
 
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
@@ -26,7 +33,7 @@ export class BlockService implements BlockServiceInterface {
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {key: 'dataset', text: 'Dataset', options: ['A', 'B', 'C'], value: 'A'},
+              {key: 'dataset', text: 'Dataset', options: this.datasetInfo, value: this.datasetInfo[0] || ''},
             ],
           }]);
         }

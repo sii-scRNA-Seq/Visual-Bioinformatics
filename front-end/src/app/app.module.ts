@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgModule } from '@angular/core';
 
@@ -29,6 +30,7 @@ import { SOCKET, socket } from './socket';
     HttpClientModule,
     MatCardModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
     MatSnackBarModule,
   ],
   providers: [

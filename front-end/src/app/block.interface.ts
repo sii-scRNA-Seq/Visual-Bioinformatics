@@ -10,6 +10,7 @@ export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering' 
 export interface Parameter {
   key: string
   text: string
-  value: number
+  value: number | string
+  options?: string[]
 }
   

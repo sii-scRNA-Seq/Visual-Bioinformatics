@@ -9,7 +9,7 @@
                 {{parameter.text}}
                 <div *ngIf="parameter.options; then thenBlock else elseBlock"></div>
                 <ng-template #thenBlock>
-                    <mat-select [(ngModel)]="parameter.value">
+                    <mat-select [(ngModel)]="parameter.value" style="width: fit-content;" panelWidth="">
                         @for (option of parameter.options; track option) {
                             <mat-option [value]="option">{{option}}</mat-option>
                         }

@@ -236,7 +236,18 @@ def create_app(test_mode=False):
             socketio.emit("json", json.dumps(end_connection), room=client)
 
     def load_data(user_data, block):
-        user_data = raw_data_cache.get("pbmc3k").copy()
+        missing_parameters = get_missing_parameters(["dataset"], block)
+        if missing_parameters:
+            logger.error("Parameters missing from Block: " + json.dumps(missing_parameters))
+            raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
+
+        dataset = block["dataset"]
+        if dataset == "A":
+            user_data = raw_data_cache.get("pbmc3k").copy()
+        elif dataset == "B":
+            user_data = raw_data_cache.get("pf_dogga").copy()
+        else:
+            raise Exception("Selected dataset does not exist.")
 
         message = {
             "text": adata_text(user_data)

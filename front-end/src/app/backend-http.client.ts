@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { DatasetInfo } from './dataset-info';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,14 +31,14 @@ export class BackendHttpClient {
     return response.user_id;
   }
 
-  async getDatasetInfo(): Promise<string[]> {
+  async getDatasetInfo(): Promise<DatasetInfo[]> {
     let url = '';
     if (isDevMode()) {
       url = 'http://localhost:5000/api/getdatasetinfo';
     } else {
       url = '/api/getdatasetinfo';
     }
-    type Response = {datasets: string[]};
+    type Response = {datasets: DatasetInfo[]};
     let response: Response = {datasets: []};
     try {
       response = await firstValueFrom(this.http.get<Response>(url));

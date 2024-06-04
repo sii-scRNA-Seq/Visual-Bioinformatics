@@ -7,11 +7,11 @@
         <ul class="no-bullets">
             <li class="left-right-container" *ngFor="let parameter of block.parameters">
                 {{parameter.text}}
-                <div *ngIf="parameter.options; then thenBlock else elseBlock"></div>
+                <div *ngIf="parameter.datasets; then thenBlock else elseBlock"></div>
                 <ng-template #thenBlock>
                     <mat-select [(ngModel)]="parameter.value" style="width: fit-content;" panelWidth="">
-                        @for (option of parameter.options; track option) {
-                            <mat-option [value]="option">{{option}}</mat-option>
+                        @for (dataset of parameter.datasets; track dataset) {
+                            <mat-option [value]="dataset.key">{{dataset.text}}</mat-option>
                         }
                     </mat-select>
                 </ng-template>

@@ -9,14 +9,14 @@ from back_end import create_app
 
 @pytest.fixture()
 def socketio():
-    with patch("scanpy.datasets.pbmc3k", get_AnnData):
+    with patch("scanpy.datasets.pbmc3k", get_AnnData), patch("scanpy.read_h5ad", lambda _: get_AnnData()):
         socketio, app = create_app(test_mode=True)
         yield socketio
 
 
 @pytest.fixture()
 def app():
-    with patch("scanpy.datasets.pbmc3k", get_AnnData):
+    with patch("scanpy.datasets.pbmc3k", get_AnnData), patch("scanpy.read_h5ad", lambda _: get_AnnData()):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         yield app
@@ -107,6 +107,18 @@ def test_getuserid_ReturnsUserIdWhenUserIDIsSupplied(app_client):
     assert response.status_code == 200
     message = {
         "user_id": "bob"
+    }
+    assert json.loads(response.data) == message
+
+
+def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
+    response = app_client.get("/api/getdatasetinfo")
+    assert response.status_code == 200
+    message = {
+        "datasets": [
+            {"key": "pbmc3k", "text": "Peripheral Blood Mononuclear Cells"},
+            {"key": "pfdogga", "text": "Malaria Cell Atlas P. Falciparum"}
+        ]
     }
     assert json.loads(response.data) == message
 
@@ -513,7 +525,22 @@ def test_executeblocks_OnlyOneClientReceivesResponse():
     assert client1_received[0]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
-def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
+def test_loaddata_WarnsWhenDatasetIsMissing(socketio_client):
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata"}
+        ],
+    }
+    socketio_client.emit("json", message)
+    received = socketio_client.get_received()
+    expected = json.dumps({"error": "Missing parameters: [\"dataset\"]. Please refresh the page and try again."})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_loaddata_AnnDataIsLoadedCorrectlyForPbmc3k(socketio_client):
     socketio_client.get_received()
     message = {
         "user_id": "bob",
@@ -527,6 +554,37 @@ def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
     assert len(received) == 2
     assert received[0]["args"] == expected
     assert received[1]["args"] == json.dumps({"end_connection": "end_connection"})
+
+
+def test_loaddata_AnnDataIsLoadedCorrectlyForPfdogga(socketio_client):
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pfdogga"}
+        ],
+    }
+    socketio_client.emit("json", message)
+    received = socketio_client.get_received()
+    expected = json.dumps({"text": "Object with: 5 cells and 3 genes"})
+    assert len(received) == 2
+    assert received[0]["args"] == expected
+    assert received[1]["args"] == json.dumps({"end_connection": "end_connection"})
+
+
+def test_loaddata_WarnsWhenDatasetDoesNotExist(socketio_client):
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "DOES NOT EXIST"},
+        ],
+    }
+    socketio_client.emit("json", message)
+    received = socketio_client.get_received()
+    expected = json.dumps({"error": "Unknown error. Please refresh the page and try again."})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
 
 
 def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):

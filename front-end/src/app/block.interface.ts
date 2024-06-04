@@ -1,5 +1,3 @@
-import { DatasetInfo } from "./dataset-info";
-
 export interface Block {
   blockId: BlockId
   title: string
@@ -13,6 +11,4 @@ export interface Parameter {
   key: string
   text: string
   value: number | string
-  datasets?: DatasetInfo[]
 }
-  

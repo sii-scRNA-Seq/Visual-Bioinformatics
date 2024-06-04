@@ -34,7 +34,7 @@ export class BlockService implements BlockServiceInterface {
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {key: 'dataset', text: 'Dataset', datasets: this.datasetInfo, value: this.datasetInfo[0].key || ''},
+              {key: 'dataset', text: 'Dataset', value: this.datasetInfo[0].key || ''},
             ],
           }]);
         }

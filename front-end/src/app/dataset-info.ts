@@ -1,4 +1,4 @@
 export interface DatasetInfo {
-    key: string
-    text: string
+  key: string
+  text: string
 }

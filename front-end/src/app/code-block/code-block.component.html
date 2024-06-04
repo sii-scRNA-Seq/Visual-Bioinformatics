@@ -6,7 +6,7 @@
     <mat-card-content>
         <div *ngIf="block.blockId === 'loaddata'; then thenBlock else elseBlock"></div>
         <ng-template #thenBlock>
-            <mat-select [(ngModel)]="block.parameters[0].value" style="width: fit-content;" panelWidth="">
+            <mat-select [(ngModel)]="block.parameters[0].value" style="width: fit-content;" panelWidth="" [disabled]="executingBlocks">
                 @for (dataset of datasetInfo; track dataset) {
                     <mat-option [value]="dataset.key">{{dataset.text}}</mat-option>
                 }

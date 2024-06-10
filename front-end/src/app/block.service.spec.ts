@@ -5,12 +5,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { BlockService } from './block.service';
+import { DatasetInfoService } from './dataset-info.service';
+import { MockDatasetInfoService } from './mock-dataset-info.service';
 import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
 
 describe('BlockService', () => {
   let service: BlockService;
   let snackBar: MatSnackBar;
+  let datasetInfoService: DatasetInfoService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -21,10 +24,13 @@ describe('BlockService', () => {
       ],
       providers: [
         { provide: OutputService, useClass: MockOutputService },
+        { provide: DatasetInfoService, useClass: MockDatasetInfoService },
       ],
     });
     service = TestBed.inject(BlockService);
     snackBar = TestBed.inject(MatSnackBar);
+    datasetInfoService = TestBed.inject(DatasetInfoService);
+    datasetInfoService.setDatasetInfo();
   });
 
   it('should be created', () => {

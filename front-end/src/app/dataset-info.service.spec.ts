@@ -1,3 +1,4 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { DatasetInfoService } from './dataset-info.service';
@@ -7,7 +8,9 @@ describe('DatasetInfoService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: []
+      imports: [
+        HttpClientTestingModule,
+      ]
     });
     service = TestBed.inject(DatasetInfoService);
   });

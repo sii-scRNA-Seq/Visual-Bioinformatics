@@ -2,8 +2,6 @@ import { Component, Input } from '@angular/core';
 
 import { Block } from '../block.interface';
 import { BlockService } from '../block.service';
-import { DatasetInfo } from '../dataset-info';
-import { DatasetInfoService } from '../dataset-info.service';
 import { OutputService } from '../output.service';
 
 @Component({
@@ -14,13 +12,9 @@ import { OutputService } from '../output.service';
 
 export class CodeBlockComponent {
   @Input() block!: Block;
-  datasetInfo: DatasetInfo[] = [];
   executingBlocks: boolean = false;
 
-  constructor(private blockService: BlockService, private datasetInfoService: DatasetInfoService, private outputService: OutputService) { 
-    this.datasetInfoService.datasetInfo.subscribe(
-      (res) => { this.datasetInfo = res; },
-    );
+  constructor(private blockService: BlockService, private outputService: OutputService) { 
     this.outputService.executingBlocks.subscribe(
       (res) => { this.executingBlocks = res; },
     );

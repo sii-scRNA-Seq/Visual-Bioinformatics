@@ -34,7 +34,7 @@ export class BlockService implements BlockServiceInterface {
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {key: 'dataset', text: 'Dataset', value: this.datasetInfo[0].key || ''},
+              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.datasetInfo[0].key || '', options: this.datasetInfo},
             ],
           }]);
         }
@@ -50,8 +50,8 @@ export class BlockService implements BlockServiceInterface {
             title: 'Basic Filtering',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
-              {key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
+              {type: 'InputParameter', key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
+              {type: 'InputParameter', key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
             ],
           });
           this.blocksOnCanvas$.next(blockList);
@@ -83,9 +83,9 @@ export class BlockService implements BlockServiceInterface {
             title: 'Quality Control Filtering',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
-              {key: 'max_n_genes_by_counts', text: 'Maximum Gene Per Cell', value: 2500},
-              {key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
+              {type: 'InputParameter', key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
+              {type: 'InputParameter', key: 'max_n_genes_by_counts', text: 'Maximum Gene Per Cell', value: 2500},
+              {type: 'InputParameter', key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
             ],
           });
           this.blocksOnCanvas$.next(blockList);
@@ -102,9 +102,9 @@ export class BlockService implements BlockServiceInterface {
             title: 'Identify Highly Variable Genes',
             possibleChildBlocks: ['variablegenes', 'pca'],
             parameters: [
-              {key: 'min_mean', text: 'Minimum Mean', value: 0.0125},
-              {key: 'max_mean', text: 'Maximum Mean', value: 3},
-              {key: 'min_disp', text: 'Minimum Dispersion', value: 0.5}
+              {type: 'InputParameter', key: 'min_mean', text: 'Minimum Mean', value: 0.0125},
+              {type: 'InputParameter', key: 'max_mean', text: 'Maximum Mean', value: 3},
+              {type: 'InputParameter', key: 'min_disp', text: 'Minimum Dispersion', value: 0.5}
             ],
           });
           this.blocksOnCanvas$.next(blockList);
@@ -136,8 +136,8 @@ export class BlockService implements BlockServiceInterface {
             title: 'Run UMAP',
             possibleChildBlocks: ['runumap'],
             parameters: [
-              {key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
-              {key: 'n_pcs', text: 'Number of Principal Components', value: 40},
+              {type: 'InputParameter', key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
+              {type: 'InputParameter', key: 'n_pcs', text: 'Number of Principal Components', value: 40},
             ],
           });
           this.blocksOnCanvas$.next(blockList);

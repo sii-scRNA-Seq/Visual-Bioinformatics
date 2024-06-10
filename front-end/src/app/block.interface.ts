@@ -8,7 +8,23 @@ export interface Block {
 export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering' | 'variablegenes' | 'pca' | 'runumap';
 
 export interface Parameter {
+  type: 'InputParameter' | 'SelectParameter'
   key: string
   text: string
   value: number | string
+  options?: Option[]
+}
+
+export interface InputParameter extends Parameter {
+  type: 'InputParameter'
+}
+
+export interface SelectParameter extends Parameter {
+  type: 'SelectParameter'
+  options: Option[]
+}
+
+export interface Option {
+  key: string
+  text: string
 }

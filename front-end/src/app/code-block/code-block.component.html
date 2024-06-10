@@ -4,24 +4,24 @@
         <button class="remove-button" (click)="removeBlock()" [disabled]="executingBlocks">Remove</button>
     </mat-card-header>
     <mat-card-content>
-        <div *ngIf="block.blockId === 'loaddata'; then thenBlock else elseBlock"></div>
-        <ng-template #thenBlock>
-            <mat-form-field>
-                <mat-label>{{block.parameters[0].text}}</mat-label>
-                <mat-select [(ngModel)]="block.parameters[0].value" style="width: fit-content;" panelWidth="" [disabled]="executingBlocks">
-                    @for (dataset of datasetInfo; track dataset) {
-                        <mat-option [value]="dataset.key">{{dataset.text}}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-        </ng-template>
-        <ng-template #elseBlock>
-            <ul class="no-bullets">
-                <li class="left-right-container" *ngFor="let parameter of block.parameters">
+        <ul class="no-bullets">
+            <li class="left-right-container" *ngFor="let parameter of block.parameters">
+                <div *ngIf="parameter.type === 'SelectParameter'; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                    <mat-form-field>
+                        <mat-label>{{parameter.text}}</mat-label>
+                        <mat-select [(ngModel)]="parameter.value" style="width: fit-content;" panelWidth="" [disabled]="executingBlocks">
+                            @for (option of parameter.options; track option) {
+                                <mat-option [value]="option.key">{{option.text}}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </ng-template>
+                <ng-template #elseBlock>
                     {{parameter.text}}
                     <input class="parameter-input" [(ngModel)]="parameter.value" placeholder="0" [attr.disabled]="executingBlocks ? executingBlocks : undefined">
-                </li>
-            </ul>
-        </ng-template>
+                </ng-template>
+            </li>
+        </ul>
     </mat-card-content>
 </mat-card>

@@ -203,7 +203,7 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'test_param', text: 'Test Parameter', value: 0},
+          {type: 'InputParameter', key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
       fixture.detectChanges();
@@ -218,7 +218,7 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'test_param', text: 'Test Parameter', value: 0},
+          {type: 'InputParameter', key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
       fixture.detectChanges();
@@ -236,7 +236,7 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'test_param', text: 'Test Parameter', value: 0},
+          {type: 'InputParameter', key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
       fixture.detectChanges();

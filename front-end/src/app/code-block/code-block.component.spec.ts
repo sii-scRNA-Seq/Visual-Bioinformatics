@@ -314,7 +314,7 @@ describe('CodeBlockComponent', () => {
       expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('true');
       component.executingBlocks = false;
       fixture.detectChanges(); 
-      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');;
+      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');
     });
   });
 });

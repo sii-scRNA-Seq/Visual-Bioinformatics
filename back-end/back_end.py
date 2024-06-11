@@ -183,6 +183,7 @@ def create_app(test_mode=False):
             elif not isinstance(message["blocks"], list):
                 raise BadRequestException("Blocks is not a list")
             blocks = message["blocks"]
+            dataset = None
             executed_blocks = []
 
             for block in blocks:
@@ -191,13 +192,13 @@ def create_app(test_mode=False):
                 if "block_id" not in block:
                     raise BadRequestException("Block ID is missing")
                 elif block["block_id"] == "loaddata" and not executed_blocks:
-                    user_data, output_message = load_data(user_data, block)
+                    user_data, dataset, output_message = load_data(user_data, block)
                 elif block["block_id"] == "basicfiltering" and "loaddata" in executed_blocks:
                     user_data, output_message = basic_filtering(user_data, block)
                 elif block["block_id"] == "qcplots" and "loaddata" in executed_blocks:
-                    user_data, output_message = qc_plots(user_data, block)
+                    user_data, output_message = qc_plots(user_data, dataset, block)
                 elif block["block_id"] == "qcfiltering" and "loaddata" in executed_blocks:
-                    user_data, output_message = qc_filtering(user_data, block)
+                    user_data, output_message = qc_filtering(user_data, dataset, block)
                 elif block["block_id"] == "variablegenes" and "loaddata" in executed_blocks:
                     user_data, output_message = variable_genes(user_data, block)
                 elif block["block_id"] == "pca" and "variablegenes" in executed_blocks:
@@ -263,7 +264,7 @@ def create_app(test_mode=False):
         message = {
             "text": adata_text(user_data)
         }
-        return user_data, message
+        return user_data, dataset, message
 
     def basic_filtering(user_data, block):
         missing_parameters = get_missing_parameters(["min_genes", "min_cells"], block)
@@ -282,8 +283,15 @@ def create_app(test_mode=False):
         }
         return user_data, message
 
-    def qc_plots(user_data, block):
-        user_data.var["mt"] = user_data.var_names.str.startswith("MT-")
+    def qc_plots(user_data, dataset, block):
+        if dataset == "pbmc3k":
+            user_data.var["mt"] = user_data.var_names.str.startswith("MT-")
+        elif dataset == "pfdogga":
+            print(user_data.var_names.str)
+            user_data.var["mt"] = user_data.var_names.str.contains("MIT")
+        else:
+            raise Exception("Selected dataset does not exist.")
+
         sc.pp.calculate_qc_metrics(user_data, qc_vars=["mt"], percent_top=None, log1p=False, inplace=True)
         user_data.obs["total_UMIs"] = user_data.obs["total_counts"]
         user_data.obs = user_data.obs.drop("total_counts", axis=1)
@@ -299,7 +307,7 @@ def create_app(test_mode=False):
         }
         return user_data, message
 
-    def qc_filtering(user_data, block):
+    def qc_filtering(user_data, dataset, block):
         missing_parameters = get_missing_parameters(["min_n_genes_by_counts", "max_n_genes_by_counts", "pct_counts_mt"], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + json.dumps(missing_parameters))
@@ -309,7 +317,14 @@ def create_app(test_mode=False):
         max_n_genes_by_counts = float(block["max_n_genes_by_counts"])
         pct_counts_mt = float(block["pct_counts_mt"])
 
-        user_data.var["mt"] = user_data.var_names.str.startswith("MT-")
+        if dataset == "pbmc3k":
+            user_data.var["mt"] = user_data.var_names.str.startswith("MT-")
+        elif dataset == "pfdogga":
+            print(user_data.var_names.str)
+            user_data.var["mt"] = user_data.var_names.str.contains("MIT")
+        else:
+            raise Exception("Selected dataset does not exist.")
+
         sc.pp.calculate_qc_metrics(user_data, qc_vars=["mt"], percent_top=None, log1p=False, inplace=True)
         user_data.obs["total_UMIs"] = user_data.obs["total_counts"]
         user_data.obs = user_data.obs.drop("total_counts", axis=1)

@@ -10,7 +10,7 @@
                 <ng-template #thenBlock>
                     <mat-form-field>
                         <mat-label>{{parameter.text}}</mat-label>
-                        <mat-select [(ngModel)]="parameter.value" style="width: fit-content;" panelWidth="" [disabled]="executingBlocks">
+                        <mat-select ngDefaultControl [(ngModel)]="parameter.value" style="width: fit-content;" panelWidth="" [disabled]="executingBlocks">
                             @for (option of parameter.options; track option) {
                                 <mat-option [value]="option.key">{{option.text}}</mat-option>
                             }

@@ -42,6 +42,20 @@ describe('BlockService', () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
     });
+
+    it('should have the correct parameter options on Load Data block', async () => {
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[0].blockId).toBe('loaddata');
+      expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[0].parameters[0].options).toEqual([
+        {key: 'option1', text: 'Option 1'},
+        {key: 'option2', text: 'Option 2'}
+      ]);
+      expect(blocksOnCanvas[0].parameters[0].value).toBe('option1');
+    });
   });
 
   describe('addBlock', () => {

@@ -2,7 +2,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Block, BlockId } from './block.interface';
+import { Block, BlockId, Option } from './block.interface';
 import { BlockServiceInterface } from './block.service.interface';
 import { DatasetInfo } from './dataset-info';
 import { DatasetInfoService } from './dataset-info.service';
@@ -29,12 +29,16 @@ export class BlockService implements BlockServiceInterface {
     switch (id) {
       case 'loaddata': {
         if (blockList.length == 0) {
+          const options: Option[] = [];
+          this.datasetInfo.forEach( dataset => {
+            options.push({key: dataset.key, text: dataset.title});
+          });
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.datasetInfo[0].key || '', options: this.datasetInfo},
+              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.datasetInfo[0].key || '', options: options},
             ],
           }]);
         }

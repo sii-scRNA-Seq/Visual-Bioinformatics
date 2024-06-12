@@ -32,14 +32,14 @@ describe('DatasetInfoService', () => {
     it('should update datasetInfo attribute as expected', async () => {
       const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
       spyOn(backendHttpClient, 'getDatasetInfo').and.returnValue(Promise.resolve([
-        {key: 'option1', text: 'Option 1'},
-        {key: 'option2', text: 'Option 2'}
+        {key: 'option1', title: 'Option 1'},
+        {key: 'option2', title: 'Option 2'}
       ]));
       await service.setDatasetInfo();
       const response = await firstValueFrom(service.datasetInfo.pipe(first()));
       expect(response).toEqual([
-        {key: 'option1', text: 'Option 1'},
-        {key: 'option2', text: 'Option 2'}
+        {key: 'option1', title: 'Option 1'},
+        {key: 'option2', title: 'Option 2'}
       ]);
     });
   });

@@ -129,8 +129,8 @@ def create_app(test_mode=False):
         logger.info("Sending dataset info")
         message = {
             "datasets": [
-                {"key": "pbmc3k", "text": "Peripheral Blood Mononuclear Cells"},
-                {"key": "pf_dogga", "text": "Malaria Cell Atlas P. falciparum"}
+                {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
+                {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
             ]
         }
         return jsonify(message)

@@ -760,6 +760,9 @@ def test_qcplots_CorrectlyIdentifiesMTGenesForPfdogga():
         mock.assert_called_once_with('MIT')
 
 
+# TODO: Test case where qc_plots() is called with a non-existent dataset (should raise an Exception)
+
+
 def test_qcplots_CallsScanpyFunctions():
     adata = get_AnnData()
     adata.obs["total_counts"] = list(range(0, adata.n_obs))
@@ -903,6 +906,9 @@ def test_qcfiltering_CorrectlyIdentifiesMTGenesForPfdogga():
     with patch("pandas.Index.str.contains") as mock:
         socketio_client.emit("json", message)
         mock.assert_called_once_with('MIT')
+
+
+# TODO: Test case where qc_filtering() is called with a non-existent dataset (should raise an Exception)
 
 
 def test_qcfiltering_CallsScanpyFunctions():

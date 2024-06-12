@@ -130,7 +130,7 @@ def create_app(test_mode=False):
         message = {
             "datasets": [
                 {"key": "pbmc3k", "text": "Peripheral Blood Mononuclear Cells"},
-                {"key": "pfdogga", "text": "Malaria Cell Atlas P. Falciparum"}
+                {"key": "pfdogga", "text": "Malaria Cell Atlas P. falciparum"}
             ]
         }
         return jsonify(message)

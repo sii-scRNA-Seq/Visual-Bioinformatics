@@ -15,15 +15,6 @@ export interface Parameter {
   options?: Option[]
 }
 
-export interface InputParameter extends Parameter {
-  type: 'InputParameter'
-}
-
-export interface SelectParameter extends Parameter {
-  type: 'SelectParameter'
-  options: Option[]
-}
-
 export interface Option {
   key: string
   text: string

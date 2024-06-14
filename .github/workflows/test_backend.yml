@@ -19,6 +19,7 @@ jobs:
         run: |
           conda info
           conda list
-          flake8 --ignore=E501 back_end.py
-          flake8 --ignore=E501 test.py
-          pytest test.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+          flake8 --ignore=E501 app
+          cd app
+          python -m pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+#          need to move test results back up a level for detection?

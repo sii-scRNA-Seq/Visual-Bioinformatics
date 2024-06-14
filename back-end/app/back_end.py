@@ -1,4 +1,3 @@
-from anndata import AnnData
 from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
@@ -17,6 +16,14 @@ import scanpy as sc
 import uuid
 import werkzeug.exceptions as we
 import yaml
+
+from exception.bad_request_exception import BadRequestException
+from exception.missing_param_exception import MissingParametersException
+from exception.not_accepting_request_exception import NotAcceptingRequestException
+from exception.user_id_exception import UserIDException
+
+from basic_filtering import BasicFiltering
+from block_interface import adata_text
 
 monkey.patch_all()
 
@@ -71,7 +78,7 @@ def create_app(test_mode=False):
     logger.info("Loading raw data...")
     raw_data_cache = {
         "pbmc3k": sc.datasets.pbmc3k(),
-        "pf_dogga": sc.read_h5ad("datasets/pf/MCA_PF_DOGGA.h5ad")
+        "pf_dogga": sc.read_h5ad("../datasets/pf/MCA_PF_DOGGA.h5ad")
     }
     logger.info("Finished loading raw data")
 
@@ -135,26 +142,6 @@ def create_app(test_mode=False):
         }
         return jsonify(message)
 
-    class UserIDException(Exception):
-        def __init__(self, message):
-            self.message = message
-            super().__init__(message)
-
-    class NotAcceptingRequestException(Exception):
-        def __init__(self, message):
-            self.message = message
-            super().__init__(message)
-
-    class BadRequestException(Exception):
-        def __init__(self, message):
-            self.message = message
-            super().__init__(message)
-
-    class MissingParametersException(Exception):
-        def __init__(self, message):
-            self.message = message
-            super().__init__(message)
-
     @socketio.on("json")
     def execute_blocks(message):
         logger.info(f"Executing blocks, json={message}")
@@ -186,31 +173,32 @@ def create_app(test_mode=False):
             dataset = None
             executed_blocks = []
 
-            for block in blocks:
-                logger.info(f"Executing block={block} user={user_id}")
+            for current_block_params in blocks:
+                logger.info(f"Executing block={current_block_params} user={user_id}")
 
-                if "block_id" not in block:
+                if "block_id" not in current_block_params:
                     raise BadRequestException("Block ID is missing")
-                elif block["block_id"] == "loaddata" and not executed_blocks:
-                    user_data, dataset, output_message = load_data(user_data, block)
-                elif block["block_id"] == "basicfiltering" and "loaddata" in executed_blocks:
-                    user_data, output_message = basic_filtering(user_data, block)
-                elif block["block_id"] == "qcplots" and "loaddata" in executed_blocks:
-                    user_data, output_message = qc_plots(user_data, dataset, block)
-                elif block["block_id"] == "qcfiltering" and "loaddata" in executed_blocks:
-                    user_data, output_message = qc_filtering(user_data, dataset, block)
-                elif block["block_id"] == "variablegenes" and "loaddata" in executed_blocks:
-                    user_data, output_message = variable_genes(user_data, block)
-                elif block["block_id"] == "pca" and "variablegenes" in executed_blocks:
-                    user_data, output_message = pca(user_data, block)
-                elif block["block_id"] == "runumap" and "pca" in executed_blocks:
-                    user_data, output_message = run_umap(user_data, block)
-                elif block["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "runumap"]:
+                elif current_block_params["block_id"] == "loaddata" and not executed_blocks:
+                    user_data, dataset, output_message = load_data(user_data, current_block_params)
+                elif current_block_params["block_id"] == "basicfiltering" and "loaddata" in executed_blocks:
+                    block = BasicFiltering()
+                    user_data, output_message = block.run(user_data, current_block_params)
+                elif current_block_params["block_id"] == "qcplots" and "loaddata" in executed_blocks:
+                    user_data, output_message = qc_plots(user_data, dataset, current_block_params)
+                elif current_block_params["block_id"] == "qcfiltering" and "loaddata" in executed_blocks:
+                    user_data, output_message = qc_filtering(user_data, dataset, current_block_params)
+                elif current_block_params["block_id"] == "variablegenes" and "loaddata" in executed_blocks:
+                    user_data, output_message = variable_genes(user_data, current_block_params)
+                elif current_block_params["block_id"] == "pca" and "variablegenes" in executed_blocks:
+                    user_data, output_message = pca(user_data, current_block_params)
+                elif current_block_params["block_id"] == "runumap" and "pca" in executed_blocks:
+                    user_data, output_message = run_umap(user_data, current_block_params)
+                elif current_block_params["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "runumap"]:
                     raise BadRequestException("Blocks have an invalid order")
                 else:
                     raise BadRequestException("Block ID does not match expected values")
 
-                executed_blocks.append(block["block_id"])
+                executed_blocks.append(current_block_params["block_id"])
                 socketio.emit("json", json.dumps(output_message), room=client)
                 logger.debug("emitted:" + json.dumps(output_message))
 
@@ -265,23 +253,6 @@ def create_app(test_mode=False):
             "text": adata_text(user_data)
         }
         return user_data, dataset, message
-
-    def basic_filtering(user_data, block):
-        missing_parameters = get_missing_parameters(["min_genes", "min_cells"], block)
-        if missing_parameters:
-            logger.error("Parameters missing from Block: " + json.dumps(missing_parameters))
-            raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
-
-        min_genes = float(block["min_genes"])
-        min_cells = float(block["min_cells"])
-
-        sc.pp.filter_cells(user_data, min_genes=min_genes)
-        sc.pp.filter_genes(user_data, min_cells=min_cells)
-
-        message = {
-            "text": adata_text(user_data)
-        }
-        return user_data, message
 
     def qc_plots(user_data, dataset, block):
         if dataset == "pbmc3k":
@@ -411,9 +382,6 @@ def create_app(test_mode=False):
             "alttext": "A UMAP of Leiden clusters using the principal components generated by a Run UMAP block",
         }
         return user_data, message
-
-    def adata_text(adata: AnnData) -> str:
-        return f"Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes"
 
     def get_missing_parameters(params, block):
         missing_params = []

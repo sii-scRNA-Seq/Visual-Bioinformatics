@@ -587,6 +587,7 @@ def test_loaddata_WarnsWhenDatasetDoesNotExist(socketio_client):
     assert len(received) == 1
     assert received[0]["args"] == expected
 
+
 def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):
     socketio_client.get_received()
     message = {

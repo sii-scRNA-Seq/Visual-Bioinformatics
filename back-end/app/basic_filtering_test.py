@@ -20,6 +20,7 @@ def example_adata():
 
     yield example_adata
 
+
 def test_param_validation_requires_min_genes():
     block = BasicFiltering()
     with pytest.raises(MissingParametersException) as e_info:
@@ -37,6 +38,7 @@ def test_param_validation_requires_min_cells():
         })
     assert e_info.value.message == 'Missing parameters: ["min_cells"]'
 
+
 def test_param_validation_requires_min_cells_and_min_genes():
     block = BasicFiltering()
     with pytest.raises(MissingParametersException) as e_info:
@@ -46,7 +48,6 @@ def test_param_validation_requires_min_cells_and_min_genes():
 
 
 def test_run_callsScanpyFunctions(example_adata):
-
     block = BasicFiltering()
     input = {
         "min_genes": "25",
@@ -58,8 +59,8 @@ def test_run_callsScanpyFunctions(example_adata):
         mock1.assert_called_once()
         mock2.assert_called_once()
 
-def test_run_filtersNothingWhenValuesSetToZero(example_adata):
 
+def test_run_filtersNothingWhenValuesSetToZero(example_adata):
     block = BasicFiltering()
     input = {
         "min_genes": "0",
@@ -70,8 +71,8 @@ def test_run_filtersNothingWhenValuesSetToZero(example_adata):
     assert result_adata.n_vars == example_adata.n_vars
     assert result_adata.n_obs == example_adata.n_obs
 
-def test_run_filtersCellsWhenValuesSetToNormalValues(example_adata):
 
+def test_run_filtersCellsWhenValuesSetToNormalValues(example_adata):
     block = BasicFiltering()
     input = {
         "min_genes": "0",
@@ -81,6 +82,7 @@ def test_run_filtersCellsWhenValuesSetToNormalValues(example_adata):
     result_adata, result_message = block.run(example_adata.copy(), input)
     assert result_adata.n_vars == 2
     assert result_adata.n_obs == example_adata.n_obs
+
 
 def test_run_filtersGenesWhenValuesSetToNormalValues(example_adata):
     block = BasicFiltering()
@@ -93,6 +95,7 @@ def test_run_filtersGenesWhenValuesSetToNormalValues(example_adata):
     assert result_adata.n_vars == example_adata.n_vars
     assert result_adata.n_obs == 4
 
+
 def test_run_filterBothWhenValuesSetToNormalValues(example_adata):
     block = BasicFiltering()
     input = {
@@ -103,5 +106,3 @@ def test_run_filterBothWhenValuesSetToNormalValues(example_adata):
     result_adata, result_message = block.run(example_adata.copy(), input)
     assert result_adata.n_vars == 2
     assert result_adata.n_obs == 4
-
-

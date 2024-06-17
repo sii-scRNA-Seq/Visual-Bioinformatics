@@ -57,10 +57,10 @@ describe('BackendHttpClient', () => {
       const req = mockHttp.expectOne('http://localhost:5000/api/getdatasetinfo');
       expect(req.request.method).toBe('GET');
       req.flush({datasets: [
-        {key: 'datasetKey', text: 'datasetText'}
+        {key: 'datasetKey', title: 'datasetText'}
       ]});
       mockHttp.verify();
-      expect(await return_value).toEqual([{key: 'datasetKey', text: 'datasetText'}]);
+      expect(await return_value).toEqual([{key: 'datasetKey', title: 'datasetText'}]);
     }));
 
     it('should open snack bar if the response is an error', fakeAsync(async () => {

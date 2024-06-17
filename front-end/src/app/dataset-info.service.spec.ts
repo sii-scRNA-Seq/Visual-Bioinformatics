@@ -14,14 +14,34 @@ describe('DatasetInfoService', () => {
         HttpClientTestingModule,
       ]
     });
-    service = TestBed.inject(DatasetInfoService);
   });
 
   it('should be created', () => {
+    service = TestBed.inject(DatasetInfoService);
     expect(service).toBeTruthy();
   });
 
+  describe('constructor', () => {
+    it('should result in datasetInfo being loaded', async () => {
+      const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
+      spyOn(backendHttpClient, 'getDatasetInfo').and.returnValue(Promise.resolve([
+        {key: 'option1', title: 'Option 1'},
+        {key: 'option2', title: 'Option 2'}
+      ]));
+      service = await TestBed.inject(DatasetInfoService);
+      const datasetInfo = await firstValueFrom(service.datasetInfo.pipe(first()));
+      expect(datasetInfo).toEqual([
+        {key: 'option1', title: 'Option 1'},
+        {key: 'option2', title: 'Option 2'}
+      ]);
+    });
+  });
+
   describe('setDatasetInfo', () => {
+    beforeEach(() => {
+      service = TestBed.inject(DatasetInfoService);
+    });
+
     it('should call client getDatasetInfo method', async () => {
       const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
       const backendHttpClientSpy = spyOn(backendHttpClient, 'getDatasetInfo');
@@ -32,14 +52,14 @@ describe('DatasetInfoService', () => {
     it('should update datasetInfo attribute as expected', async () => {
       const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
       spyOn(backendHttpClient, 'getDatasetInfo').and.returnValue(Promise.resolve([
-        {key: 'option1', text: 'Option 1'},
-        {key: 'option2', text: 'Option 2'}
+        {key: 'option1', title: 'Option 1'},
+        {key: 'option2', title: 'Option 2'}
       ]));
       await service.setDatasetInfo();
       const response = await firstValueFrom(service.datasetInfo.pipe(first()));
       expect(response).toEqual([
-        {key: 'option1', text: 'Option 1'},
-        {key: 'option2', text: 'Option 2'}
+        {key: 'option1', title: 'Option 1'},
+        {key: 'option2', title: 'Option 2'}
       ]);
     });
   });

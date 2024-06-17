@@ -136,8 +136,8 @@ def create_app(test_mode=False):
         logger.info("Sending dataset info")
         message = {
             "datasets": [
-                {"key": "pbmc3k", "text": "Peripheral Blood Mononuclear Cells"},
-                {"key": "pfdogga", "text": "Malaria Cell Atlas P. Falciparum"}
+                {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
+                {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
             ]
         }
         return jsonify(message)
@@ -245,10 +245,8 @@ def create_app(test_mode=False):
             raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
 
         dataset = block["dataset"]
-        if dataset == "pbmc3k":
-            user_data = raw_data_cache.get("pbmc3k").copy()
-        elif dataset == "pfdogga":
-            user_data = raw_data_cache.get("pf_dogga").copy()
+        if dataset in raw_data_cache:
+            user_data = raw_data_cache.get(dataset).copy()
         else:
             raise Exception("Selected dataset does not exist.")
 

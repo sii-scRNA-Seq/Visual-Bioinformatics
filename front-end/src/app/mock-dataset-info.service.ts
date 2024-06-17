@@ -13,8 +13,8 @@ export class MockDatasetInfoService implements DatasetInfoServiceInterface {
 
   async setDatasetInfo(): Promise<void> {
     this.datasetInfo$.next([
-      {key: 'option1', text: 'Option 1'},
-      {key: 'option2', text: 'Option 2'}
+      {key: 'option1', title: 'Option 1'},
+      {key: 'option2', title: 'Option 2'}
     ]);
   }
 }

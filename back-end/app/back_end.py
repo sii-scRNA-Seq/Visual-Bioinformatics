@@ -258,7 +258,7 @@ def create_app(test_mode=False):
     def qc_plots(user_data, dataset, block):
         if dataset == "pbmc3k":
             user_data.var["mt"] = user_data.var_names.str.startswith("MT-")
-        elif dataset == "pfdogga":
+        elif dataset == "pf_dogga":
             print(user_data.var_names.str)
             user_data.var["mt"] = user_data.var_names.str.contains("MIT")
         else:
@@ -291,7 +291,7 @@ def create_app(test_mode=False):
 
         if dataset == "pbmc3k":
             user_data.var["mt"] = user_data.var_names.str.startswith("MT-")
-        elif dataset == "pfdogga":
+        elif dataset == "pf_dogga":
             print(user_data.var_names.str)
             user_data.var["mt"] = user_data.var_names.str.contains("MIT")
         else:

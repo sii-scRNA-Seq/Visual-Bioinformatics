@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { DatasetInfo } from './dataset-info';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,5 +29,22 @@ export class BackendHttpClient {
       this.snackBar.open('Error retrieving User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });
     }
     return response.user_id;
+  }
+
+  async getDatasetInfo(): Promise<DatasetInfo[]> {
+    let url = '';
+    if (isDevMode()) {
+      url = 'http://localhost:5000/api/getdatasetinfo';
+    } else {
+      url = '/api/getdatasetinfo';
+    }
+    type Response = {datasets: DatasetInfo[]};
+    let response: Response = {datasets: []};
+    try {
+      response = await firstValueFrom(this.http.get<Response>(url));
+    } catch (e) {
+      this.snackBar.open('Error retrieving datasets. Please refresh the page and try again.', 'Close', { duration: 5000 });
+    }
+    return response.datasets;
   }
 }

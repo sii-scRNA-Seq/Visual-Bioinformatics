@@ -48,4 +48,32 @@ describe('BackendHttpClient', () => {
       mockHttp.verify(); 
     }));
   });
+
+  describe('getDatasetInfo', () => {
+    it('should request to the correct address and return the response', fakeAsync(async () => {
+      const mockHttp = TestBed.inject(HttpTestingController);
+      const return_value = service.getDatasetInfo();
+      tick();
+      const req = mockHttp.expectOne('http://localhost:5000/api/getdatasetinfo');
+      expect(req.request.method).toBe('GET');
+      req.flush({datasets: [
+        {key: 'datasetKey', title: 'datasetText'}
+      ]});
+      mockHttp.verify();
+      expect(await return_value).toEqual([{key: 'datasetKey', title: 'datasetText'}]);
+    }));
+
+    it('should open snack bar if the response is an error', fakeAsync(async () => {
+      const mockHttp = TestBed.inject(HttpTestingController);
+      const spy = spyOn(snackBar, 'open');
+      service.getDatasetInfo().then(async () => {
+        expect(spy).toHaveBeenCalledOnceWith('Error retrieving datasets. Please refresh the page and try again.', 'Close', { duration: 5000 });
+      });
+      tick();
+      const req = mockHttp.expectOne('http://localhost:5000/api/getdatasetinfo');
+      expect(req.request.method).toBe('GET');
+      req.flush('', { status: 406, statusText: 'Bad Request'});
+      mockHttp.verify(); 
+    }));
+  });
 });

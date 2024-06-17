@@ -124,6 +124,17 @@ def create_app(test_mode=False):
             }
             return jsonify(message)
 
+    @app.route("/api/getdatasetinfo")
+    def get_dataset_info():
+        logger.info("Sending dataset info")
+        message = {
+            "datasets": [
+                {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
+                {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
+            ]
+        }
+        return jsonify(message)
+
     class UserIDException(Exception):
         def __init__(self, message):
             self.message = message
@@ -236,7 +247,16 @@ def create_app(test_mode=False):
             socketio.emit("json", json.dumps(end_connection), room=client)
 
     def load_data(user_data, block):
-        user_data = raw_data_cache.get("pbmc3k").copy()
+        missing_parameters = get_missing_parameters(["dataset"], block)
+        if missing_parameters:
+            logger.error("Parameters missing from Block: " + json.dumps(missing_parameters))
+            raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
+
+        dataset = block["dataset"]
+        if dataset in raw_data_cache:
+            user_data = raw_data_cache.get(dataset).copy()
+        else:
+            raise Exception("Selected dataset does not exist.")
 
         message = {
             "text": adata_text(user_data)

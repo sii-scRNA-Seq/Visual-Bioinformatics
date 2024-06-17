@@ -92,7 +92,7 @@ describe('OutputService', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'foo', text: 'bar', value: 42},
+          {type: 'InputParameter', key: 'foo', text: 'bar', value: 42},
         ],
       };
       const blocks: Block[] = [];

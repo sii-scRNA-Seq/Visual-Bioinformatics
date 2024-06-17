@@ -9,14 +9,14 @@ from back_end import create_app
 
 @pytest.fixture()
 def socketio():
-    with patch("scanpy.datasets.pbmc3k", get_AnnData):
+    with patch("scanpy.datasets.pbmc3k", get_AnnData), patch("scanpy.read_h5ad", lambda _: get_AnnData()):
         socketio, app = create_app(test_mode=True)
         yield socketio
 
 
 @pytest.fixture()
 def app():
-    with patch("scanpy.datasets.pbmc3k", get_AnnData):
+    with patch("scanpy.datasets.pbmc3k", get_AnnData), patch("scanpy.read_h5ad", lambda _: get_AnnData()):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         yield app
@@ -107,6 +107,18 @@ def test_getuserid_ReturnsUserIdWhenUserIDIsSupplied(app_client):
     assert response.status_code == 200
     message = {
         "user_id": "bob"
+    }
+    assert json.loads(response.data) == message
+
+
+def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
+    response = app_client.get("/api/getdatasetinfo")
+    assert response.status_code == 200
+    message = {
+        "datasets": [
+            {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
+            {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
+        ]
     }
     assert json.loads(response.data) == message
 
@@ -253,7 +265,7 @@ def test_executeblocks_AcceptsRequestsAfterMissingParametersException(socketio_c
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering"}
         ],
     }
@@ -279,7 +291,7 @@ def test_executeblocks_AcceptsRequestsAfterOtherErrors(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": "min_genes", "min_cells": "min_cells"}
         ],
     }
@@ -356,8 +368,8 @@ def test_executeblocks_WarnsWhenLoadDataIsAfterTheFirstBlock(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
-            {"block_id": "loaddata"}
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"}
         ],
     }
     socketio_client.emit("json", message)
@@ -432,7 +444,7 @@ def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "pca"}
         ],
     }
@@ -448,7 +460,7 @@ def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "runumap", "n_neighbors": 0, "n_pcs": 0}
         ],
@@ -480,7 +492,7 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": "min_genes", "min_cells": "min_cells"}
         ],
     }
@@ -513,12 +525,27 @@ def test_executeblocks_OnlyOneClientReceivesResponse():
     assert client1_received[0]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
-def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
+def test_loaddata_WarnsWhenDatasetIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
         "user_id": "bob",
         "blocks": [
             {"block_id": "loaddata"}
+        ],
+    }
+    socketio_client.emit("json", message)
+    received = socketio_client.get_received()
+    expected = json.dumps({"error": "Missing parameters: [\"dataset\"]. Please refresh the page and try again."})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
+def test_loaddata_AnnDataIsLoadedCorrectlyForPbmc3k(socketio_client):
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pbmc3k"}
         ],
     }
     socketio_client.emit("json", message)
@@ -529,12 +556,43 @@ def test_loaddata_AnnDataIsLoadedCorrectly(socketio_client):
     assert received[1]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
+def test_loaddata_AnnDataIsLoadedCorrectlyForPfdogga(socketio_client):
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pf_dogga"}
+        ],
+    }
+    socketio_client.emit("json", message)
+    received = socketio_client.get_received()
+    expected = json.dumps({"text": "Object with: 5 cells and 3 genes"})
+    assert len(received) == 2
+    assert received[0]["args"] == expected
+    assert received[1]["args"] == json.dumps({"end_connection": "end_connection"})
+
+
+def test_loaddata_WarnsWhenDatasetDoesNotExist(socketio_client):
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "DOES NOT EXIST"},
+        ],
+    }
+    socketio_client.emit("json", message)
+    received = socketio_client.get_received()
+    expected = json.dumps({"error": "Unknown error. Please refresh the page and try again."})
+    assert len(received) == 1
+    assert received[0]["args"] == expected
+
+
 def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):
     socketio_client.get_received()
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering"}
         ],
     }
@@ -550,7 +608,7 @@ def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_cells": 42}
         ],
     }
@@ -566,7 +624,7 @@ def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": 42}
         ],
     }
@@ -582,7 +640,7 @@ def test_basicfiltering_CallsScanpyFunctions(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": 0, "min_cells": 0}
         ],
     }
@@ -597,7 +655,7 @@ def test_basicfiltering_NoFilteringWorks(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": 0, "min_cells": 0}
         ],
     }
@@ -614,7 +672,7 @@ def test_basicfiltering_FilterCellsWorks(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": 1, "min_cells": 0}
         ],
     }
@@ -631,7 +689,7 @@ def test_basicfiltering_FilterGenesWorks(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": 0, "min_cells": 1}
         ],
     }
@@ -648,7 +706,7 @@ def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "basicfiltering", "min_genes": 1, "min_cells": 1}
         ],
     }
@@ -672,7 +730,7 @@ def test_qcplots_CallsScanpyFunctions():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcplots"}
         ],
     }
@@ -687,7 +745,7 @@ def test_qcplots_ReturnsCorrectString(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcplots"}
         ],
     }
@@ -704,7 +762,7 @@ def test_qcfiltering_WarnsWhenAllParametersAreMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering"}
         ],
     }
@@ -720,7 +778,7 @@ def test_qcfiltering_WarnsWhenMinNGenesByCountsIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "max_n_genes_by_counts": 42, "pct_counts_mt": 42}
         ],
     }
@@ -736,7 +794,7 @@ def test_qcfiltering_WarnsWhenMaxNGenesByCountsIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 42, "pct_counts_mt": 42}
         ],
     }
@@ -752,7 +810,7 @@ def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 42, "max_n_genes_by_counts": 42}
         ],
     }
@@ -775,7 +833,7 @@ def test_qcfiltering_CallsScanpyFunctions():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 0, "pct_counts_mt": 0}
         ],
     }
@@ -794,7 +852,7 @@ def test_qcfiltering_NoFilteringWorks():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 5, "pct_counts_mt": 100}
         ],
     }
@@ -816,7 +874,7 @@ def test_qcfiltering_FilterByMinNGenesByCountsWorks():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 1, "max_n_genes_by_counts": 5, "pct_counts_mt": 100}
         ],
     }
@@ -838,7 +896,7 @@ def test_qcfiltering_FilterByMaxNGenesByCountsWorks():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 4, "pct_counts_mt": 100}
         ],
     }
@@ -860,7 +918,7 @@ def test_qcfiltering_FilterByPctCountsMtWorks():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 5, "pct_counts_mt": 95}
         ],
     }
@@ -882,7 +940,7 @@ def test_qcfiltering_FilterByAllParametersWorks():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 1, "max_n_genes_by_counts": 4, "pct_counts_mt": 95}
         ],
     }
@@ -899,7 +957,7 @@ def test_variablegenes_WarnsWhenAllParametersAreMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes"}
         ],
     }
@@ -915,7 +973,7 @@ def test_variablegenes_WarnsWhenMinMeanIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "max_mean": 42, "min_disp": 42}
         ],
     }
@@ -931,7 +989,7 @@ def test_variablegenes_WarnsWhenMaxMeanIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 42, "min_disp": 42}
         ],
     }
@@ -947,7 +1005,7 @@ def test_variablegenes_WarnsWhenMinDispIsMissing(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 42, "max_mean": 42}
         ],
     }
@@ -963,7 +1021,7 @@ def test_variablegenes_CallsScanpyFunctions(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0}
         ],
     }
@@ -980,7 +1038,7 @@ def test_variablegenes_ReturnsCorrectString(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0}
         ],
     }
@@ -1004,7 +1062,7 @@ def test_pca_CallsScanpyFunctions():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "pca"}
         ],
@@ -1029,7 +1087,7 @@ def test_pca_ReturnsCorrectString():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "pca"}
         ],
@@ -1055,7 +1113,7 @@ def test_runumap_WarnsWhenNNeighborsAndNPcsAreMissing():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "pca"},
             {"block_id": "runumap"}
@@ -1081,7 +1139,7 @@ def test_runumap_WarnsWhenNNeighborsIsMissing():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 42, "max_mean": 42, "min_disp": 42},
             {"block_id": "pca"},
             {"block_id": "runumap", "n_pcs": 42}
@@ -1107,7 +1165,7 @@ def test_runumap_WarnsWhenNPcsIsMissing():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 42, "max_mean": 42, "min_disp": 42},
             {"block_id": "pca"},
             {"block_id": "runumap", "n_neighbors": 42}
@@ -1126,7 +1184,7 @@ def test_runumap_CallsScanpyFunctions(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "pca"},
             {"block_id": "runumap", "n_neighbors": 0, "n_pcs": 0}
@@ -1153,7 +1211,7 @@ def test_runumap_ReturnsCorrectString():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata"},
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "pca"},
             {"block_id": "runumap", "n_neighbors": 10, "n_pcs": 40}

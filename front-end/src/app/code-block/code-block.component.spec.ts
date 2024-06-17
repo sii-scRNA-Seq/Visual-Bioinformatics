@@ -1,8 +1,12 @@
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BlockService } from '../block.service';
@@ -19,8 +23,11 @@ describe('CodeBlockComponent', () => {
     TestBed.configureTestingModule({
       declarations: [CodeBlockComponent],
       imports: [
+        BrowserAnimationsModule,
         HttpClientTestingModule,
         MatCardModule,
+        MatFormFieldModule,
+        MatSelectModule,
         MatSnackBarModule,
         FormsModule
       ],
@@ -203,7 +210,7 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'test_param', text: 'Test Parameter', value: 0},
+          {type: 'InputParameter', key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
       fixture.detectChanges();
@@ -218,7 +225,7 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'test_param', text: 'Test Parameter', value: 0},
+          {type: 'InputParameter', key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
       fixture.detectChanges();
@@ -236,7 +243,7 @@ describe('CodeBlockComponent', () => {
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
-          {key: 'test_param', text: 'Test Parameter', value: 0},
+          {type: 'InputParameter', key: 'test_param', text: 'Test Parameter', value: 0},
         ],
       };
       fixture.detectChanges();
@@ -246,6 +253,68 @@ describe('CodeBlockComponent', () => {
       component.executingBlocks = false;
       fixture.detectChanges(); 
       expect(fixture.debugElement.query(By.css('input')).nativeElement.disabled).toBe(false);
+    });
+  });
+
+  describe('Parameter Selects', () => {
+    it('should be available when blocks are not being executed', () => {
+      component.block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [
+          {type: 'SelectParameter', key: 'test_param', text: 'Test Parameter', value: 'option1', options: [
+            {key: 'option1', text: 'Option 1'},
+            {key: 'option2', text: 'Option 2'}
+          ]},
+        ],
+      };
+      fixture.detectChanges();
+      component.executingBlocks = false;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');
+    });
+
+    it('should become disabled while blocks are being executed', () => {
+      component.block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [
+          {type: 'SelectParameter', key: 'test_param', text: 'Test Parameter', value: 'option1', options: [
+            {key: 'option1', text: 'Option 1'},
+            {key: 'option2', text: 'Option 2'}
+          ]},
+        ],
+      };
+      fixture.detectChanges();
+      component.executingBlocks = false;
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');
+      component.executingBlocks = true;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('true');
+    });
+
+    it('should become available once blocks have stopped being executed', () => {
+      component.block = {
+        blockId: 'loaddata',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [
+          {type: 'SelectParameter', key: 'test_param', text: 'Test Parameter', value: 'option1', options: [
+            {key: 'option1', text: 'Option 1'},
+            {key: 'option2', text: 'Option 2'}
+          ]},
+        ],
+      };
+      fixture.detectChanges();
+      component.executingBlocks = true;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('true');
+      component.executingBlocks = false;
+      fixture.detectChanges(); 
+      expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');
     });
   });
 });

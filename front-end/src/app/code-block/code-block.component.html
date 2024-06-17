@@ -6,8 +6,21 @@
     <mat-card-content>
         <ul class="no-bullets">
             <li class="left-right-container" *ngFor="let parameter of block.parameters">
-                {{parameter.text}}
-                <input class="parameter-input" [(ngModel)]="parameter.value" placeholder="0" [attr.disabled]="executingBlocks ? executingBlocks : undefined">
+                <div *ngIf="parameter.type === 'SelectParameter'; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                    <mat-form-field>
+                        <mat-label>{{parameter.text}}</mat-label>
+                        <mat-select ngDefaultControl [(ngModel)]="parameter.value" style="width: fit-content;" panelWidth="" [disabled]="executingBlocks">
+                            @for (option of parameter.options; track option) {
+                                <mat-option [value]="option.key">{{option.text}}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </ng-template>
+                <ng-template #elseBlock>
+                    {{parameter.text}}
+                    <input class="parameter-input" [(ngModel)]="parameter.value" placeholder="0" [attr.disabled]="executingBlocks ? executingBlocks : undefined">
+                </ng-template>
             </li>
         </ul>
     </mat-card-content>

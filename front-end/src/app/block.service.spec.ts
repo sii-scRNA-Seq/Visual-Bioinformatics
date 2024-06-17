@@ -5,12 +5,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { BlockService } from './block.service';
+import { DatasetInfoService } from './dataset-info.service';
+import { MockDatasetInfoService } from './mock-dataset-info.service';
 import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
 
 describe('BlockService', () => {
   let service: BlockService;
   let snackBar: MatSnackBar;
+  let datasetInfoService: DatasetInfoService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -21,10 +24,12 @@ describe('BlockService', () => {
       ],
       providers: [
         { provide: OutputService, useClass: MockOutputService },
+        { provide: DatasetInfoService, useClass: MockDatasetInfoService },
       ],
     });
     service = TestBed.inject(BlockService);
     snackBar = TestBed.inject(MatSnackBar);
+    datasetInfoService = TestBed.inject(DatasetInfoService);
   });
 
   it('should be created', () => {
@@ -36,9 +41,39 @@ describe('BlockService', () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
     });
+
+    it('should have the correct options on Load Data block before loading DatasetInfo', async () => {
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[0].blockId).toBe('loaddata');
+      expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[0].parameters[0].options).toEqual([]);
+      expect(blocksOnCanvas[0].parameters[0].value).toBe('');
+    });
+
+    it('should have the correct options on Load Data block after loading DatasetInfo', async () => {
+      datasetInfoService.setDatasetInfo();
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[0].blockId).toBe('loaddata');
+      expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[0].parameters[0].options).toEqual([
+        {key: 'option1', text: 'Option 1'},
+        {key: 'option2', text: 'Option 2'}
+      ]);
+      expect(blocksOnCanvas[0].parameters[0].value).toBe('option1');
+    });
   });
 
   describe('addBlock', () => {
+    beforeEach(() => {
+      datasetInfoService.setDatasetInfo();
+    });
+
     it('should add the given block when the ordering is valid - standard order', async () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
@@ -131,6 +166,10 @@ describe('BlockService', () => {
   });
 
   describe('removeBlock', () => {
+    beforeEach(() => {
+      datasetInfoService.setDatasetInfo();
+    });
+
     it('should remove the only block when called for only one block', async () => {
       service.addBlock('loaddata');
       const blocks1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));

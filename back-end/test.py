@@ -116,8 +116,8 @@ def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
     assert response.status_code == 200
     message = {
         "datasets": [
-            {"key": "pbmc3k", "text": "Peripheral Blood Mononuclear Cells"},
-            {"key": "pfdogga", "text": "Malaria Cell Atlas P. Falciparum"}
+            {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
+            {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
         ]
     }
     assert json.loads(response.data) == message
@@ -561,7 +561,7 @@ def test_loaddata_AnnDataIsLoadedCorrectlyForPfdogga(socketio_client):
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata", "dataset": "pfdogga"}
+            {"block_id": "loaddata", "dataset": "pf_dogga"}
         ],
     }
     socketio_client.emit("json", message)

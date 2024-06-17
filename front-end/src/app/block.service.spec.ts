@@ -30,7 +30,6 @@ describe('BlockService', () => {
     service = TestBed.inject(BlockService);
     snackBar = TestBed.inject(MatSnackBar);
     datasetInfoService = TestBed.inject(DatasetInfoService);
-    datasetInfoService.setDatasetInfo();
   });
 
   it('should be created', () => {
@@ -43,7 +42,19 @@ describe('BlockService', () => {
       expect(blocks.length).toBe(0);
     });
 
-    it('should have the correct parameter options on Load Data block', async () => {
+    it('should have the correct options on Load Data block before loading DatasetInfo', async () => {
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[0].blockId).toBe('loaddata');
+      expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[0].parameters[0].options).toEqual([]);
+      expect(blocksOnCanvas[0].parameters[0].value).toBe('');
+    });
+
+    it('should have the correct options on Load Data block after loading DatasetInfo', async () => {
+      datasetInfoService.setDatasetInfo();
       let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas.length).toBe(0);
       service.addBlock('loaddata');
@@ -59,6 +70,10 @@ describe('BlockService', () => {
   });
 
   describe('addBlock', () => {
+    beforeEach(() => {
+      datasetInfoService.setDatasetInfo();
+    });
+
     it('should add the given block when the ordering is valid - standard order', async () => {
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(0);
@@ -151,6 +166,10 @@ describe('BlockService', () => {
   });
 
   describe('removeBlock', () => {
+    beforeEach(() => {
+      datasetInfoService.setDatasetInfo();
+    });
+
     it('should remove the only block when called for only one block', async () => {
       service.addBlock('loaddata');
       const blocks1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));

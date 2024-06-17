@@ -751,7 +751,7 @@ def test_qcplots_CorrectlyIdentifiesMTGenesForPfdogga():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata", "dataset": "pfdogga"},
+            {"block_id": "loaddata", "dataset": "pf_dogga"},
             {"block_id": "qcplots"}
         ],
     }
@@ -899,7 +899,7 @@ def test_qcfiltering_CorrectlyIdentifiesMTGenesForPfdogga():
     message = {
         "user_id": "bob",
         "blocks": [
-            {"block_id": "loaddata", "dataset": "pfdogga"},
+            {"block_id": "loaddata", "dataset": "pf_dogga"},
             {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 0, "pct_counts_mt": 0}
         ],
     }

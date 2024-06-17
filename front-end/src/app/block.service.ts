@@ -33,12 +33,16 @@ export class BlockService implements BlockServiceInterface {
           this.datasetInfo.forEach( dataset => {
             options.push({key: dataset.key, text: dataset.title});
           });
+          let value: string = '';
+          if (this.datasetInfo.length > 0) {
+            value = this.datasetInfo[0].key;
+          }
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.datasetInfo[0].key || '', options: options},
+              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: value, options: options},
             ],
           }]);
         }

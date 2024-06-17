@@ -16,14 +16,28 @@ describe('UserIdService', () => {
         MatSnackBarModule,
       ]
     });
-    service = TestBed.inject(UserIdService);
   });
 
   it('should be created', () => {
+    service = TestBed.inject(UserIdService);
     expect(service).toBeTruthy();
   });
 
+  describe('constructor', () => {
+    it('should result in datasetInfo being loaded', async () => {
+      const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
+      spyOn(backendHttpClient, 'getUserId').and.returnValue(Promise.resolve('mock_user_id'));
+      service = await TestBed.inject(UserIdService);
+      const userId = await firstValueFrom(service.userId.pipe(first()));
+      expect(userId).toEqual('mock_user_id');
+    });
+  });
+
   describe('setUserId', () => {
+    beforeEach(() => {
+      service = TestBed.inject(UserIdService);
+    });
+
     it('should call client with local storage userId if it exists', async () => {
       spyOn(localStorage, 'getItem').and.returnValue('mock_user_id');
       const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);

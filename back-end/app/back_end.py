@@ -173,6 +173,9 @@ def create_app(test_mode=False):
             dataset = None
             executed_blocks = []
 
+            # TODO consider dispatching this whole pipeline to another thread, which seems to be best way to approach
+            # TODO cpu intense tasks with gevents. Probably best to do this after we split the code out better.
+            # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1473
             for current_block_params in blocks:
                 logger.info(f"Executing block={current_block_params} user={user_id}")
 
@@ -204,7 +207,7 @@ def create_app(test_mode=False):
 
                 # Allow other threads to execute
                 # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
-                gevent.sleep()
+                gevent.sleep(0.1)
 
             logger.debug(f"Finished processing blocks for user={user_id}")
             end_connection = {"end_connection": "end_connection"}

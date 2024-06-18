@@ -117,8 +117,8 @@ def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
     assert response.status_code == 200
     message = {
         "datasets": [
-            {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
-            {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
+            {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells", "integration_obs": []},
+            {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum", "integration_obs": ["day"]}
         ]
     }
     assert json.loads(response.data) == message

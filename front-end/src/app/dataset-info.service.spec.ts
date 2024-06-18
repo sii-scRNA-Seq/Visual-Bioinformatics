@@ -25,14 +25,14 @@ describe('DatasetInfoService', () => {
     it('should result in datasetInfo being loaded', async () => {
       const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
       spyOn(backendHttpClient, 'getDatasetInfo').and.returnValue(Promise.resolve([
-        {key: 'option1', title: 'Option 1'},
-        {key: 'option2', title: 'Option 2'}
+        {key: 'option1', title: 'Option 1', integration_obs: []},
+        {key: 'option2', title: 'Option 2', integration_obs: []}
       ]));
       service = await TestBed.inject(DatasetInfoService);
       const datasetInfo = await firstValueFrom(service.datasetInfo.pipe(first()));
       expect(datasetInfo).toEqual([
-        {key: 'option1', title: 'Option 1'},
-        {key: 'option2', title: 'Option 2'}
+        {key: 'option1', title: 'Option 1', integration_obs: []},
+        {key: 'option2', title: 'Option 2', integration_obs: []}
       ]);
     });
   });
@@ -52,14 +52,14 @@ describe('DatasetInfoService', () => {
     it('should update datasetInfo attribute as expected', async () => {
       const backendHttpClient: BackendHttpClient = TestBed.inject(BackendHttpClient);
       spyOn(backendHttpClient, 'getDatasetInfo').and.returnValue(Promise.resolve([
-        {key: 'option1', title: 'Option 1'},
-        {key: 'option2', title: 'Option 2'}
+        {key: 'option1', title: 'Option 1', integration_obs: []},
+        {key: 'option2', title: 'Option 2', integration_obs: []}
       ]));
       await service.setDatasetInfo();
       const response = await firstValueFrom(service.datasetInfo.pipe(first()));
       expect(response).toEqual([
-        {key: 'option1', title: 'Option 1'},
-        {key: 'option2', title: 'Option 2'}
+        {key: 'option1', title: 'Option 1', integration_obs: []},
+        {key: 'option2', title: 'Option 2', integration_obs: []}
       ]);
     });
   });

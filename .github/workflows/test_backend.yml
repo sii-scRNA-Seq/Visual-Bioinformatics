@@ -22,4 +22,3 @@ jobs:
           flake8 --ignore=E501 app
           cd app
           python -m pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
-#          need to move test results back up a level for detection?

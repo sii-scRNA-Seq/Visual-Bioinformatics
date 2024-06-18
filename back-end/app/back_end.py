@@ -176,32 +176,32 @@ def create_app(test_mode=False):
             # TODO consider dispatching this whole pipeline to another thread, which seems to be best way to approach
             # TODO cpu intense tasks with gevents. Probably best to do this after we split the code out better.
             # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1473
-            for current_block_params in blocks:
-                logger.info(f"Executing block={current_block_params} user={user_id}")
+            for current_block_info in blocks:
+                logger.info(f"Executing block={current_block_info} user={user_id}")
 
-                if "block_id" not in current_block_params:
+                if "block_id" not in current_block_info:
                     raise BadRequestException("Block ID is missing")
-                elif current_block_params["block_id"] == "loaddata" and not executed_blocks:
-                    user_data, dataset, output_message = load_data(user_data, current_block_params)
-                elif current_block_params["block_id"] == "basicfiltering" and "loaddata" in executed_blocks:
+                elif current_block_info["block_id"] == "loaddata" and not executed_blocks:
+                    user_data, dataset, output_message = load_data(user_data, current_block_info)
+                elif current_block_info["block_id"] == "basicfiltering" and "loaddata" in executed_blocks:
                     block = BasicFiltering()
-                    user_data, output_message = block.run(user_data, current_block_params)
-                elif current_block_params["block_id"] == "qcplots" and "loaddata" in executed_blocks:
-                    user_data, output_message = qc_plots(user_data, dataset, current_block_params)
-                elif current_block_params["block_id"] == "qcfiltering" and "loaddata" in executed_blocks:
-                    user_data, output_message = qc_filtering(user_data, dataset, current_block_params)
-                elif current_block_params["block_id"] == "variablegenes" and "loaddata" in executed_blocks:
-                    user_data, output_message = variable_genes(user_data, current_block_params)
-                elif current_block_params["block_id"] == "pca" and "variablegenes" in executed_blocks:
-                    user_data, output_message = pca(user_data, current_block_params)
-                elif current_block_params["block_id"] == "runumap" and "pca" in executed_blocks:
-                    user_data, output_message = run_umap(user_data, current_block_params)
-                elif current_block_params["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "runumap"]:
+                    user_data, output_message = block.run(user_data, current_block_info)
+                elif current_block_info["block_id"] == "qcplots" and "loaddata" in executed_blocks:
+                    user_data, output_message = qc_plots(user_data, dataset, current_block_info)
+                elif current_block_info["block_id"] == "qcfiltering" and "loaddata" in executed_blocks:
+                    user_data, output_message = qc_filtering(user_data, dataset, current_block_info)
+                elif current_block_info["block_id"] == "variablegenes" and "loaddata" in executed_blocks:
+                    user_data, output_message = variable_genes(user_data, current_block_info)
+                elif current_block_info["block_id"] == "pca" and "variablegenes" in executed_blocks:
+                    user_data, output_message = pca(user_data, current_block_info)
+                elif current_block_info["block_id"] == "runumap" and "pca" in executed_blocks:
+                    user_data, output_message = run_umap(user_data, current_block_info)
+                elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "runumap"]:
                     raise BadRequestException("Blocks have an invalid order")
                 else:
                     raise BadRequestException("Block ID does not match expected values")
 
-                executed_blocks.append(current_block_params["block_id"])
+                executed_blocks.append(current_block_info["block_id"])
                 socketio.emit("json", json.dumps(output_message), room=client)
                 logger.debug("emitted:" + json.dumps(output_message))
 

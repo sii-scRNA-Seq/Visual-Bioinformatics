@@ -198,7 +198,7 @@ def create_app(test_mode=False):
                     user_data, output_message = integration(user_data, current_block_info)
                 elif current_block_info["block_id"] == "runumap" and "pca" in executed_blocks:
                     user_data, output_message = run_umap(user_data, current_block_info)
-                elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "runumap"]:
+                elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "integration", "runumap"]:
                     raise BadRequestException("Blocks have an invalid order")
                 else:
                     raise BadRequestException("Block ID does not match expected values")

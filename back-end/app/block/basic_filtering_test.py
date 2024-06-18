@@ -1,6 +1,6 @@
 import pytest
-from basic_filtering import BasicFiltering
-from exception.missing_param_exception import MissingParametersException
+from block.basic_filtering import BasicFiltering
+from block.exception.missing_param_exception import MissingParametersException
 from anndata import AnnData
 from scipy.sparse import csr_matrix
 import numpy as np

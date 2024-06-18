@@ -18,12 +18,12 @@ import werkzeug.exceptions as we
 import yaml
 
 from exception.bad_request_exception import BadRequestException
-from exception.missing_param_exception import MissingParametersException
+from block.exception.missing_param_exception import MissingParametersException
 from exception.not_accepting_request_exception import NotAcceptingRequestException
 from exception.user_id_exception import UserIDException
 
-from basic_filtering import BasicFiltering
-from block_interface import adata_text
+from block.basic_filtering import BasicFiltering
+from block.block_interface import adata_text
 
 monkey.patch_all()
 

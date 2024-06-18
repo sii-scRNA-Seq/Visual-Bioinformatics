@@ -1,5 +1,5 @@
 from anndata import AnnData
-from exception.missing_param_exception import MissingParametersException
+from block.exception.missing_param_exception import MissingParametersException
 import json
 
 

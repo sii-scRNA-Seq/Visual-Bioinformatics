@@ -1,5 +1,5 @@
 from anndata import AnnData
-from block_interface import Block, adata_text
+from block.block_interface import Block, adata_text
 import scanpy as sc
 
 

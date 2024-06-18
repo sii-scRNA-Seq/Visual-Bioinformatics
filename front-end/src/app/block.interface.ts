@@ -5,7 +5,7 @@ export interface Block {
   parameters: Parameter[]
 }
 
-export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering' | 'variablegenes' | 'pca' | 'runumap';
+export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering' | 'variablegenes' | 'pca' | 'integration' | 'runumap';
 
 export interface Parameter {
   type: 'InputParameter' | 'SelectParameter'

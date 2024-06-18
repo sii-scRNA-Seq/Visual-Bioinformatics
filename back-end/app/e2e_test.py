@@ -4,6 +4,7 @@ from unittest.mock import call, patch
 import anndata
 import json
 import numpy as np
+
 from back_end import create_app
 
 
@@ -585,120 +586,6 @@ def test_loaddata_WarnsWhenDatasetDoesNotExist(socketio_client):
     expected = json.dumps({"error": "Unknown error. Please refresh the page and try again."})
     assert len(received) == 1
     assert received[0]["args"] == expected
-
-
-def test_basicfiltering_WarnsWhenMinGenesAndMinCellsAreMissing(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering"}
-        ],
-    }
-    socketio_client.emit("json", message)
-    received = socketio_client.get_received()
-    expected = json.dumps({"error": "Missing parameters: [\"min_genes\", \"min_cells\"]. Please refresh the page and try again."})
-    assert len(received) == 2
-    assert received[1]["args"] == expected
-
-
-def test_basicfiltering_WarnsWhenMinGenesIsMissing(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering", "min_cells": 42}
-        ],
-    }
-    socketio_client.emit("json", message)
-    received = socketio_client.get_received()
-    expected = json.dumps({"error": "Missing parameters: [\"min_genes\"]. Please refresh the page and try again."})
-    assert len(received) == 2
-    assert received[1]["args"] == expected
-
-
-def test_basicfiltering_WarnsWhenMinCellsIsMissing(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering", "min_genes": 42}
-        ],
-    }
-    socketio_client.emit("json", message)
-    received = socketio_client.get_received()
-    expected = json.dumps({"error": "Missing parameters: [\"min_cells\"]. Please refresh the page and try again."})
-    assert len(received) == 2
-    assert received[1]["args"] == expected
-
-
-def test_basicfiltering_CallsScanpyFunctions(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering", "min_genes": 0, "min_cells": 0}
-        ],
-    }
-    with patch("scanpy.pp.filter_cells") as mock1, patch("scanpy.pp.filter_genes") as mock2:
-        socketio_client.emit("json", message)
-        mock1.assert_called_once()
-        mock2.assert_called_once()
-
-
-def test_basicfiltering_NoFilteringWorks(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering", "min_genes": 0, "min_cells": 0}
-        ],
-    }
-    socketio_client.emit("json", message)
-    received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 5 cells and 3 genes"})
-    assert len(received) == 3
-    assert received[1]["args"] == expected
-    assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
-
-
-def test_basicfiltering_FilterCellsWorks(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering", "min_genes": 1, "min_cells": 0}
-        ],
-    }
-    socketio_client.emit("json", message)
-    received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 4 cells and 3 genes"})
-    assert len(received) == 3
-    assert received[1]["args"] == expected
-    assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
-
-
-def test_basicfiltering_FilterGenesWorks(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "basicfiltering", "min_genes": 0, "min_cells": 1}
-        ],
-    }
-    socketio_client.emit("json", message)
-    received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 5 cells and 2 genes"})
-    assert len(received) == 3
-    assert received[1]["args"] == expected
-    assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
 def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):

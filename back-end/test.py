@@ -718,6 +718,51 @@ def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):
     assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
+def test_qcplots_CorrectlyIdentifiesMTGenesForPbmc3k():
+    adata = get_AnnData()
+    adata.obs["total_counts"] = list(range(0, adata.n_obs))
+    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
+            {"block_id": "qcplots"}
+        ],
+    }
+    with patch("pandas.Index.str.startswith") as mock:
+        socketio_client.emit("json", message)
+        mock.assert_called_once_with('MT-')
+
+
+def test_qcplots_CorrectlyIdentifiesMTGenesForPfdogga():
+    adata = get_AnnData()
+    adata.obs["total_counts"] = list(range(0, adata.n_obs))
+    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pf_dogga"},
+            {"block_id": "qcplots"}
+        ],
+    }
+    with patch("pandas.Index.str.contains") as mock:
+        socketio_client.emit("json", message)
+        mock.assert_called_once_with('MIT')
+
+
+# TODO: Test case where qc_plots() is called with a non-existent dataset (should raise an Exception)
+
+
 def test_qcplots_CallsScanpyFunctions():
     adata = get_AnnData()
     adata.obs["total_counts"] = list(range(0, adata.n_obs))
@@ -819,6 +864,51 @@ def test_qcfiltering_WarnsWhenPctCountsMtIsMissing(socketio_client):
     expected = json.dumps({"error": "Missing parameters: [\"pct_counts_mt\"]. Please refresh the page and try again."})
     assert len(received) == 2
     assert received[1]["args"] == expected
+
+
+def test_qcfiltering_CorrectlyIdentifiesMTGenesForPbmc3k():
+    adata = get_AnnData()
+    adata.obs["total_counts"] = list(range(0, adata.n_obs))
+    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pbmc3k"},
+            {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 0, "pct_counts_mt": 0}
+        ],
+    }
+    with patch("pandas.Index.str.startswith") as mock:
+        socketio_client.emit("json", message)
+        mock.assert_called_once_with('MT-')
+
+
+def test_qcfiltering_CorrectlyIdentifiesMTGenesForPfdogga():
+    adata = get_AnnData()
+    adata.obs["total_counts"] = list(range(0, adata.n_obs))
+    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+        socketio, app = create_app(test_mode=True)
+        app.config.update({"TESTING": True})
+        socketio_client = socketio.test_client(app)
+
+    socketio_client.get_received()
+    message = {
+        "user_id": "bob",
+        "blocks": [
+            {"block_id": "loaddata", "dataset": "pf_dogga"},
+            {"block_id": "qcfiltering", "min_n_genes_by_counts": 0, "max_n_genes_by_counts": 0, "pct_counts_mt": 0}
+        ],
+    }
+    with patch("pandas.Index.str.contains") as mock:
+        socketio_client.emit("json", message)
+        mock.assert_called_once_with('MIT')
+
+
+# TODO: Test case where qc_filtering() is called with a non-existent dataset (should raise an Exception)
 
 
 def test_qcfiltering_CallsScanpyFunctions():

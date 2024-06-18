@@ -9,5 +9,6 @@ back-end/app/__pycache__/
 back-end/app/.pytest_cache/
 back-end/app/block/__pycache__/
 back-end/app/block/exception/__pycache__/
+back-end/app/data/
 back-end/app/exception/__pycache__/
 **/*.log

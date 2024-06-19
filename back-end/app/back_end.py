@@ -80,6 +80,10 @@ def create_app(test_mode=False):
         "pbmc3k": sc.datasets.pbmc3k(),
         "pf_dogga": sc.read_h5ad("../datasets/pf/MCA_PF_DOGGA.h5ad")
     }
+    dataset_info = [
+        {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells", "integration_obs": []},
+        {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum", "integration_obs": ["day"]}
+    ]
     logger.info("Finished loading raw data")
 
     app = Flask(__name__, static_folder="dist/scampi", static_url_path="/dist/scampi")
@@ -135,10 +139,7 @@ def create_app(test_mode=False):
     def get_dataset_info():
         logger.info("Sending dataset info")
         message = {
-            "datasets": [
-                {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells", "integration_obs": []},
-                {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum", "integration_obs": ["day"]}
-            ]
+            "datasets": dataset_info
         }
         return jsonify(message)
 
@@ -195,7 +196,7 @@ def create_app(test_mode=False):
                 elif current_block_info["block_id"] == "pca" and "variablegenes" in executed_blocks:
                     user_data, output_message = pca(user_data, current_block_info)
                 elif current_block_info["block_id"] == "integration" and "pca" in executed_blocks:
-                    user_data, output_message = integration(user_data, current_block_info)
+                    user_data, output_message = integration(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "runumap" and "pca" in executed_blocks:
                     user_data, output_message = run_umap(user_data, current_block_info)
                 elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "integration", "runumap"]:
@@ -361,13 +362,17 @@ def create_app(test_mode=False):
         }
         return user_data, message
 
-    def integration(user_data, block):
+    def integration(user_data, current_dataset, block):
         missing_parameters = get_missing_parameters(["observation"], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + json.dumps(missing_parameters))
             raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
 
         observation = str(block["observation"])
+
+        for dataset in dataset_info:
+            if current_dataset == dataset["key"] and observation not in dataset["integration_obs"]:
+                raise Exception("Selected dataset does not exist.")
 
         sc.external.pp.harmony_integrate(user_data, observation)
         user_data.obsm["X_pca"] = user_data.obsm["X_pca_harmony"]

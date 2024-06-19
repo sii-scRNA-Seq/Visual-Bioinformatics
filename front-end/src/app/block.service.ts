@@ -17,21 +17,25 @@ export class BlockService implements BlockServiceInterface {
 
   private datasetInfo: DatasetInfo[] = [];
 
-  private currentDataset: string | number = '';
+  private currentDataset: DatasetInfo = {
+    key: '',
+    title: '',
+    integration_obs: []
+  };
 
   constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) { 
     this.datasetInfoService.datasetInfo.subscribe(
       (res) => {
         this.datasetInfo = res;
         if (this.datasetInfo.length > 0) {
-          this.currentDataset = this.datasetInfo[0].key;
+          this.currentDataset = this.datasetInfo[0];
         }
       },
     );
     this.blocksOnCanvas.subscribe(
       (res) => {
         if (res.length > 0) {
-          this.currentDataset = res[0].parameters[0].value || '';
+          this.currentDataset = this.datasetInfo.find(dataset => dataset.key == res[0].parameters[0].value) || this.datasetInfo[0];
         }
       }
     );
@@ -52,7 +56,7 @@ export class BlockService implements BlockServiceInterface {
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset, options: options},
+              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset.key, options: options},
             ],
           }]);
         }
@@ -151,16 +155,12 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('integration') > -1) {
           let value: string = '';
           const options: Option[] = [];
-          this.datasetInfo.forEach( dataset => {
-            if (dataset.key == this.currentDataset && dataset.integration_obs.length > 0) {
-              value = dataset.integration_obs[0];
-              options.length = 0;
-              dataset.integration_obs.forEach( observation => {
-                options.push({key: observation, text: observation});
-              });
-            }
-          });
-
+          if (this.currentDataset.integration_obs.length > 0) {
+            value = this.currentDataset.integration_obs[0];
+            this.currentDataset.integration_obs.forEach( observation => {
+              options.push({key: observation, text: observation});
+            });
+          }
           blockList.push({
             blockId: 'integration',
             title: 'Integration',

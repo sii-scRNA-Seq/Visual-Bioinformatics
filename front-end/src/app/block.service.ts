@@ -35,7 +35,7 @@ export class BlockService implements BlockServiceInterface {
     this.blocksOnCanvas.subscribe(
       (res) => {
         if (res.length > 0) {
-          this.currentDataset = this.datasetInfo.find(dataset => dataset.key == res[0].parameters[0].value) || this.datasetInfo[0];
+          this.currentDataset = this.datasetInfo.find(dataset => dataset.key == res[0].parameters[0].value) || this.datasetInfo[0] || this.currentDataset;
         }
       }
     );

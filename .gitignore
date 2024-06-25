@@ -1,8 +1,4 @@
-.vscode/
-back-end/__pycache__/
-back-end/.pytest_cache/
-back-end/cache/
-back-end/back-end-cache/
-back-end/data/
-back-end/dist/
+**/__pycache__/
+**/.pytest_cache/
 **/*.log
+back-end/dist/

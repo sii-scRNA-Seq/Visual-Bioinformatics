@@ -67,6 +67,38 @@ describe('BlockService', () => {
       ]);
       expect(blocksOnCanvas[0].parameters[0].value).toBe('option1');
     });
+
+    it('should have the correct options on Integration block before loading DatasetInfo', async () => {
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      service.addBlock('variablegenes');
+      service.addBlock('pca');
+      service.addBlock('integration');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[3].blockId).toBe('integration');
+      expect(blocksOnCanvas[3].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[3].parameters[0].options).toEqual([]);
+      expect(blocksOnCanvas[3].parameters[0].value).toBe('');
+    });
+
+    it('should have the correct options on Integration block after loading DatasetInfo', async () => {
+      datasetInfoService.setDatasetInfo();
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      service.addBlock('variablegenes');
+      service.addBlock('pca');
+      service.addBlock('integration');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[3].blockId).toBe('integration');
+      expect(blocksOnCanvas[3].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[3].parameters[0].options).toEqual([
+        {key: 'ob1', text: 'ob1'},
+        {key: 'ob2', text: 'ob2'}
+      ]);
+      expect(blocksOnCanvas[3].parameters[0].value).toBe('ob1');
+    });
   });
 
   describe('addBlock', () => {
@@ -83,16 +115,18 @@ describe('BlockService', () => {
       service.addBlock('qcfiltering');
       service.addBlock('variablegenes');
       service.addBlock('pca');
+      service.addBlock('integration');
       service.addBlock('runumap');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(7);
+      expect(result.length).toBe(8);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('basicfiltering');
       expect(result[2].blockId).toBe('qcplots');
       expect(result[3].blockId).toBe('qcfiltering');
       expect(result[4].blockId).toBe('variablegenes');
       expect(result[5].blockId).toBe('pca');
-      expect(result[6].blockId).toBe('runumap');
+      expect(result[6].blockId).toBe('integration');
+      expect(result[7].blockId).toBe('runumap');
     });
 
     it('should add the given block when the ordering is valid - alternative order', async () => {
@@ -109,10 +143,12 @@ describe('BlockService', () => {
       service.addBlock('variablegenes');
       service.addBlock('pca');
       service.addBlock('pca');
+      service.addBlock('integration');
+      service.addBlock('integration');
       service.addBlock('runumap');
       service.addBlock('runumap');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(13);
+      expect(result.length).toBe(15);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('qcfiltering');
       expect(result[2].blockId).toBe('qcfiltering');
@@ -124,8 +160,10 @@ describe('BlockService', () => {
       expect(result[8].blockId).toBe('variablegenes');
       expect(result[9].blockId).toBe('pca');
       expect(result[10].blockId).toBe('pca');
-      expect(result[11].blockId).toBe('runumap');
-      expect(result[12].blockId).toBe('runumap');
+      expect(result[11].blockId).toBe('integration');
+      expect(result[12].blockId).toBe('integration');
+      expect(result[13].blockId).toBe('runumap');
+      expect(result[14].blockId).toBe('runumap');
     });
 
     it('should open snack bar when ordering is not valid - repeated load data', async() => {
@@ -152,6 +190,16 @@ describe('BlockService', () => {
       service.addBlock('loaddata');
       service.addBlock('pca');
       expect(spy).toHaveBeenCalledOnceWith('Principal Component Analysis block cannot be added.', 'Close', { duration: 5000 });
+    });
+
+    it('should open snack bar when ordering is not valid - integration before pca', async() => {
+      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
+      const spy = spyOn(snackBar, 'open');
+      service.addBlock('loaddata');
+      service.addBlock('variablegenes');
+      service.addBlock('integration');
+      expect(spy).toHaveBeenCalledOnceWith('Integration block cannot be added.', 'Close', { duration: 5000 });
     });
 
     it('should open snack bar when ordering is not valid - run umap before pca', async() => {

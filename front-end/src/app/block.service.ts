@@ -17,9 +17,27 @@ export class BlockService implements BlockServiceInterface {
 
   private datasetInfo: DatasetInfo[] = [];
 
-  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) {
+  private currentDataset: DatasetInfo = {
+    key: '',
+    title: '',
+    integration_obs: []
+  };
+
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) { 
     this.datasetInfoService.datasetInfo.subscribe(
-      (res) => { this.datasetInfo = res; },
+      (res) => {
+        this.datasetInfo = res;
+        if (this.datasetInfo.length > 0) {
+          this.currentDataset = this.datasetInfo[0];
+        }
+      },
+    );
+    this.blocksOnCanvas.subscribe(
+      (res) => {
+        if (res.length > 0) {
+          this.currentDataset = this.datasetInfo.find(dataset => dataset.key == res[0].parameters[0].value) || this.datasetInfo[0] || this.currentDataset;
+        }
+      }
     );
   }
 
@@ -33,16 +51,12 @@ export class BlockService implements BlockServiceInterface {
           this.datasetInfo.forEach( dataset => {
             options.push({key: dataset.key, text: dataset.title});
           });
-          let value: string = '';
-          if (this.datasetInfo.length > 0) {
-            value = this.datasetInfo[0].key;
-          }
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: value, options: options},
+              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset.key, options: options},
             ],
           }]);
         }
@@ -127,13 +141,38 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'pca',
             title: 'Principal Component Analysis',
-            possibleChildBlocks: ['pca', 'runumap'],
+            possibleChildBlocks: ['pca', 'integration', 'runumap'],
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
         }
         else {
           this.snackBar.open('Principal Component Analysis block cannot be added.', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'integration': {
+        if (lastBlock?.possibleChildBlocks.indexOf('integration') > -1) {
+          let value: string = '';
+          const options: Option[] = [];
+          if (this.currentDataset.integration_obs.length > 0) {
+            value = this.currentDataset.integration_obs[0];
+            this.currentDataset.integration_obs.forEach( observation => {
+              options.push({key: observation, text: observation});
+            });
+          }
+          blockList.push({
+            blockId: 'integration',
+            title: 'Integration',
+            possibleChildBlocks: ['integration', 'runumap'],
+            parameters: [
+              {type: 'SelectParameter', key: 'observation', text: 'Observation', value: value, options: options},
+            ],
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Integration block cannot be added.', 'Close', { duration: 5000 });
         }
         break;
       }

@@ -23,7 +23,11 @@ from exception.not_accepting_request_exception import NotAcceptingRequestExcepti
 from exception.user_id_exception import UserIDException
 
 from block.basic_filtering import BasicFiltering
+from block.integration import Integration
+
 from block.block_interface import adata_text
+
+from dataset_info import dataset_info
 
 monkey.patch_all()
 
@@ -135,10 +139,7 @@ def create_app(test_mode=False):
     def get_dataset_info():
         logger.info("Sending dataset info")
         message = {
-            "datasets": [
-                {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells"},
-                {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum"}
-            ]
+            "datasets": dataset_info
         }
         return jsonify(message)
 
@@ -194,9 +195,12 @@ def create_app(test_mode=False):
                     user_data, output_message = variable_genes(user_data, current_block_info)
                 elif current_block_info["block_id"] == "pca" and "variablegenes" in executed_blocks:
                     user_data, output_message = pca(user_data, current_block_info)
+                elif current_block_info["block_id"] == "integration" and "pca" in executed_blocks:
+                    block = Integration()
+                    user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "runumap" and "pca" in executed_blocks:
                     user_data, output_message = run_umap(user_data, current_block_info)
-                elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "runumap"]:
+                elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "integration", "runumap"]:
                     raise BadRequestException("Blocks have an invalid order")
                 else:
                     raise BadRequestException("Block ID does not match expected values")

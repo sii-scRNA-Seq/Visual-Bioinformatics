@@ -89,6 +89,7 @@ describe('OutputService', () => {
       backendSocketClient.sendRequest.calls.reset();
       const block: Block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [

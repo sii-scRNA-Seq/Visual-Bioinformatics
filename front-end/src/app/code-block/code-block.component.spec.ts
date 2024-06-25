@@ -48,6 +48,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with loaddata when remove button is clicked', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
@@ -64,6 +65,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with basicfiltering when remove button is clicked', () => {
       component.block = {
         blockId: 'basicfiltering',
+        blockUUID: '',
         title: 'Basic Filtering',
         possibleChildBlocks: [],
         parameters: [],
@@ -80,6 +82,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with qcplots when remove button is clicked', () => {
       component.block = {
         blockId: 'qcplots',
+        blockUUID: '',
         title: 'Quality Control Plots',
         possibleChildBlocks: [],
         parameters: [],
@@ -96,6 +99,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with qcfiltering when remove button is clicked', () => {
       component.block = {
         blockId: 'qcfiltering',
+        blockUUID: '',
         title: 'Quality Control Filtering',
         possibleChildBlocks: [],
         parameters: [],
@@ -112,6 +116,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with variablegenes when remove button is clicked', () => {
       component.block = {
         blockId: 'variablegenes',
+        blockUUID: '',
         title: 'Identify Highly Variable Genes',
         possibleChildBlocks: [],
         parameters: [],
@@ -128,6 +133,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with pca when remove button is clicked', () => {
       component.block = {
         blockId: 'pca',
+        blockUUID: '',
         title: 'Principal Component Analysis',
         possibleChildBlocks: [],
         parameters: [],
@@ -144,6 +150,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with integration when remove button is clicked', () => {
       component.block = {
         blockId: 'integration',
+        blockUUID: '',
         title: 'Integration',
         possibleChildBlocks: [],
         parameters: [],
@@ -160,6 +167,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with runumap when remove button is clicked', () => {
       component.block = {
         blockId: 'runumap',
+        blockUUID: '',
         title: 'Run UMAP',
         possibleChildBlocks: [],
         parameters: [],
@@ -176,6 +184,7 @@ describe('CodeBlockComponent', () => {
     it('should be available when blocks are not being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
@@ -189,6 +198,7 @@ describe('CodeBlockComponent', () => {
     it('should become disabled while blocks are being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
@@ -205,6 +215,7 @@ describe('CodeBlockComponent', () => {
     it('should become available once blocks have stopped being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
@@ -223,6 +234,7 @@ describe('CodeBlockComponent', () => {
     it('should be available when blocks are not being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
@@ -238,6 +250,7 @@ describe('CodeBlockComponent', () => {
     it('should become disabled while blocks are being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
@@ -256,6 +269,7 @@ describe('CodeBlockComponent', () => {
     it('should become available once blocks have stopped being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
@@ -276,6 +290,7 @@ describe('CodeBlockComponent', () => {
     it('should be available when blocks are not being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
@@ -294,6 +309,7 @@ describe('CodeBlockComponent', () => {
     it('should become disabled while blocks are being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [
@@ -315,6 +331,7 @@ describe('CodeBlockComponent', () => {
     it('should become available once blocks have stopped being executed', () => {
       component.block = {
         blockId: 'loaddata',
+        blockUUID: '',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [

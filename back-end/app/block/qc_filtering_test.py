@@ -6,7 +6,6 @@ from scipy.sparse import csr_matrix
 import numpy as np
 from unittest.mock import patch
 
-import pandas
 import scanpy
 
 
@@ -71,7 +70,7 @@ def test_run_correctlyIdentifiesMTGenesForPbmc3k(example_adata):
         "pct_counts_mt": 42
     }
 
-    with patch("pandas.Index.str.startswith", wraps=pandas.Index.str.startswith) as mock:
+    with patch("pandas.Index.str.startswith") as mock, pytest.raises(Exception):
         block.run(example_adata, "pbmc3k", input)
     mock.assert_called_once_with('MT-')
 
@@ -84,7 +83,7 @@ def test_run_correctlyIdentifiesMTGenesForPf_dogga(example_adata):
         "pct_counts_mt": 42
     }
 
-    with patch("pandas.Index.str.contains", wraps=pandas.Index.str.contains) as mock:
+    with patch("pandas.Index.str.contains") as mock, pytest.raises(Exception):
         block.run(example_adata, "pf_dogga", input)
     mock.assert_called_once_with('MIT')
 

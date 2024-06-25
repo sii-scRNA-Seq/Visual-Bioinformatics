@@ -48,7 +48,7 @@ describe('CodeBlockComponent', () => {
     it('blockService.removeBlock should be called with loaddata when remove button is clicked', () => {
       component.block = {
         blockId: 'loaddata',
-        blockUUID: '',
+        blockUUID: '1',
         title: 'Load Data',
         possibleChildBlocks: [],
         parameters: [],
@@ -59,13 +59,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('loaddata');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('1');
     });
 
     it('blockService.removeBlock should be called with basicfiltering when remove button is clicked', () => {
       component.block = {
         blockId: 'basicfiltering',
-        blockUUID: '',
+        blockUUID: '2',
         title: 'Basic Filtering',
         possibleChildBlocks: [],
         parameters: [],
@@ -76,13 +76,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('basicfiltering');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('2');
     });
 
     it('blockService.removeBlock should be called with qcplots when remove button is clicked', () => {
       component.block = {
         blockId: 'qcplots',
-        blockUUID: '',
+        blockUUID: '3',
         title: 'Quality Control Plots',
         possibleChildBlocks: [],
         parameters: [],
@@ -93,13 +93,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('qcplots');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('3');
     });
 
     it('blockService.removeBlock should be called with qcfiltering when remove button is clicked', () => {
       component.block = {
         blockId: 'qcfiltering',
-        blockUUID: '',
+        blockUUID: '4',
         title: 'Quality Control Filtering',
         possibleChildBlocks: [],
         parameters: [],
@@ -110,13 +110,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('qcfiltering');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('4');
     });
 
     it('blockService.removeBlock should be called with variablegenes when remove button is clicked', () => {
       component.block = {
         blockId: 'variablegenes',
-        blockUUID: '',
+        blockUUID: '5',
         title: 'Identify Highly Variable Genes',
         possibleChildBlocks: [],
         parameters: [],
@@ -127,13 +127,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('variablegenes');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('5');
     });
 
     it('blockService.removeBlock should be called with pca when remove button is clicked', () => {
       component.block = {
         blockId: 'pca',
-        blockUUID: '',
+        blockUUID: '6',
         title: 'Principal Component Analysis',
         possibleChildBlocks: [],
         parameters: [],
@@ -144,13 +144,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('pca');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('6');
     });
 
     it('blockService.removeBlock should be called with integration when remove button is clicked', () => {
       component.block = {
         blockId: 'integration',
-        blockUUID: '',
+        blockUUID: '7',
         title: 'Integration',
         possibleChildBlocks: [],
         parameters: [],
@@ -161,13 +161,13 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('integration');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('7');
     });
 
     it('blockService.removeBlock should be called with runumap when remove button is clicked', () => {
       component.block = {
         blockId: 'runumap',
-        blockUUID: '',
+        blockUUID: '8',
         title: 'Run UMAP',
         possibleChildBlocks: [],
         parameters: [],
@@ -178,7 +178,7 @@ describe('CodeBlockComponent', () => {
       const button = fixture.debugElement.query(By.css('button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
-      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('runumap');
+      expect(blockService.removeBlock).toHaveBeenCalledOnceWith('8');
     });
 
     it('should be available when blocks are not being executed', () => {

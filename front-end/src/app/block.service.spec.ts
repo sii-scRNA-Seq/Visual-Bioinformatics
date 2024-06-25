@@ -222,7 +222,7 @@ describe('BlockService', () => {
       service.addBlock('loaddata');
       const blocks1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks1.length).toBe(1);
-      service.removeBlock('loaddata');
+      service.removeBlock(blocks1[0].blockUUID);
       const results1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(results1.length).toBe(0);
     });
@@ -232,7 +232,7 @@ describe('BlockService', () => {
       service.addBlock('basicfiltering');
       const blocks2 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks2.length).toBe(2);
-      service.removeBlock('basicfiltering');
+      service.removeBlock(blocks2[1].blockUUID);
       const results2 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(results2.length).toBe(1);
       expect(results2[0].blockId).toBe('loaddata');
@@ -243,7 +243,7 @@ describe('BlockService', () => {
       service.addBlock('basicfiltering');
       const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(2);
-      service.removeBlock('loaddata');
+      service.removeBlock(blocks[0].blockUUID);
       const results = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(results.length).toBe(0);
     });

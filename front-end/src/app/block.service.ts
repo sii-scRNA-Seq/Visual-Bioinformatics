@@ -206,10 +206,10 @@ export class BlockService implements BlockServiceInterface {
     }
   }
 
-  removeBlock(id: BlockId): void {
+  removeBlock(uuid: string): void {
     const newBlockList: Block[] = [];
     for (let i = 0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      if (this.blocksOnCanvas$.getValue()[i].blockId == id) {
+      if (this.blocksOnCanvas$.getValue()[i].blockUUID == uuid) {
         this.blocksOnCanvas$.next(newBlockList);
         break;
       }

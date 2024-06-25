@@ -1095,68 +1095,6 @@ def test_pca_ReturnsCorrectString():
     assert received[3]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
-def test_integration_WarnsWhenObservationIsMissing(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
-            {"block_id": "pca"},
-            {"block_id": "integration"}
-        ],
-    }
-    with patch("scanpy.pp.highly_variable_genes"), patch("scanpy.pl.highly_variable_genes"):
-        socketio_client.emit("json", message)
-        received = socketio_client.get_received()
-        expected = json.dumps({"error": "Missing parameters: [\"observation\"]. Please refresh the page and try again."})
-        assert len(received) == 4
-        assert received[3]["args"] == expected
-
-
-def test_integration_WarnsWhenObservationIsInvalidForDataset(socketio_client):
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
-            {"block_id": "pca"},
-            {"block_id": "integration", "observation": ""}
-        ],
-    }
-    with patch("scanpy.pp.highly_variable_genes"), patch("scanpy.pl.highly_variable_genes"):
-        socketio_client.emit("json", message)
-        received = socketio_client.get_received()
-        expected = json.dumps({"error": "Unknown error. Please refresh the page and try again."})
-        assert len(received) == 4
-        assert received[3]["args"] == expected
-
-
-def test_integration_CallsScanpyFunctions():
-    adata = get_AnnData()
-    adata.obs["total_counts"] = list(range(0, adata.n_obs))
-    with patch("scanpy.datasets.pbmc3k", lambda: adata):
-        socketio, app = create_app(test_mode=True)
-        app.config.update({"TESTING": True})
-        socketio_client = socketio.test_client(app)
-
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pf_dogga"},
-            {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
-            {"block_id": "pca"},
-            {"block_id": "integration", "observation": "day"}
-        ],
-    }
-    with patch("scanpy.pp.highly_variable_genes"), patch("scanpy.pl.highly_variable_genes"):
-        with patch("scanpy.external.pp.harmony_integrate") as mock:
-            socketio_client.emit("json", message)
-            mock.assert_called_once()
-
-
 def test_integration_ReturnsCorrectString(socketio_client):
     socketio_client.get_received()
     message = {

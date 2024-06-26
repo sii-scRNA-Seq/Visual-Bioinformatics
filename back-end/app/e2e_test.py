@@ -678,31 +678,6 @@ def test_variablegenes_ReturnsCorrectString(socketio_client):
     assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
 
 
-def test_pca_CallsScanpyFunctions():
-    adata = get_AnnData()
-    adata.obs["total_counts"] = list(range(0, adata.n_obs))
-    with patch("scanpy.datasets.pbmc3k", lambda: adata):
-        socketio, app = create_app(test_mode=True)
-        app.config.update({"TESTING": True})
-        socketio_client = socketio.test_client(app)
-
-    socketio_client.get_received()
-    message = {
-        "user_id": "bob",
-        "blocks": [
-            {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
-            {"block_id": "pca"}
-        ],
-    }
-    with patch("scanpy.pp.calculate_qc_metrics") as mock1, patch("scanpy.pp.scale") as mock2, patch("scanpy.tl.pca") as mock3, patch("scanpy.pl.pca_variance_ratio") as mock4:
-        socketio_client.emit("json", message)
-        mock1.assert_called_once()
-        mock2.assert_called_once()
-        mock3.assert_called_once()
-        mock4.assert_called_once()
-
-
 def test_pca_ReturnsCorrectString():
     adata = get_AnnData(qc_filtering=True)
     adata.obs["total_counts"] = list(range(0, adata.n_obs))

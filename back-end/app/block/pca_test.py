@@ -1,6 +1,5 @@
 import pytest
 from block.pca import PCA
-from block.exception.missing_param_exception import MissingParametersException
 from anndata import AnnData
 from scipy.sparse import csr_matrix
 import numpy as np

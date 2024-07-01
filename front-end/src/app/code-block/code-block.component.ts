@@ -21,6 +21,6 @@ export class CodeBlockComponent {
   }
 
   removeBlock(): void {
-    this.blockService.removeBlock(this.block.blockId);
+    this.blockService.removeBlock(this.block.blockUUID);
   }
 }

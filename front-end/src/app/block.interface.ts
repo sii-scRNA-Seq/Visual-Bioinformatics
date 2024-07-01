@@ -1,5 +1,6 @@
 export interface Block {
   blockId: BlockId
+  blockUUID: string
   title: string
   possibleChildBlocks: BlockId[]
   parameters: Parameter[]

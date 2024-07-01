@@ -1,6 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Block, BlockId, Option } from './block.interface';
 import { BlockServiceInterface } from './block.service.interface';
@@ -53,6 +54,7 @@ export class BlockService implements BlockServiceInterface {
           });
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
+            blockUUID: uuidv4(),
             title: 'Load Data',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
@@ -69,6 +71,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('basicfiltering') > -1) {
           blockList.push({
             blockId: 'basicfiltering',
+            blockUUID: uuidv4(),
             title: 'Basic Filtering',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
@@ -87,6 +90,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('qcplots') > -1) {
           blockList.push({
             blockId: 'qcplots',
+            blockUUID: uuidv4(),
             title: 'Quality Control Plots',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [],
@@ -102,6 +106,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           blockList.push({
             blockId: 'qcfiltering',
+            blockUUID: uuidv4(),
             title: 'Quality Control Filtering',
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
@@ -121,6 +126,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('variablegenes') > -1) {
           blockList.push({
             blockId: 'variablegenes',
+            blockUUID: uuidv4(),
             title: 'Identify Highly Variable Genes',
             possibleChildBlocks: ['variablegenes', 'pca'],
             parameters: [
@@ -140,6 +146,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('pca') > -1) {
           blockList.push({
             blockId: 'pca',
+            blockUUID: uuidv4(),
             title: 'Principal Component Analysis',
             possibleChildBlocks: ['pca', 'integration', 'runumap'],
             parameters: [],
@@ -163,6 +170,7 @@ export class BlockService implements BlockServiceInterface {
           }
           blockList.push({
             blockId: 'integration',
+            blockUUID: uuidv4(),
             title: 'Integration',
             possibleChildBlocks: ['integration', 'runumap'],
             parameters: [
@@ -180,6 +188,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('runumap') > -1) {
           blockList.push({
             blockId: 'runumap',
+            blockUUID: uuidv4(),
             title: 'Run UMAP',
             possibleChildBlocks: ['runumap'],
             parameters: [
@@ -197,10 +206,10 @@ export class BlockService implements BlockServiceInterface {
     }
   }
 
-  removeBlock(id: BlockId): void {
+  removeBlock(uuid: string): void {
     const newBlockList: Block[] = [];
     for (let i = 0; i < this.blocksOnCanvas$.getValue().length; i++) {
-      if (this.blocksOnCanvas$.getValue()[i].blockId == id) {
+      if (this.blocksOnCanvas$.getValue()[i].blockUUID == uuid) {
         this.blocksOnCanvas$.next(newBlockList);
         break;
       }

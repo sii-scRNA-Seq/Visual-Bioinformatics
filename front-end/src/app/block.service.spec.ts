@@ -218,34 +218,60 @@ describe('BlockService', () => {
       datasetInfoService.setDatasetInfo();
     });
 
-    it('should remove the only block when called for only one block', async () => {
+    it('should remove the only block when called for the only block', async () => {
       service.addBlock('loaddata');
-      const blocks1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks1.length).toBe(1);
-      service.removeBlock('loaddata');
-      const results1 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(results1.length).toBe(0);
+      let blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(1);
+      service.removeBlock(blocks[0].blockUUID);
+      blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(0);
     });
 
     it('should remove the final block when called for the final block', async () => {
       service.addBlock('loaddata');
       service.addBlock('basicfiltering');
-      const blocks2 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocks2.length).toBe(2);
-      service.removeBlock('basicfiltering');
-      const results2 = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(results2.length).toBe(1);
-      expect(results2[0].blockId).toBe('loaddata');
+      let blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(2);
+      service.removeBlock(blocks[1].blockUUID);
+      blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(1);
+      expect(blocks[0].blockId).toBe('loaddata');
     });
 
     it('should remove all blocks after the given block when called for a non-final block', async () => {
       service.addBlock('loaddata');
       service.addBlock('basicfiltering');
-      const blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      service.addBlock('basicfiltering');
+      let blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(3);
+      service.removeBlock(blocks[1].blockUUID);
+      blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(1);
+      expect(blocks[0].blockId).toBe('loaddata');
+    });
+
+    it('should remove only the given version when multiple blocks share a blockId', async () => {
+      service.addBlock('loaddata');
+      service.addBlock('basicfiltering');
+      service.addBlock('basicfiltering');
+      let blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(3);
+      service.removeBlock(blocks[2].blockUUID);
+      blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocks.length).toBe(2);
-      service.removeBlock('loaddata');
-      const results = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(results.length).toBe(0);
+      expect(blocks[0].blockId).toBe('loaddata');
+      expect(blocks[1].blockId).toBe('basicfiltering');
+    });
+
+    it('should have no effect when no blocks have the given blockUUID', async () => {
+      service.addBlock('loaddata');
+      service.addBlock('basicfiltering');
+      service.addBlock('basicfiltering');
+      let blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(3);
+      service.removeBlock('ImpossibleUUID');
+      blocks = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocks.length).toBe(3);
     });
   });
 

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { BlockId } from '../block.interface';
+import { Block, BlockId } from '../block.interface';
 import { BlockService } from '../block.service';
 import { OutputService } from '../output.service';
 
@@ -11,9 +11,13 @@ import { OutputService } from '../output.service';
 })
 
 export class BlockLibraryComponent {
+  blockList: Block[] = [];
   executingBlocks: boolean = false;
 
   constructor(private blockService: BlockService, private outputService: OutputService) {
+    this.blockService.blocksOnCanvas.subscribe(
+      (res) => { this.blockList = res; },
+    );
     this.outputService.executingBlocks.subscribe(
       (res) => { this.executingBlocks = res; },
     );

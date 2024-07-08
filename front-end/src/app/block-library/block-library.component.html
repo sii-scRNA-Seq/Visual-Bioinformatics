@@ -5,35 +5,35 @@
     <mat-card-content>
         <p class="left-right-container">
             Load Data
-            <button class="add-button" id="loaddata" (click)='addBlock("loaddata")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="loaddata" (click)='addBlock("loaddata")' [disabled]="executingBlocks || blockList.length !== 0">Add</button>
         </p>
         <p class="left-right-container">
             Basic Filtering
-            <button class="add-button" id="basicfiltering" (click)='addBlock("basicfiltering")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="basicfiltering" (click)='addBlock("basicfiltering")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('basicfiltering') < 0">Add</button>
         </p>
         <p class="left-right-container">
             Quality Control Plots
-            <button class="add-button" id="qcplots" (click)='addBlock("qcplots")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="qcplots" (click)='addBlock("qcplots")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('qcplots') < 0">Add</button>
         </p>
         <p class="left-right-container">
             Quality Control Filtering
-            <button class="add-button" id="qcfiltering" (click)='addBlock("qcfiltering")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="qcfiltering" (click)='addBlock("qcfiltering")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('qcfiltering') < 0">Add</button>
         </p>
         <p class="left-right-container">
             Identify Highly Variable Genes
-            <button class="add-button" id="variablegenes" (click)='addBlock("variablegenes")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="variablegenes" (click)='addBlock("variablegenes")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('variablegenes') < 0">Add</button>
         </p>
         <p class="left-right-container">
             Principal Component Analysis
-            <button class="add-button" id="pca" (click)='addBlock("pca")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="pca" (click)='addBlock("pca")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('pca') < 0">Add</button>
         </p>
         <p class="left-right-container">
             Integration
-            <button class="add-button" id="integration" (click)='addBlock("integration")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="integration" (click)='addBlock("integration")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('integration') < 0">Add</button>
         </p>
         <p class="left-right-container">
             Run UMAP
-            <button class="add-button" id="runumap" (click)='addBlock("runumap")' [disabled]="executingBlocks">Add</button>
+            <button class="add-button" id="runumap" (click)='addBlock("runumap")' [disabled]="executingBlocks || blockList.length === 0 || blockList[blockList.length - 1].possibleChildBlocks.indexOf('runumap') < 0">Add</button>
         </p>
     </mat-card-content>
 </mat-card>

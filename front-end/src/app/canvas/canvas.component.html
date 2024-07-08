@@ -7,7 +7,7 @@
             <mat-spinner class="run-spinner" [diameter]="32"></mat-spinner>
         </ng-template>
         <ng-template #elseBlock>
-            <button class="run-button" (click)='executeBlocks()' [disabled]="blockList.length == 0">Run</button>
+            <button class="run-button" (click)='executeBlocks()' [disabled]="blockList.length === 0">Run</button>
         </ng-template>
     </mat-card-header>
     <mat-card-content>

@@ -143,12 +143,14 @@ describe('BlockService', () => {
       service.addBlock('variablegenes');
       service.addBlock('pca');
       service.addBlock('pca');
+      service.addBlock('runumap');
+      service.addBlock('runumap');
       service.addBlock('integration');
       service.addBlock('integration');
       service.addBlock('runumap');
       service.addBlock('runumap');
       const result = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(result.length).toBe(15);
+      expect(result.length).toBe(17);
       expect(result[0].blockId).toBe('loaddata');
       expect(result[1].blockId).toBe('qcfiltering');
       expect(result[2].blockId).toBe('qcfiltering');
@@ -160,10 +162,12 @@ describe('BlockService', () => {
       expect(result[8].blockId).toBe('variablegenes');
       expect(result[9].blockId).toBe('pca');
       expect(result[10].blockId).toBe('pca');
-      expect(result[11].blockId).toBe('integration');
-      expect(result[12].blockId).toBe('integration');
-      expect(result[13].blockId).toBe('runumap');
-      expect(result[14].blockId).toBe('runumap');
+      expect(result[11].blockId).toBe('runumap');
+      expect(result[12].blockId).toBe('runumap');
+      expect(result[13].blockId).toBe('integration');
+      expect(result[14].blockId).toBe('integration');
+      expect(result[15].blockId).toBe('runumap');
+      expect(result[16].blockId).toBe('runumap');
     });
 
     it('should open snack bar when ordering is not valid - repeated load data', async() => {

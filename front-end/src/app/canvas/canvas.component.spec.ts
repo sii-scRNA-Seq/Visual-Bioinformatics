@@ -7,6 +7,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BlockService } from '../block.service';
 import { CanvasComponent } from './canvas.component';
+import { CodeBlockComponent } from '../code-block/code-block.component';
 import { MockBlockService } from '../mock-block.service';
 import { OutputService } from '../output.service';
 import { MockOutputService } from '../mock-output.service';
@@ -17,7 +18,10 @@ describe('CanvasComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CanvasComponent],
+      declarations: [
+        CanvasComponent,
+        CodeBlockComponent
+      ],
       imports: [
         HttpClientTestingModule,
         MatCardModule,
@@ -46,6 +50,43 @@ describe('CanvasComponent', () => {
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.executeBlocks).toHaveBeenCalledTimes(1);
+    });
+
+    it('should be disabled when no blocks have been added', () => {
+      component.executingBlocks = false;
+      component.blockList = [];
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(true);
+    });
+
+    it('should not be disabled when blocks have been added', () => {
+      component.executingBlocks = false;
+      component.blockList = [{
+        blockId: 'loaddata',
+        blockUUID: '',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [],
+      }];
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(false);
+    });
+
+    it('should be disabled when all blocks have been removed', () => {
+      component.executingBlocks = false;
+      component.blockList = [];
+      fixture.detectChanges();
+      component.blockList = [{
+        blockId: 'loaddata',
+        blockUUID: '',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [],
+      }];
+      fixture.detectChanges();
+      component.blockList = [];
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(true);
     });
 
     it('should be available when blocks are not being executed', () => {

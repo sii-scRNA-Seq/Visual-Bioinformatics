@@ -46,7 +46,7 @@ describe('CanvasComponent', () => {
     it ('should call blockService.executeBlocks when run button is clicked', () => {
       const blockService: BlockService = TestBed.inject(BlockService);
       spyOn(blockService, 'executeBlocks');
-      const button = fixture.debugElement.query(By.css('button'));
+      const button = fixture.debugElement.query(By.css('#run-button'));
       button.triggerEventHandler('click', {});
       fixture.detectChanges();
       expect(blockService.executeBlocks).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe('CanvasComponent', () => {
       component.executingBlocks = false;
       component.blockList = [];
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#run-button')).nativeElement.disabled).toEqual(true);
     });
 
     it('should not be disabled when blocks have been added', () => {
@@ -69,7 +69,7 @@ describe('CanvasComponent', () => {
         parameters: [],
       }];
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(false);
+      expect(fixture.debugElement.query(By.css('#run-button')).nativeElement.disabled).toEqual(false);
     });
 
     it('should be disabled when all blocks have been removed', () => {
@@ -86,31 +86,31 @@ describe('CanvasComponent', () => {
       fixture.detectChanges();
       component.blockList = [];
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button')).nativeElement.disabled).toEqual(true);
+      expect(fixture.debugElement.query(By.css('#run-button')).nativeElement.disabled).toEqual(true);
     });
 
     it('should be available when blocks are not being executed', () => {
       component.executingBlocks = false;
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button'))).not.toBeNull();
+      expect(fixture.debugElement.query(By.css('#run-button'))).not.toBeNull();
     });
     
     it('should not be available while blocks are being executed', () => {
       component.executingBlocks = false;
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button'))).not.toBeNull();
+      expect(fixture.debugElement.query(By.css('#run-button'))).not.toBeNull();
       component.executingBlocks = true;
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button'))).toBeNull();
+      expect(fixture.debugElement.query(By.css('#run-button'))).toBeNull();
     });
 
     it ('should become available once blocks have stopped being executed', () => {
       component.executingBlocks = true;
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button'))).toBeNull();
+      expect(fixture.debugElement.query(By.css('#run-button'))).toBeNull();
       component.executingBlocks = false;
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('button'))).not.toBeNull();
+      expect(fixture.debugElement.query(By.css('#run-button'))).not.toBeNull();
     });
   });
 

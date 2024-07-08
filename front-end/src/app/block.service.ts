@@ -190,7 +190,7 @@ export class BlockService implements BlockServiceInterface {
             blockId: 'runumap',
             blockUUID: uuidv4(),
             title: 'Run UMAP',
-            possibleChildBlocks: ['runumap'],
+            possibleChildBlocks: ['integration', 'runumap'],
             parameters: [
               {type: 'InputParameter', key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
               {type: 'InputParameter', key: 'n_pcs', text: 'Number of Principal Components', value: 40},

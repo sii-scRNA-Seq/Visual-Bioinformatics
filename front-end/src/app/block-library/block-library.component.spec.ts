@@ -53,12 +53,14 @@ describe('BlockLibraryComponent', () => {
 
     it ('should be available when blocks are not being executed', () => {
       component.executingBlocks = false;
+      component.updateDisabledBlocks();
       fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('#loaddata')).nativeElement.disabled).toEqual(false);
     });
 
     it ('should become disabled while blocks are being executed', () => {
       component.executingBlocks = true;
+      component.updateDisabledBlocks();
       fixture.detectChanges();
       const blockIDs: string[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
       blockIDs.forEach(blockID => {
@@ -68,15 +70,18 @@ describe('BlockLibraryComponent', () => {
 
     it ('should become available once blocks have stopped being executed', () => {
       component.executingBlocks = true;
+      component.updateDisabledBlocks();
       fixture.detectChanges();
       component.executingBlocks = false;
+      component.updateDisabledBlocks();
       fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('#loaddata')).nativeElement.disabled).toEqual(false);
     });
 
     it ('should only allow Load Data block to be added when canvas is empty', () => {
-      component.executingBlocks = false;
       component.blockList = [];
+      component.executingBlocks = false;
+      component.updateDisabledBlocks();
       fixture.detectChanges();
       const enabledBlocks: string[] = ['loaddata'];
       const disabledBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
@@ -89,7 +94,6 @@ describe('BlockLibraryComponent', () => {
     });
 
     it ('should only allow possible child blocks of the last block on the canvas to be added when canvas is not empty', () => {
-      component.executingBlocks = false;
       component.blockList = [{
         blockId: 'loaddata',
         blockUUID: '',
@@ -97,6 +101,8 @@ describe('BlockLibraryComponent', () => {
         possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
         parameters: [],
       }];
+      component.executingBlocks = false;
+      component.updateDisabledBlocks();
       fixture.detectChanges();
       const enabledBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'];
       const disabledBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];

@@ -12,6 +12,7 @@ import { OutputService } from '../output.service';
 
 export class BlockLibraryComponent {
   blockList: Block[] = [];
+
   executingBlocks: boolean = false;
 
   blockLibrary: LibraryInfo[] = [

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 
 import { BlockId } from '../block.interface';
 import { BlockLibraryComponent } from './block-library.component';
@@ -85,12 +85,12 @@ describe('BlockLibraryComponent', () => {
       component.executingBlocks = false;
       component.updateDisabledBlocks();
       fixture.detectChanges();
-      const enabledBlocks: string[] = ['loaddata'];
-      const disabledBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
-      enabledBlocks.forEach(blockID => {
+      const availableBlocks: string[] = ['loaddata'];
+      const unavailableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
+      availableBlocks.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
       });
-      disabledBlocks.forEach(blockID => {
+      unavailableBlocks.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
       });
     });
@@ -106,13 +106,36 @@ describe('BlockLibraryComponent', () => {
       component.executingBlocks = false;
       component.updateDisabledBlocks();
       fixture.detectChanges();
-      const enabledBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'];
-      const disabledBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
-      enabledBlocks.forEach(blockID => {
+      const availableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'];
+      const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
+      availableBlocks.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
       });
-      disabledBlocks.forEach(blockID => {
+      unavailableBlocks.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
+      });
+    });
+
+    it ('should have a tooltip enabled on the add button only when a block cannot be added', () => {
+      component.blockList = [{
+        blockId: 'loaddata',
+        blockUUID: '',
+        title: 'Load Data',
+        possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
+        parameters: [],
+      }];
+      component.executingBlocks = false;
+      component.updateDisabledBlocks();
+      fixture.detectChanges();
+      const availableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'];
+      const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
+      availableBlocks.forEach(blockID => {
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(true);
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added');
+      });
+      unavailableBlocks.forEach(blockID => {
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added');
       });
     });
   });

@@ -52,6 +52,18 @@ export class BlockLibraryComponent {
       this.blockLibrary[i].disabled = this.executingBlocks || this.blockList.length === 0 || this.blockList[this.blockList.length - 1].possibleChildBlocks.indexOf(this.blockLibrary[i].blockId) < 0;
     }
   }
+
+  getTooltipMessage(): string {
+    if (this.executingBlocks) {
+      return 'Blocks cannot be added while blocks are being executed';
+    } else if (this.blockList.length == 0) {
+      return 'This block cannot be added to an empty canvas';
+    } else if (this.blockList[this.blockList.length - 1].title.match('^[AEIOU].*')) {
+      return 'This block cannot be immediately below an ' + this.blockList[this.blockList.length - 1].title + ' block';
+    } else {
+      return 'This block cannot be immediately below a ' + this.blockList[this.blockList.length - 1].title + ' block';
+    }
+  }
 }
 
 interface LibraryInfo {

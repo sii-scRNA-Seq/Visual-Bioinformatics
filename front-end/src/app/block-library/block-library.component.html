@@ -7,7 +7,7 @@
             <li *ngFor="let block of blockLibrary">
                 <p class="left-right-container">
                     {{block.title}}
-                    <button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled" matTooltip="This block cannot be added" [matTooltipDisabled]="!block.disabled">Add</button>
+                    <button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled" [matTooltip]="getTooltipMessage()" [matTooltipDisabled]="!block.disabled">Add</button>
                 </p>
             </li>
         </ul>

@@ -131,11 +131,66 @@ describe('BlockLibraryComponent', () => {
       const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
       availableBlocks.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(true);
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added');
       });
       unavailableBlocks.forEach(blockID => {
         expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added');
+      });
+    });
+
+    it ('should have an appropriate tooltip message when blocks are being executed', () => {
+      component.blockList = [];
+      component.executingBlocks = true;
+      component.updateDisabledBlocks();
+      fixture.detectChanges();
+      const blockIDs: BlockId[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
+      blockIDs.forEach(blockID => {
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('Blocks cannot be added while blocks are being executed.');
+      });
+    });
+
+    it ('should have an appropriate tooltip message when no blocks have been added', () => {
+      component.blockList = [];
+      component.executingBlocks = false;
+      component.updateDisabledBlocks();
+      fixture.detectChanges();
+      const unavailableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
+      unavailableBlocks.forEach(blockID => {
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added to an empty canvas.');
+      });
+    });
+
+    it ('should have an appropriate tooltip message when a block cannot follow the existing final block (which starts with a vowel)', () => {
+      component.blockList = [{
+        blockId: 'loaddata',
+        blockUUID: '',
+        title: 'A Vowel',
+        possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
+        parameters: [],
+      }];
+      component.executingBlocks = false;
+      component.updateDisabledBlocks();
+      fixture.detectChanges();
+      const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
+      unavailableBlocks.forEach(blockID => {
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be immediately below an A Vowel block.');
+      });
+    });
+
+    it ('should have an appropriate tooltip message when a block cannot follow the existing final block (which does not start with a vowel)', () => {
+      component.blockList = [{
+        blockId: 'loaddata',
+        blockUUID: '',
+        title: 'Not A Vowel',
+        possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
+        parameters: [],
+      }];
+      component.executingBlocks = false;
+      component.updateDisabledBlocks();
+      fixture.detectChanges();
+      const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
+      unavailableBlocks.forEach(blockID => {
+        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be immediately below a Not A Vowel block.');
       });
     });
   });

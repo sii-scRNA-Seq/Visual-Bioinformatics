@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { BlockId } from '../block.interface';
 import { BlockLibraryComponent } from './block-library.component';
@@ -22,6 +23,7 @@ describe('BlockLibraryComponent', () => {
         HttpClientTestingModule,
         MatCardModule,
         MatSnackBarModule,
+        MatTooltipModule
       ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },

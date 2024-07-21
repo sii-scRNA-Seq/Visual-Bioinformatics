@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Block, BlockId, Option } from './block.interface';
+import {Block, BlockId, BlockIdToTitleMap, Option} from './block.interface';
 import { BlockServiceInterface } from './block.service.interface';
 import { DatasetInfo } from './dataset-info';
 import { DatasetInfoService } from './dataset-info.service';
@@ -24,7 +24,7 @@ export class BlockService implements BlockServiceInterface {
     integration_obs: []
   };
 
-  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) { 
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) {
     this.datasetInfoService.datasetInfo.subscribe(
       (res) => {
         this.datasetInfo = res;
@@ -44,7 +44,7 @@ export class BlockService implements BlockServiceInterface {
 
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
-    const lastBlock = blockList[blockList.length-1];
+    const lastBlock: Block = blockList[blockList.length-1];
     switch (id) {
       case 'loaddata': {
         if (blockList.length == 0) {
@@ -55,7 +55,7 @@ export class BlockService implements BlockServiceInterface {
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             blockUUID: uuidv4(),
-            title: 'Load Data',
+            title: BlockIdToTitleMap.loaddata,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
               {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset.key, options: options},
@@ -72,7 +72,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'basicfiltering',
             blockUUID: uuidv4(),
-            title: 'Basic Filtering',
+            title: BlockIdToTitleMap.basicfiltering,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
               {type: 'InputParameter', key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
@@ -91,7 +91,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'qcplots',
             blockUUID: uuidv4(),
-            title: 'Quality Control Plots',
+            title: BlockIdToTitleMap.qcplots,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [],
           });
@@ -107,7 +107,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'qcfiltering',
             blockUUID: uuidv4(),
-            title: 'Quality Control Filtering',
+            title: BlockIdToTitleMap.qcfiltering,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
               {type: 'InputParameter', key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
@@ -127,7 +127,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'variablegenes',
             blockUUID: uuidv4(),
-            title: 'Identify Highly Variable Genes',
+            title: BlockIdToTitleMap.variablegenes,
             possibleChildBlocks: ['variablegenes', 'pca'],
             parameters: [
               {type: 'InputParameter', key: 'min_mean', text: 'Minimum Mean', value: 0.0125},
@@ -147,7 +147,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'pca',
             blockUUID: uuidv4(),
-            title: 'Principal Component Analysis',
+            title: BlockIdToTitleMap.pca,
             possibleChildBlocks: ['pca', 'integration', 'runumap'],
             parameters: [],
           });
@@ -171,7 +171,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'integration',
             blockUUID: uuidv4(),
-            title: 'Integration',
+            title: BlockIdToTitleMap.integration,
             possibleChildBlocks: ['integration', 'runumap'],
             parameters: [
               {type: 'SelectParameter', key: 'observation', text: 'Observation', value: value, options: options},
@@ -189,7 +189,7 @@ export class BlockService implements BlockServiceInterface {
           blockList.push({
             blockId: 'runumap',
             blockUUID: uuidv4(),
-            title: 'Run UMAP',
+            title: BlockIdToTitleMap.runumap,
             possibleChildBlocks: ['integration', 'runumap'],
             parameters: [
               {type: 'InputParameter', key: 'n_neighbors', text: 'Number of Neighbours', value: 10},

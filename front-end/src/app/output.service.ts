@@ -30,7 +30,7 @@ export class OutputService implements OutputServiceInterface {
     this.backendSocketClient.listen((msg: string) => {
       const res = JSON.parse(msg);
       if (res.text) {
-        const processedResponse: Output = {};
+        const processedResponse: Output = {blockId: res.blockId};
         processedResponse.text = res.text;
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
@@ -40,7 +40,7 @@ export class OutputService implements OutputServiceInterface {
         const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
         const objectURL = 'data:image/png;base64,' + processedString;
         const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
-        const processedResponse: Output = {};
+        const processedResponse: Output = {blockId: res.blockId};
         processedResponse.img = newImg;
         processedResponse.alttext = res.alttext;
         const outputs = this.outputs$.getValue();
@@ -61,7 +61,7 @@ export class OutputService implements OutputServiceInterface {
   resetOutputs(): void {
     this.outputs$.next([]);
   }
-  
+
   executeBlocks(blocks: Block[]): void {
     if (this.userId === null) {
       this.snackBar.open('No User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });
@@ -75,7 +75,7 @@ export class OutputService implements OutputServiceInterface {
           block[blocks[i].parameters[j].key] = blocks[i].parameters[j].value;
         }
         newBlocksArray.push(block);
-      }    
+      }
       const request: Request = {
         'user_id': this.userId,
         'blocks': newBlocksArray,

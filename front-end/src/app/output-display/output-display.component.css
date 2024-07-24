@@ -4,6 +4,6 @@ mat-card img {
     height: 80%;
 }
 
-mat-card {
+mat-card.container-card {
     overflow: scroll;
 }

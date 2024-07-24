@@ -568,7 +568,10 @@ def test_loaddata_AnnDataIsLoadedCorrectlyForPbmc3k(socketio_client):
     }
     socketio_client.emit("json", message)
     received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 5 cells and 3 genes"})
+    expected = json.dumps({
+        "text": "Object with: 5 cells and 3 genes",
+        "blockId": "loaddata"
+    })
     assert len(received) == 2
     assert received[0]["args"] == expected
     assert received[1]["args"] == json.dumps({"end_connection": "end_connection"})
@@ -584,7 +587,10 @@ def test_loaddata_AnnDataIsLoadedCorrectlyForPfdogga(socketio_client):
     }
     socketio_client.emit("json", message)
     received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 5 cells and 3 genes"})
+    expected = json.dumps({
+        "text": "Object with: 5 cells and 3 genes",
+        "blockId": "loaddata"
+    })
     assert len(received) == 2
     assert received[0]["args"] == expected
     assert received[1]["args"] == json.dumps({"end_connection": "end_connection"})
@@ -616,7 +622,10 @@ def test_basicfiltering_FilterCellsAndFilterGenesWork(socketio_client):
     }
     socketio_client.emit("json", message)
     received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 4 cells and 2 genes"})
+    expected = json.dumps({
+        "text": "Object with: 4 cells and 2 genes",
+        "blockId": "basicfiltering"
+    })
     assert len(received) == 3
     assert received[1]["args"] == expected
     assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
@@ -655,7 +664,10 @@ def test_qcfiltering_FilterByAllParametersWorks():
     }
     socketio_client.emit("json", message)
     received = socketio_client.get_received()
-    expected = json.dumps({"text": "Object with: 3 cells and 4 genes"})
+    expected = json.dumps({
+        "text": "Object with: 3 cells and 4 genes",
+        "blockId": "qcfiltering"
+    })
     assert len(received) == 3
     assert received[1]["args"] == expected
     assert received[2]["args"] == json.dumps({"end_connection": "end_connection"})
@@ -719,7 +731,10 @@ def test_integration_ReturnsCorrectString(socketio_client):
         with patch("scanpy.external.pp.harmony_integrate"), patch("anndata.AnnData.obsm"):
             socketio_client.emit("json", message)
             received = socketio_client.get_received()
-            expected = json.dumps({"text": "Object with: 5 cells and 3 genes"})
+            expected = json.dumps({
+                "text": "Object with: 5 cells and 3 genes",
+                "blockId": "integration"
+            })
             assert len(received) == 5
             assert received[3]["args"] == expected
             assert received[4]["args"] == json.dumps({"end_connection": "end_connection"})

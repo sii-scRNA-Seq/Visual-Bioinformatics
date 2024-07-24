@@ -212,6 +212,8 @@ def create_app(test_mode=False):
                     raise BadRequestException("Block ID does not match expected values")
 
                 executed_blocks.append(current_block_info["block_id"])
+
+                output_message["blockId"] = current_block_info["block_id"]
                 socketio.emit("json", json.dumps(output_message), room=client)
                 logger.debug("emitted:" + json.dumps(output_message))
 

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 
 import { Output } from './../output';
-import { OutputService } from './../output.service';
+import { OutputService } from '../output.service';
+import {BlockIdToTitleMap} from '../block.interface';
 
 @Component({
   selector: 'app-output-display',
@@ -10,6 +11,9 @@ import { OutputService } from './../output.service';
 })
 
 export class OutputDisplayComponent {
+
+  BlockIdToTitleMap = BlockIdToTitleMap;
+
   outputList: Output[] = [];
 
   constructor(private outputService: OutputService) {

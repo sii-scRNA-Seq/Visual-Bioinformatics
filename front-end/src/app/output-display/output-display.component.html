@@ -1,15 +1,17 @@
-<mat-card style="height: calc(85vh - 20px)">
+<mat-card style="height: calc(85vh - 20px)" class="container-card">
     <mat-card-header>
         <mat-card-title>Output</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <ul class="no-bullets">
-            <li *ngFor="let outputItem of outputList">
-                <div *ngIf="outputItem.text">
-                    {{outputItem.text}}
-                </div>
-                <img mat-card-image *ngIf="outputItem.img" [src]="outputItem.img" [alt]="outputItem.alttext"/>
-            </li>
-        </ul>
+
+    <mat-card *ngFor="let outputItem of outputList">
+      <mat-card-header>
+        <mat-card-title>{{BlockIdToTitleMap[outputItem.blockId]}}</mat-card-title>
+      </mat-card-header>
+      <img mat-card-image *ngIf="outputItem.img" [src]="outputItem.img" [alt]="outputItem.alttext"/>
+      <mat-card-content>
+        <span *ngIf="outputItem.text">{{outputItem.text}}</span>
+      </mat-card-content>
+    </mat-card>
     </mat-card-content>
 </mat-card>

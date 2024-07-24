@@ -16,12 +16,15 @@ export class MockOutputService implements OutputServiceInterface {
 
   private readonly outputs$: BehaviorSubject<Output[]> = new BehaviorSubject<Output[]> ([]);
   readonly outputs: Observable<Output[]> = this.outputs$.asObservable();
-  
+
   resetOutputs(): void { }
 
   executeBlocks(blocks: Block[]): void {
     const outputs = [];
-    const output: Output = {text: 'Some text here'};
+    const output: Output = {
+      blockId: 'loaddata',
+      text: 'Some text here'
+    };
     outputs.push(output);
     this.outputs$.next(outputs);
   }

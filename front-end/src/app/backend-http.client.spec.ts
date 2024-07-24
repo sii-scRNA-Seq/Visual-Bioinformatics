@@ -1,8 +1,9 @@
 import { fakeAsync, tick, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BackendHttpClient } from './backend-http.client';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('BackendHttpClient', () => {
   let service: BackendHttpClient;
@@ -10,11 +11,9 @@ describe('BackendHttpClient', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule,
-      ]
-    });
+    imports: [MatSnackBarModule],
+    providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
     service = TestBed.inject(BackendHttpClient);
     snackBar = TestBed.inject(MatSnackBar);
   });

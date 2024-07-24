@@ -1,6 +1,6 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -11,6 +11,7 @@ import { CodeBlockComponent } from '../code-block/code-block.component';
 import { MockBlockService } from '../mock-block.service';
 import { OutputService } from '../output.service';
 import { MockOutputService } from '../mock-output.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -18,21 +19,20 @@ describe('CanvasComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [
+    declarations: [
         CanvasComponent,
         CodeBlockComponent
-      ],
-      imports: [
-        HttpClientTestingModule,
-        MatCardModule,
+    ],
+    imports: [MatCardModule,
         MatProgressSpinnerModule,
-        MatSnackBarModule,
-      ],
-      providers: [
+        MatSnackBarModule],
+    providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
     fixture = TestBed.createComponent(CanvasComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

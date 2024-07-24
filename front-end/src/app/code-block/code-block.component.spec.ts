@@ -3,7 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +14,7 @@ import { CodeBlockComponent } from './code-block.component';
 import { MockBlockService } from '../mock-block.service';
 import { OutputService } from '../output.service';
 import { MockOutputService } from '../mock-output.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -21,21 +22,20 @@ describe('CodeBlockComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CodeBlockComponent],
-      imports: [
-        BrowserAnimationsModule,
-        HttpClientTestingModule,
+    declarations: [CodeBlockComponent],
+    imports: [BrowserAnimationsModule,
         MatCardModule,
         MatFormFieldModule,
         MatSelectModule,
         MatSnackBarModule,
-        FormsModule
-      ],
-      providers: [
+        FormsModule],
+    providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
   });

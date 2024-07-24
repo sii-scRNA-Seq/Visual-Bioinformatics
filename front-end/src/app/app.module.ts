@@ -18,23 +18,23 @@ import { OutputDisplayComponent } from './output-display/output-display.componen
 import { SOCKET, socket } from './socket';
 
 @NgModule({ declarations: [
-        AppComponent,
-        BlockLibraryComponent,
-        CanvasComponent,
-        CodeBlockComponent,
-        OutputDisplayComponent,
-    ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatProgressSpinnerModule,
-        MatSelectModule,
-        MatSnackBarModule,
-        MatTooltipModule], providers: [
-        { provide: SOCKET, useValue: socket },
-        provideHttpClient(withInterceptorsFromDi()),
-    ] })
+  AppComponent,
+  BlockLibraryComponent,
+  CanvasComponent,
+  CodeBlockComponent,
+  OutputDisplayComponent,
+],
+bootstrap: [AppComponent], imports: [BrowserModule,
+  BrowserAnimationsModule,
+  FormsModule,
+  MatCardModule,
+  MatFormFieldModule,
+  MatProgressSpinnerModule,
+  MatSelectModule,
+  MatSnackBarModule,
+  MatTooltipModule], providers: [
+  { provide: SOCKET, useValue: socket },
+  provideHttpClient(withInterceptorsFromDi()),
+] })
 
 export class AppModule { }

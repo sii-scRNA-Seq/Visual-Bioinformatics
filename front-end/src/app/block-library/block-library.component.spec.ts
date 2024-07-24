@@ -19,17 +19,17 @@ describe('BlockLibraryComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    declarations: [BlockLibraryComponent],
-    imports: [MatCardModule,
+      declarations: [BlockLibraryComponent],
+      imports: [MatCardModule,
         MatSnackBarModule,
         MatTooltipModule],
-    providers: [
+      providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ]
+    });
     fixture = TestBed.createComponent(BlockLibraryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -12,9 +12,9 @@ describe('UserIdService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [MatSnackBarModule],
-    providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-});
+      imports: [MatSnackBarModule],
+      providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+    });
   });
 
   it('should be created', () => {

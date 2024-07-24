@@ -19,20 +19,20 @@ describe('CanvasComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    declarations: [
+      declarations: [
         CanvasComponent,
         CodeBlockComponent
-    ],
-    imports: [MatCardModule,
+      ],
+      imports: [MatCardModule,
         MatProgressSpinnerModule,
         MatSnackBarModule],
-    providers: [
+      providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ]
+    });
     fixture = TestBed.createComponent(CanvasComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

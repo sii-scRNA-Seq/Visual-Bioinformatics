@@ -16,15 +16,15 @@ describe('OutputDisplayComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    declarations: [OutputDisplayComponent],
-    imports: [MatCardModule,
+      declarations: [OutputDisplayComponent],
+      imports: [MatCardModule,
         MatSnackBarModule],
-    providers: [
+      providers: [
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting()
-    ]
-});
+      ]
+    });
     fixture = TestBed.createComponent(OutputDisplayComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

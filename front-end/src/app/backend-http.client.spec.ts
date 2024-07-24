@@ -11,9 +11,9 @@ describe('BackendHttpClient', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [MatSnackBarModule],
-    providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-});
+      imports: [MatSnackBarModule],
+      providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+    });
     service = TestBed.inject(BackendHttpClient);
     snackBar = TestBed.inject(MatSnackBar);
   });

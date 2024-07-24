@@ -20,15 +20,15 @@ describe('OutputService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [BrowserAnimationsModule,
+      imports: [BrowserAnimationsModule,
         MatSnackBarModule],
-    providers: [
+      providers: [
         { provide: UserIdService, useClass: MockUserIdService },
         { provide: BackendSocketClient, useValue: clientMock },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting()
-    ]
-});
+      ]
+    });
     snackBar = TestBed.inject(MatSnackBar);
     sanitizer = TestBed.inject(DomSanitizer);
   });

@@ -22,20 +22,20 @@ describe('CodeBlockComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    declarations: [CodeBlockComponent],
-    imports: [BrowserAnimationsModule,
+      declarations: [CodeBlockComponent],
+      imports: [BrowserAnimationsModule,
         MatCardModule,
         MatFormFieldModule,
         MatSelectModule,
         MatSnackBarModule,
         FormsModule],
-    providers: [
+      providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ]
+    });
     fixture = TestBed.createComponent(CodeBlockComponent);
     component = fixture.componentInstance;
   });

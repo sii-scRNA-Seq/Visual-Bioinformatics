@@ -14,19 +14,19 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 describe('AppComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({
     declarations: [
-        AppComponent,
-        BlockLibraryComponent,
-        CanvasComponent,
-        OutputDisplayComponent,
+      AppComponent,
+      BlockLibraryComponent,
+      CanvasComponent,
+      OutputDisplayComponent,
     ],
     imports: [MatCardModule,
-        MatSnackBarModule],
+      MatSnackBarModule],
     providers: [
-        { provide: SOCKET, useClass: MockSocket },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
+      { provide: SOCKET, useClass: MockSocket },
+      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClientTesting(),
     ]
-}));
+  }));
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);

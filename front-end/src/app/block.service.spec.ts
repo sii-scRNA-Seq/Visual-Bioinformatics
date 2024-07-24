@@ -18,15 +18,15 @@ describe('BlockService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [BrowserAnimationsModule,
+      imports: [BrowserAnimationsModule,
         MatSnackBarModule],
-    providers: [
+      providers: [
         { provide: OutputService, useClass: MockOutputService },
         { provide: DatasetInfoService, useClass: MockDatasetInfoService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ]
+    });
     service = TestBed.inject(BlockService);
     snackBar = TestBed.inject(MatSnackBar);
     datasetInfoService = TestBed.inject(DatasetInfoService);

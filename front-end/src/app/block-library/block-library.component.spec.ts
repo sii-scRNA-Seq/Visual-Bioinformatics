@@ -45,7 +45,7 @@ describe('BlockLibraryComponent', () => {
       spyOn(blockService, 'addBlock');
       const blockIDs: BlockId[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
       blockIDs.forEach(blockID => {
-        const button = fixture.debugElement.query(By.css('#'.concat(blockID)));
+        const button = fixture.debugElement.query(By.css(`#${blockID}`));
         button.triggerEventHandler('click', {});
         fixture.detectChanges();
         expect(blockService.addBlock).toHaveBeenCalledWith(blockID);
@@ -66,7 +66,7 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       const blockIDs: string[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
       blockIDs.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).nativeElement.disabled).toEqual(true);
       });
     });
 
@@ -88,10 +88,10 @@ describe('BlockLibraryComponent', () => {
       const availableBlocks: string[] = ['loaddata'];
       const unavailableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
       availableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).nativeElement.disabled).toEqual(false);
       });
       unavailableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).nativeElement.disabled).toEqual(true);
       });
     });
 
@@ -109,10 +109,10 @@ describe('BlockLibraryComponent', () => {
       const availableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'];
       const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
       availableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).nativeElement.disabled).toEqual(false);
       });
       unavailableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).nativeElement.disabled).toEqual(true);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).nativeElement.disabled).toEqual(true);
       });
     });
 
@@ -130,10 +130,10 @@ describe('BlockLibraryComponent', () => {
       const availableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'];
       const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
       availableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(true);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(true);
       });
       unavailableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
       });
     });
 
@@ -144,8 +144,8 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       const blockIDs: BlockId[] = ['loaddata', 'basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
       blockIDs.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('Blocks cannot be added while blocks are being executed.');
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).message).toEqual('Blocks cannot be added while blocks are being executed.');
       });
     });
 
@@ -156,7 +156,7 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       const unavailableBlocks: string[] = ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes', 'pca', 'integration', 'runumap'];
       unavailableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added to an empty canvas.');
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be added to an empty canvas.');
       });
     });
 
@@ -173,7 +173,7 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
       unavailableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be immediately below an A Vowel block.');
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be immediately below an A Vowel block.');
       });
     });
 
@@ -190,7 +190,7 @@ describe('BlockLibraryComponent', () => {
       fixture.detectChanges();
       const unavailableBlocks: string[] = ['loaddata', 'pca', 'integration', 'runumap'];
       unavailableBlocks.forEach(blockID => {
-        expect(fixture.debugElement.query(By.css('#'.concat(blockID))).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be immediately below a Not A Vowel block.');
+        expect(fixture.debugElement.query(By.css(`#${blockID}`)).injector.get<MatTooltip>(MatTooltip).message).toEqual('This block cannot be immediately below a Not A Vowel block.');
       });
     });
   });

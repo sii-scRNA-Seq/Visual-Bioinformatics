@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { Block, BlockId } from '../block.interface';
 import { BlockService } from '../block.service';
@@ -10,7 +10,7 @@ import { OutputService } from '../output.service';
   styleUrls: ['./block-library.component.css'],
 })
 
-export class BlockLibraryComponent {
+export class BlockLibraryComponent implements OnInit {
   blockList: Block[] = [];
 
   executingBlocks: boolean = false;
@@ -27,7 +27,6 @@ export class BlockLibraryComponent {
   ];
 
   constructor(private blockService: BlockService, private outputService: OutputService) {
-    this.updateDisabledBlocks();
     this.blockService.blocksOnCanvas.subscribe(
       (res) => { 
         this.blockList = res;
@@ -40,6 +39,10 @@ export class BlockLibraryComponent {
         this.updateDisabledBlocks();
       },
     );
+  }
+
+  ngOnInit() {
+    this.updateDisabledBlocks();
   }
 
   addBlock(id: BlockId): void {

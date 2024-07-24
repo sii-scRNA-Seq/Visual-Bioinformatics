@@ -3,13 +3,9 @@
         <mat-card-title>Block Library</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <ul class="no-bullets">
-            <li *ngFor="let block of blockLibrary">
-                <p class="left-right-container">
-                    {{block.title}}
-                    <button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled" [matTooltip]="getTooltipMessage()" [matTooltipDisabled]="!block.disabled">Add</button>
-                </p>
-            </li>
-        </ul>
+        <p *ngFor="let block of blockLibrary" class="left-right-container">
+            {{block.title}}
+            <button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled" [matTooltip]="getTooltipMessage()" [matTooltipDisabled]="!block.disabled">Add</button>
+        </p>
     </mat-card-content>
 </mat-card>

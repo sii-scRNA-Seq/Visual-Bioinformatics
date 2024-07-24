@@ -15,7 +15,7 @@ export class BlockLibraryComponent implements OnInit {
 
   executingBlocks: boolean = false;
 
-  blockLibrary: LibraryInfo[] = [
+  blockLibrary: BlockStatus[] = [
     {blockId: 'loaddata', title: 'Load Data', disabled: true},
     {blockId: 'basicfiltering', title: 'Basic Filtering', disabled: true},
     {blockId: 'qcplots', title: 'Quality Control Plots', disabled: true},
@@ -69,7 +69,7 @@ export class BlockLibraryComponent implements OnInit {
   }
 }
 
-interface LibraryInfo {
+interface BlockStatus {
   blockId: BlockId
   title: string
   disabled: boolean

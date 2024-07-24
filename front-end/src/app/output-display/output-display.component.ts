@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Output } from './../output';
-import { OutputService } from './../output.service';
+import { OutputService } from '../output.service';
 import {BlockIdToTitleMap} from '../block.interface';
 
 @Component({

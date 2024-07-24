@@ -30,8 +30,10 @@ export class OutputService implements OutputServiceInterface {
     this.backendSocketClient.listen((msg: string) => {
       const res = JSON.parse(msg);
       if (res.text) {
-        const processedResponse: Output = {blockId: res.blockId};
-        processedResponse.text = res.text;
+        const processedResponse: Output = {
+          blockId: res.blockId,
+          text: res.text
+        };
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
         this.outputs$.next(outputs);
@@ -40,9 +42,11 @@ export class OutputService implements OutputServiceInterface {
         const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
         const objectURL = 'data:image/png;base64,' + processedString;
         const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
-        const processedResponse: Output = {blockId: res.blockId};
-        processedResponse.img = newImg;
-        processedResponse.alttext = res.alttext;
+        const processedResponse: Output = {
+          blockId: res.blockId,
+          img: newImg,
+          alttext: res.alttext
+        };
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
         this.outputs$.next(outputs);

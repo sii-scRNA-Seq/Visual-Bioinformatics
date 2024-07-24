@@ -21,7 +21,10 @@ export class MockOutputService implements OutputServiceInterface {
 
   executeBlocks(blocks: Block[]): void {
     const outputs = [];
-    const output: Output = {blockId: 'loaddata', text: 'Some text here'};
+    const output: Output = {
+      blockId: 'loaddata',
+      text: 'Some text here'
+    };
     outputs.push(output);
     this.outputs$.next(outputs);
   }

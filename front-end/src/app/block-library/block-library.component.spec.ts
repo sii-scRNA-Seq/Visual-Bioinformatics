@@ -1,6 +1,6 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
@@ -11,6 +11,7 @@ import { BlockService } from '../block.service';
 import { MockBlockService } from '../mock-block.service';
 import { MockOutputService } from '../mock-output.service';
 import { OutputService } from '../output.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -19,16 +20,15 @@ describe('BlockLibraryComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [BlockLibraryComponent],
-      imports: [
-        HttpClientTestingModule,
-        MatCardModule,
+      imports: [MatCardModule,
         MatSnackBarModule,
-        MatTooltipModule
-      ],
+        MatTooltipModule],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
-      ],
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ]
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);
     component = fixture.componentInstance;

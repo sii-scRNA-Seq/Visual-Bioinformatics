@@ -1,6 +1,6 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { first, firstValueFrom } from 'rxjs';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
@@ -9,6 +9,7 @@ import { DatasetInfoService } from './dataset-info.service';
 import { MockDatasetInfoService } from './mock-dataset-info.service';
 import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('BlockService', () => {
   let service: BlockService;
@@ -17,15 +18,14 @@ describe('BlockService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        BrowserAnimationsModule,
-        HttpClientTestingModule,
-        MatSnackBarModule,
-      ],
+      imports: [BrowserAnimationsModule,
+        MatSnackBarModule],
       providers: [
         { provide: OutputService, useClass: MockOutputService },
         { provide: DatasetInfoService, useClass: MockDatasetInfoService },
-      ],
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ]
     });
     service = TestBed.inject(BlockService);
     snackBar = TestBed.inject(MatSnackBar);

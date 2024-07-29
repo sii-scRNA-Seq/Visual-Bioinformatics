@@ -2,7 +2,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import { first, firstValueFrom } from 'rxjs';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BackendSocketClient } from './backend-socket.client';
@@ -10,6 +10,7 @@ import { Block } from './block.interface';
 import { MockUserIdService } from './mock-user-id.service';
 import { OutputService } from './output.service';
 import { UserIdService } from './user-id.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('OutputService', () => {
   let service: OutputService;
@@ -19,15 +20,14 @@ describe('OutputService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        BrowserAnimationsModule,
-        HttpClientTestingModule,
-        MatSnackBarModule,
-      ], 
+      imports: [BrowserAnimationsModule,
+        MatSnackBarModule],
       providers: [
         { provide: UserIdService, useClass: MockUserIdService },
-        { provide: BackendSocketClient, useValue: clientMock}
-      ],
+        { provide: BackendSocketClient, useValue: clientMock },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()
+      ]
     });
     snackBar = TestBed.inject(MatSnackBar);
     sanitizer = TestBed.inject(DomSanitizer);

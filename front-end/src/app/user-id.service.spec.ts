@@ -1,20 +1,19 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 
 import { UserIdService } from './user-id.service';
 import { first, firstValueFrom } from 'rxjs';
 import { BackendHttpClient } from './backend-http.client';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('UserIdService', () => {
   let service: UserIdService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ 
-        HttpClientTestingModule,
-        MatSnackBarModule,
-      ]
+      imports: [MatSnackBarModule],
+      providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
     });
   });
 

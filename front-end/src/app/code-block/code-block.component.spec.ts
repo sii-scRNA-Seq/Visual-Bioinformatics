@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -23,12 +24,15 @@ describe('CodeBlockComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [CodeBlockComponent],
-      imports: [BrowserAnimationsModule,
+      imports: [
+        BrowserAnimationsModule,
         MatCardModule,
         MatFormFieldModule,
+        MatIconModule,
         MatSelectModule,
         MatSnackBarModule,
-        FormsModule],
+        FormsModule
+      ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },

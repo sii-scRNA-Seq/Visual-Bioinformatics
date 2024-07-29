@@ -3,6 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -27,6 +28,7 @@ import { SOCKET, socket } from './socket';
 bootstrap: [AppComponent], imports: [BrowserModule,
   BrowserAnimationsModule,
   FormsModule,
+  MatButtonModule,
   MatCardModule,
   MatFormFieldModule,
   MatProgressSpinnerModule,

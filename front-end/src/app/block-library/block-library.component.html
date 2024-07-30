@@ -5,7 +5,9 @@
     <mat-card-content>
         <p *ngFor="let block of blockLibrary" class="left-right-container">
             {{block.title}}
-            <button mat-raised-button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled" [matTooltip]="getTooltipMessage()" [matTooltipDisabled]="!block.disabled">Add</button>
+            <span [matTooltip]="getTooltipMessage()" [matTooltipDisabled]="!block.disabled">
+                <button mat-raised-button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled">Add</button>
+            </span>
         </p>
     </mat-card-content>
 </mat-card>

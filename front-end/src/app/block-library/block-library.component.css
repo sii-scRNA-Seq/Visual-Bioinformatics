@@ -6,6 +6,10 @@
     align-items: center;
 }
 
+.help-icon {
+    vertical-align: bottom;
+}
+
 .add-button {
     display: inline-flex;
     align-items: center;

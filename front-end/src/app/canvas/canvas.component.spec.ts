@@ -2,6 +2,7 @@ import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -23,9 +24,12 @@ describe('CanvasComponent', () => {
         CanvasComponent,
         CodeBlockComponent
       ],
-      imports: [MatCardModule,
+      imports: [
+        MatCardModule,
+        MatIconModule,
         MatProgressSpinnerModule,
-        MatSnackBarModule],
+        MatSnackBarModule
+      ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },

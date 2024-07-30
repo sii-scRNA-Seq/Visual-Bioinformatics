@@ -4,13 +4,12 @@
 }
 
 .remove-button {
-    font-size: 12px;
-    height: 20px;
+    transform: scale(0.8);
     margin-left: auto; 
     margin-right: 0;
-    line-height: 18px;
     display: inline-flex;
     align-items: center;
+    margin-bottom: 10px;
 }
 
 .left-right-container {

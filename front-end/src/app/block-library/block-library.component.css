@@ -7,7 +7,15 @@
 }
 
 .help-icon {
-    vertical-align: bottom;
+    vertical-align: middle;
+    font-size: 20px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.help-icon:hover {
+    vertical-align: middle;
+    font-size: 24px;
+    color: black;
 }
 
 .add-button {

@@ -19,4 +19,21 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
 - Run `npm run build`
 
 ## Starting the application in production
-...
+
+* Update package.json version number to release version
+* Log into the production server (scampi.mvls.gla.ac.uk)
+* Pull latest changes from `main` branch
+* NPM install in frontend folder
+* screen -r to reconnect to scampi session
+* shut down server (ctrl-c)
+* `$ conda deactivate`
+* ctrl+a+d to come out of session
+* `$ conda env remove scampi`
+* `$ conda env create -f back-end/environment.yml`
+* rebuild frontend
+* copy into backend for serving
+* Update `back_end.py` to run in production mode
+* `$ screen -r`
+* `$ python back-end/app/back_end.py`
+* `ctrl+a+d`
+* Verify on https://scampi.mvls.gla.ac.uk

@@ -41,3 +41,6 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
 * `$ python back_end.py`
 * `ctrl+a+d`
 * Verify on https://scampi.mvls.gla.ac.uk
+* Create a tag with release version
+  * `$ git tag x.x.x`
+  * `$ git push origin x.x.x`

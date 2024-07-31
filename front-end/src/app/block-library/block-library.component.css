@@ -14,8 +14,10 @@
 
 .help-icon:hover {
     vertical-align: middle;
-    font-size: 24px;
+    font-size: 20px;
     color: black;
+    transform: scale(1.2);
+    transform-origin: center;
 }
 
 .add-button {

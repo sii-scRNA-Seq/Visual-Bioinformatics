@@ -6,6 +6,20 @@
     align-items: center;
 }
 
+.help-icon {
+    vertical-align: middle;
+    font-size: 20px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.help-icon:hover {
+    vertical-align: middle;
+    font-size: 20px;
+    color: black;
+    transform: scale(1.2);
+    transform-origin: center;
+}
+
 .add-button {
     display: inline-flex;
     align-items: center;

@@ -16,14 +16,14 @@ export class BlockLibraryComponent implements OnInit {
   executingBlocks: boolean = false;
 
   blockLibrary: BlockStatus[] = [
-    {blockId: 'loaddata', title: 'Load Data', disabled: true},
-    {blockId: 'basicfiltering', title: 'Basic Filtering', disabled: true},
-    {blockId: 'qcplots', title: 'Quality Control Plots', disabled: true},
-    {blockId: 'qcfiltering', title: 'Quality Controls Filtering', disabled: true},
-    {blockId: 'variablegenes', title: 'Identify Highly Variable Genes', disabled: true},
-    {blockId: 'pca', title: 'Principal Component Analysis', disabled: true},
-    {blockId: 'integration', title: 'Integration', disabled: true},
-    {blockId: 'runumap', title: 'Run UMAP', disabled: true}
+    {blockId: 'loaddata', title: 'Load Data', disabled: true, helpText: 'This step allows us to read our data into SCAMPI ready for analysis!'},
+    {blockId: 'basicfiltering', title: 'Basic Filtering', disabled: true, helpText: 'Remove cells and genes that are not expressing much'},
+    {blockId: 'qcplots', title: 'Quality Control Plots', disabled: true, helpText: 'Plot some metrics to see if we have any outliers in our data'},
+    {blockId: 'qcfiltering', title: 'Quality Controls Filtering', disabled: true, helpText: 'Apply a threshold to remove outliers that could be doublets or stressed/dying cells'},
+    {blockId: 'variablegenes', title: 'Identify Highly Variable Genes', disabled: true, helpText: 'This selects a set of genes that explain the most variation in our data and explain most of the underlying biology'},
+    {blockId: 'pca', title: 'Principal Component Analysis', disabled: true, helpText: 'PCA helps us group genes together in principle components that explain the biological differences in our data'},
+    {blockId: 'integration', title: 'Integration', disabled: true, helpText: 'Unwanted sources of variation need to be corrected for, revealing differences that are driven by the biology and not batch effects'},
+    {blockId: 'runumap', title: 'Run UMAP', disabled: true, helpText: 'This allows us to visualise our complex data in a simpler way'}
   ];
 
   constructor(private blockService: BlockService, private outputService: OutputService) {
@@ -73,4 +73,5 @@ interface BlockStatus {
   blockId: BlockId
   title: string
   disabled: boolean
+  helpText: string
 }

@@ -4,7 +4,10 @@
     </mat-card-header>
     <mat-card-content>
         <p *ngFor="let block of blockLibrary" class="left-right-container">
-            {{block.title}}
+            <span>
+                <mat-icon fontIcon="help" class="help-icon" id="{{ block.blockId + '-help'}}" [matTooltip]="block.helpText"></mat-icon>
+                {{block.title}}
+            </span>
             <span [matTooltip]="getTooltipMessage()" [matTooltipDisabled]="!block.disabled">
                 <button mat-raised-button class="add-button" [id]="block.blockId" (click)="addBlock(block.blockId)" [disabled]="block.disabled">Add</button>
             </span>

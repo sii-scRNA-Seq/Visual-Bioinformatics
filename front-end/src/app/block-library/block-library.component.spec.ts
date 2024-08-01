@@ -194,4 +194,27 @@ describe('BlockLibraryComponent', () => {
       });
     });
   });
+
+  describe('Help text for blocks', () => {
+    it ('should have an appropriate tooltip message for each block when user hovers over icon', () => {
+      interface BlockHelpText {
+        id: BlockId
+        text: string
+      }
+      const blockHelpTexts: BlockHelpText[] = [
+        {id: 'loaddata', text: 'This step allows us to read our data into SCAMPI ready for analysis!'},
+        {id: 'basicfiltering', text: 'Remove cells and genes that are not expressing much'},
+        {id: 'qcplots', text: 'Plot some metrics to see if we have any outliers in our data'},
+        {id: 'qcfiltering', text: 'Apply a threshold to remove outliers that could be doublets or stressed/dying cells'},
+        {id: 'variablegenes', text: 'This selects a set of genes that explain the most variation in our data and explain most of the underlying biology'},
+        {id: 'pca', text: 'PCA helps us group genes together in principle components that explain the biological differences in our data'},
+        {id: 'integration', text: 'Unwanted sources of variation need to be corrected for, revealing differences that are driven by the biology and not batch effects'},
+        {id: 'runumap', text: 'This allows us to visualise our complex data in a simpler way'}
+      ];
+      blockHelpTexts.forEach(block => {
+        expect(fixture.debugElement.query(By.css(`#${block.id}-help`)).injector.get<MatTooltip>(MatTooltip).disabled).toEqual(false);
+        expect(fixture.debugElement.query(By.css(`#${block.id}-help`)).injector.get<MatTooltip>(MatTooltip).message).toEqual(block.text);
+      });
+    });
+  });
 });

@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from gevent import monkey
 from matplotlib import pyplot as plt
+import argparse
 import gevent
 import json
 import logging
@@ -279,14 +280,20 @@ def create_app(test_mode=False):
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--production-mode", default=False, action=argparse.BooleanOptionalAction)
+    args = parser.parse_args()
+    production_mode = args.production_mode
+
+    if production_mode:
+        # Production configuration
+        socketio, app = create_app(False)
+        socketio.run(app, port=8080)
+    else:
+        # Testing configuration
+        socketio, app = create_app(True)
+        socketio.run(app)
+
     # By default, threading is handled by gevent.spawn:
     # https://github.com/miguelgrinberg/Flask-SocketIO/blob/40007fded6228013ce7e408ea1d9628da8b125fa/src/flask_socketio/__init__.py#L700C36-L700C42
     # https://www.gevent.org/api/gevent.baseserver.html#gevent.baseserver.BaseServer
-
-    # Testing configuration
-    socketio, app = create_app(True)
-    socketio.run(app)
-
-    # Production configuration
-    # socketio, app = create_app(False)
-    # socketio.run(app, port=8080)

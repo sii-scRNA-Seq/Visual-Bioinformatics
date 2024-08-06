@@ -16,7 +16,7 @@ conda deactivate
 conda env remove -n scampi
 conda env create -f ../environment.yml
 conda activate scampi
-python back_end.py
+python back_end.py --production-mode
 EOF
 screen -X readbuf $tempfile2
 screen -X paste .

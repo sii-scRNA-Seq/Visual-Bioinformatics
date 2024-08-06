@@ -4,7 +4,7 @@ cd front-end/
 npm install
 npm run build
 
-pgrep -f back_end.py | awk '{print "kill -9 " $1}'
+pgrep -f back_end.py | awk '{print "kill -9 " $1}' | sh
 
 cd ..
 rm -r back-end/dist
@@ -14,7 +14,7 @@ tempfile2=$(mktemp)
 cat > $tempfile2 <<EOF
 conda deactivate
 conda env remove -n scampi
-conda env create -f environment.yml
+conda env create -f ../environment.yml
 conda activate scampi
 python back_end.py
 EOF

@@ -1,5 +1,15 @@
 #! /usr/bin/bash
 
+version=$1
+
+source ~/.bashrc
+eval `ssh-agent -s`
+ssh-add ~/.ssh/github_deployment_key
+git reset --hard
+git fetch
+git checkout tags/$version
+git pull
+
 cd front-end/
 npm install
 npm run build

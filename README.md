@@ -40,6 +40,8 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `$ ssh-add ~/.ssh/github_deployment_key`
   * `$ git reset --hard`
   * `$ git pull`
+* Update back-end/app/back_end.py to run in production
+  * At the bottom of the file, comment out the testing configuration and uncomment the production configuration
 * Build the front-end
   * `$ cd front-end`
   * `$ npm install`
@@ -52,8 +54,6 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `$ cd ..`
   * `$ rm -r back-end/dist`
   * `cp -r front-end/dist back-end/`
-* Update back-end/app/back_end.py to run in production
-  * At the bottom of the file, comment out the testing configuration and uncomment the production configuration
 * Create and activate the new Conda environment
   * `$ screen -r`
   * `$ conda deactivate`
@@ -63,5 +63,5 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
 * Launch the server
   * `cd back-end/app/`
   * `$ python back_end.py`
-  * `Ctrl + a + d` 
+  * `Ctrl + a + d`
 * Verify that the application is running on https://scampi.mvls.gla.ac.uk

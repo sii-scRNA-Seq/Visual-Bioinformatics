@@ -27,7 +27,23 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
 
 
 ## Starting the application in production
+### Using make_release.sh
+* Update package.json version number to release version
+* Create a tag with release version
+  * `$ git tag x.x.x`
+  * `$ git push origin x.x.x`
+* Log into the production server (scampi.mvls.gla.ac.uk)
+* Navigate to the Visual-Bioinformatics directory
+* If SCAMPI is not currently running, create a screen session, navigate to the app directory, and detach
+  * `$ screen -S scampi`
+  * `$ cd back-end/app/`
+  * `Ctrl + a + d`
+* Run make_release.sh with the chosen version number
+  * `$ chmod +x make_release.sh`
+  * `$ ./make_release.sh x.x.x`
+* Verify that the application is running on https://scampi.mvls.gla.ac.uk
 
+### Manually
 * Update package.json version number to release version
 * Create a tag with release version
   * `$ git tag x.x.x`
@@ -44,22 +60,26 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `$ cd front-end`
   * `$ npm install`
   * `$ npm run build`
-* Shut down the existing scampi session
-  * `$ screen -r`
+  * `$ cd ..`
+* If a previous version of SCAMPI is running, shut down the existing SCAMPI session
+  * `$ screen -S scampi -r`
   * `Ctrl + c`
+  * `$ exit`
+* Create a new screen session, navigate to the app directory, and detach
+  * `$ screen -S scampi`
+  * `$ cd back-end/app/`
   * `Ctrl + a + d`
 * Move the new front-end to the back-end directory
-  * `$ cd ..`
   * `$ rm -r back-end/dist`
-  * `cp -r front-end/dist back-end/`
+  * `$ cp -r front-end/dist back-end/`
 * Create and activate the new Conda environment
-  * `$ screen -r`
+  * `$ screen -S scampi -r`
   * `$ conda deactivate`
   * `$ conda env remove -n scampi --all`
   * `$ conda env create -f back-end/environment.yml`
   * `$ conda activate scampi`
 * Launch the server
-  * `cd back-end/app/`
+  * `$ cd back-end/app/`
   * `$ python back_end.py --production-mode`
   * `Ctrl + a + d`
 * Verify that the application is running on https://scampi.mvls.gla.ac.uk

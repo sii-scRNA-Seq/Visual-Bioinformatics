@@ -1,5 +1,6 @@
 **/__pycache__/
 **/.pytest_cache/
 **/*.log
+back-end/app/back-end-cache/
 back-end/app/data/
 back-end/dist/

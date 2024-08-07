@@ -1,21 +1,21 @@
 # SCAMPI
 
 ## Activating the Conda environment
-* Open an Anaconda command line
-* Navigate to the Visual-Bioinformatics directory
-* Create and activate the new Conda environment
-  * `$ conda env remove -n scampi --all`
-  * `$ conda env create -f back-end/environment.yml`
-  * `$ conda activate scampi`
+In an Anaconda command line, navigate to Visual-Bioinformatics/back-end/ and run:
+* `$ conda env remove -n scampi -y`
+* `$ conda env create -f environment.yml`
+* `$ conda activate scampi`
 
 ## Starting the back-end in development
-* `$ cd back-end/app/`
+From Visual-Bioinformatics/back-end/ run:
+* `$ cd app/`
 * `$ python back_end.py`
 
 ## Unit testing the back-end
-* `$ cd back-end/app/`
+From Visual-Bioinformatics/back-end/ run:
+* `$ cd app/`
 * `$ python -m pytest`
 
 ## Linting the back-end
-* `$ cd back-end/`
+From Visual-Bioinformatics/back-end/ run:
 * `$ flake8 --ignore=E501 app`

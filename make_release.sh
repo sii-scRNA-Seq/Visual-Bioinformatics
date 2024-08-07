@@ -26,7 +26,7 @@ cp -r front-end/dist back-end/
 tempfile2=$(mktemp)
 cat > $tempfile2 <<EOF
 conda deactivate
-conda env remove -n scampi
+conda env remove -n scampi -y
 conda env create -f ../environment.yml
 conda activate scampi
 python back_end.py --production-mode

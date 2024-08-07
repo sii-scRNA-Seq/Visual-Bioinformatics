@@ -9,7 +9,7 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
 * Open an Anaconda command line
 * Navigate to the Visual-Bioinformatics directory
 * Create and activate the new Conda environment
-  * `$ conda env remove -n scampi --all`
+  * `$ conda env remove -n scampi -y`
   * `$ conda env create -f back-end/environment.yml`
   * `$ conda activate scampi`
 * Launch the back-end in development mode

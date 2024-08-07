@@ -55,6 +55,7 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `` $ eval `ssh-agent -s` ``
   * `$ ssh-add ~/.ssh/github_deployment_key`
   * `$ git reset --hard`
+  * `$ git checkout tags/x.x.x`
   * `$ git pull`
 * Build the front-end
   * `$ cd front-end`
@@ -65,21 +66,18 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `$ screen -S scampi -r`
   * `Ctrl + c`
   * `$ exit`
-* Create a new screen session, navigate to the app directory, and detach
-  * `$ screen -S scampi`
-  * `$ cd back-end/app/`
-  * `Ctrl + a + d`
 * Move the new front-end to the back-end directory
   * `$ rm -r back-end/dist`
   * `$ cp -r front-end/dist back-end/`
+* Create a new screen session and navigate to the app directory
+  * `$ screen -S scampi`
+  * `$ cd back-end/app/`
 * Create and activate the new Conda environment
-  * `$ screen -S scampi -r`
   * `$ conda deactivate`
-  * `$ conda env remove -n scampi --all`
-  * `$ conda env create -f back-end/environment.yml`
+  * `$ conda env remove -n scampi -y`
+  * `$ conda env create -f ../environment.yml`
   * `$ conda activate scampi`
 * Launch the server
-  * `$ cd back-end/app/`
   * `$ python back_end.py --production-mode`
   * `Ctrl + a + d`
 * Verify that the application is running on https://scampi.mvls.gla.ac.uk

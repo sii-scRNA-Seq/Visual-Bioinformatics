@@ -21,6 +21,7 @@ export class BlockService implements BlockServiceInterface {
   private currentDataset: DatasetInfo = {
     key: '',
     title: '',
+    samples: [],
     integration_obs: []
   };
 

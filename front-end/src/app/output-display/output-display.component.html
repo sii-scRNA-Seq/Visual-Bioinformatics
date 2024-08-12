@@ -9,6 +9,9 @@
         <mat-card-title>{{BlockIdToTitleMap[outputItem.blockId]}}</mat-card-title>
       </mat-card-header>
       <img mat-card-image *ngIf="outputItem.image" [src]="outputItem.image" [alt]="outputItem.alttext"/>
+      <div *ngIf="outputItem.imageList">
+        <img mat-card-image *ngFor="let imageInfo of outputItem.imageList" [src]="imageInfo.image" [alt]="imageInfo.alttext"/>
+      </div>
       <mat-card-content>
         <span *ngIf="outputItem.text">{{outputItem.text}}</span>
       </mat-card-content>

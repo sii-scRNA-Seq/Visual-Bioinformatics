@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
 import { NewBlock, Request } from './request';
-import { Output } from './output';
+import { ImageInfo, Output } from './output';
 import { OutputServiceInterface } from './output.service.interface';
 import { UserIdService } from './user-id.service';
 
@@ -46,6 +46,25 @@ export class OutputService implements OutputServiceInterface {
           blockId: res.blockId,
           image: newImage,
           alttext: res.alttext
+        };
+        const outputs = this.outputs$.getValue();
+        outputs.push(processedResponse);
+        this.outputs$.next(outputs);
+      } else if (res.image_list) {
+        const imageList: ImageInfo[] = [];
+        for (let i = 0; i < res.image_list.length; i++) {
+          const imageString = res.image_list[i].image as string;
+          const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
+          const objectURL = 'data:image/png;base64,' + processedString;
+          const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          imageList.push({
+            image: newImage,
+            alttext: res.image_list[i].alttext
+          });
+        }
+        const processedResponse: Output = {
+          blockId: res.blockId,
+          imageList: imageList
         };
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);

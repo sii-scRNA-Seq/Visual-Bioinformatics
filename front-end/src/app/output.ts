@@ -5,5 +5,11 @@ export interface Output {
   blockId: BlockId
   text?: string
   image?: SafeUrl
-  alttext?: string;
+  alttext?: string
+  imageList?: ImageInfo[]
+}
+
+export interface ImageInfo {
+  image: SafeUrl
+  alttext: string
 }

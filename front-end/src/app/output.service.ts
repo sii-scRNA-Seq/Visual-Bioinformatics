@@ -58,6 +58,7 @@ export class OutputService implements OutputServiceInterface {
           const objectURL = 'data:image/png;base64,' + processedString;
           const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
           imageList.push({
+            title: res.image_list[i].title,
             image: newImage,
             alttext: res.image_list[i].alttext
           });

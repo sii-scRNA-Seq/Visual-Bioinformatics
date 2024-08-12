@@ -10,7 +10,10 @@
       </mat-card-header>
       <img mat-card-image *ngIf="outputItem.image" [src]="outputItem.image" [alt]="outputItem.alttext"/>
       <div *ngIf="outputItem.imageList">
-        <img mat-card-image *ngFor="let imageInfo of outputItem.imageList" [src]="imageInfo.image" [alt]="imageInfo.alttext"/>
+        <div *ngFor="let imageInfo of outputItem.imageList">
+          {{imageInfo.title}}
+          <img mat-card-image [src]="imageInfo.image" [alt]="imageInfo.alttext"/>
+        </div>
       </div>
       <mat-card-content>
         <span *ngIf="outputItem.text">{{outputItem.text}}</span>

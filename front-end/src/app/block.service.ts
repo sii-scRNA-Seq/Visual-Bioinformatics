@@ -105,12 +105,21 @@ export class BlockService implements BlockServiceInterface {
       }
       case 'qcfiltering': {
         if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
+          let value: string = '';
+          const options: Option[] = [];
+          if (this.currentDataset.samples.length > 0) {
+            value = this.currentDataset.samples[0];
+            this.currentDataset.samples.forEach( sample => {
+              options.push({key: sample, text: sample});
+            });
+          }
           blockList.push({
             blockId: 'qcfiltering',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.qcfiltering,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
+              {type: 'SelectParameter', key: 'sample', text: 'Sample', value: value, options: options},
               {type: 'InputParameter', key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
               {type: 'InputParameter', key: 'max_n_genes_by_counts', text: 'Maximum Gene Per Cell', value: 2500},
               {type: 'InputParameter', key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}

@@ -37,14 +37,14 @@ export class OutputService implements OutputServiceInterface {
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
         this.outputs$.next(outputs);
-      } else if (res.img && res.alttext) {
-        const imageString = res.img as string;
+      } else if (res.image && res.alttext) {
+        const imageString = res.image as string;
         const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
         const objectURL = 'data:image/png;base64,' + processedString;
-        const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+        const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
         const processedResponse: Output = {
           blockId: res.blockId,
-          img: newImg,
+          image: newImage,
           alttext: res.alttext
         };
         const outputs = this.outputs$.getValue();

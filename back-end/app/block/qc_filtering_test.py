@@ -25,10 +25,22 @@ def example_adata():
     yield example_adata
 
 
+def test_param_validation_requires_sample():
+    block = QCFiltering()
+    with pytest.raises(MissingParametersException) as e_info:
+        block.validate_parameters({
+            "min_n_genes_by_counts": 42,
+            "max_n_genes_by_counts": 42,
+            "pct_counts_mt": 42
+        })
+    assert e_info.value.message == 'Missing parameters: ["sample"]'
+
+
 def test_param_validation_requires_min_n_genes_by_counts():
     block = QCFiltering()
     with pytest.raises(MissingParametersException) as e_info:
         block.validate_parameters({
+            "sample": 42,
             "max_n_genes_by_counts": 42,
             "pct_counts_mt": 42
         })
@@ -39,6 +51,7 @@ def test_param_validation_requires_max_n_genes_by_counts():
     block = QCFiltering()
     with pytest.raises(MissingParametersException) as e_info:
         block.validate_parameters({
+            "sample": 42,
             "min_n_genes_by_counts": 42,
             "pct_counts_mt": 42
         })
@@ -49,6 +62,7 @@ def test_param_validation_requires_pct_counts_mt():
     block = QCFiltering()
     with pytest.raises(MissingParametersException) as e_info:
         block.validate_parameters({
+            "sample": 42,
             "min_n_genes_by_counts": 42,
             "max_n_genes_by_counts": 42
         })
@@ -59,12 +73,13 @@ def test_param_validation_requires_all_parameters():
     block = QCFiltering()
     with pytest.raises(MissingParametersException) as e_info:
         block.validate_parameters({})
-    assert e_info.value.message == 'Missing parameters: ["min_n_genes_by_counts", "max_n_genes_by_counts", "pct_counts_mt"]'
+    assert e_info.value.message == 'Missing parameters: ["sample", "min_n_genes_by_counts", "max_n_genes_by_counts", "pct_counts_mt"]'
 
 
 def test_run_correctlyIdentifiesMTGenesForPbmc3k(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 42,
         "min_n_genes_by_counts": 42,
         "max_n_genes_by_counts": 42,
         "pct_counts_mt": 42
@@ -78,6 +93,7 @@ def test_run_correctlyIdentifiesMTGenesForPbmc3k(example_adata):
 def test_run_correctlyIdentifiesMTGenesForPf_dogga(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 42,
         "min_n_genes_by_counts": 42,
         "max_n_genes_by_counts": 42,
         "pct_counts_mt": 42
@@ -91,6 +107,7 @@ def test_run_correctlyIdentifiesMTGenesForPf_dogga(example_adata):
 def test_run_raisesExceptionIfDatasetDoesNotExist(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 42,
         "min_n_genes_by_counts": 42,
         "max_n_genes_by_counts": 42,
         "pct_counts_mt": 42
@@ -104,6 +121,7 @@ def test_run_raisesExceptionIfDatasetDoesNotExist(example_adata):
 def test_run_callsScanpyFunctions(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 1,
         "min_n_genes_by_counts": 42,
         "max_n_genes_by_counts": 42,
         "pct_counts_mt": 42
@@ -117,6 +135,7 @@ def test_run_callsScanpyFunctions(example_adata):
 def test_run_filtersNothingWhenValuesSetToBoundaries(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 1,
         "min_n_genes_by_counts": 0,
         "max_n_genes_by_counts": 5,
         "pct_counts_mt": 100
@@ -130,6 +149,7 @@ def test_run_filtersNothingWhenValuesSetToBoundaries(example_adata):
 def test_run_filters_min_n_genes_by_counts_WhenValuesSetToNormalValues(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 1,
         "min_n_genes_by_counts": 1,
         "max_n_genes_by_counts": 5,
         "pct_counts_mt": 100
@@ -143,6 +163,7 @@ def test_run_filters_min_n_genes_by_counts_WhenValuesSetToNormalValues(example_a
 def test_run_filters_max_n_genes_by_counts_WhenValuesSetToNormalValues(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 1,
         "min_n_genes_by_counts": 0,
         "max_n_genes_by_counts": 4,
         "pct_counts_mt": 100
@@ -156,6 +177,7 @@ def test_run_filters_max_n_genes_by_counts_WhenValuesSetToNormalValues(example_a
 def test_run_filters_pct_counts_mt_WhenValuesSetToNormalValues(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 1,
         "min_n_genes_by_counts": 0,
         "max_n_genes_by_counts": 5,
         "pct_counts_mt": 95
@@ -169,6 +191,7 @@ def test_run_filters_pct_counts_mt_WhenValuesSetToNormalValues(example_adata):
 def test_run_filterAllWhenValuesSetToNormalValues(example_adata):
     block = QCFiltering()
     input = {
+        "sample": 1,
         "min_n_genes_by_counts": 1,
         "max_n_genes_by_counts": 4,
         "pct_counts_mt": 95

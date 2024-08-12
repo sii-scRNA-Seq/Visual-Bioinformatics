@@ -144,6 +144,27 @@ describe('OutputService', () => {
       expect(outputs[0].alttext).toBe('Alt text');
     });
 
+    it('should add a list of ImageInfo objects to outputs array when it receives a valid image list response', async () => {
+      const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
+      let cb: (res: string) => void = () => { throw Error('Should have been changed'); };
+      backendSocketClient.listen.and.callFake(func => {
+        cb = func;
+      });
+      service = TestBed.inject(OutputService);
+      expect(backendSocketClient.listen).toHaveBeenCalled();
+      let outputs = await firstValueFrom(service.outputs);
+      expect(outputs).toEqual([]);
+      const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
+      cb('{"image_list": [{"title": "Image title", "image": "Image text", "alttext": "Alt text"}]}');
+      outputs = await firstValueFrom(service.outputs);
+      expect(outputs.length).toBe(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image text');
+      expect(outputs[0].imageList?.at(0)?.title).toBe('Image title');
+      expect(outputs[0].imageList?.at(0)?.image).toBe(expectedValue);
+      expect(outputs[0].imageList?.at(0)?.alttext).toBe('Alt text');
+    });
+
     it('should not change the outputs array when it receives an end_connection response', async () => {
       const backendSocketClient: jasmine.SpyObj<BackendSocketClient> = TestBed.inject(BackendSocketClient) as jasmine.SpyObj<BackendSocketClient>;
       let cb: (res: string) => void = () => { throw Error('Should have been changed'); };

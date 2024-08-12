@@ -24,6 +24,7 @@ class QCPlots(Block):
             samples = ["1"]
         elif dataset == "pf_dogga":
             adata.var["mt"] = adata.var_names.str.contains("MIT")
+            adata.obs["sample"] = adata.obs["day"]
             samples = ["0", "3", "5", "10a", "10b"]
         else:
             raise Exception("Selected dataset does not exist.")
@@ -35,7 +36,7 @@ class QCPlots(Block):
         plt.rcParams["font.size"] = 18
         image_list = []
         for sample in samples:
-            new_adata = adata[adata.obs["day"] == sample]
+            new_adata = adata[adata.obs["sample"] == sample]
             sc.pl.violin(new_adata, ["n_genes_by_counts", "total_UMIs", "pct_counts_mt"], jitter=0.4, multi_panel=True, show=False)
             image_stream = io.BytesIO()
             plt.savefig(image_stream, format="png")

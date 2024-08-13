@@ -22,7 +22,6 @@ class QCFiltering(Block):
 
         if dataset == "pbmc3k":
             adata.var["mt"] = adata.var_names.str.startswith("MT-")
-            adata.obs["sample"] = "1"
         elif dataset == "pf_dogga":
             adata.var["mt"] = adata.var_names.str.contains("MIT")
             adata.obs["sample"] = adata.obs["day"]

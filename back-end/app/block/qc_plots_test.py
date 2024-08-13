@@ -20,6 +20,7 @@ def example_adata():
     example_adata.obs_names = [f"Cell_{i:d}" for i in range(example_adata.n_obs)]
     example_adata.var_names = [f"Gene_{i:d}" for i in range(example_adata.n_vars - 1)] + ["MT-Gene"]
     example_adata.obs["total_counts"] = list(range(0, example_adata.n_obs))
+    example_adata.obs["sample"] = ["1"] * example_adata.n_obs
 
     yield example_adata
 

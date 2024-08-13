@@ -10,14 +10,14 @@ from back_end import create_app
 
 @pytest.fixture()
 def socketio():
-    with patch("scanpy.datasets.pbmc3k", get_AnnData), patch("scanpy.read_h5ad", lambda _: get_AnnData()):
+    with patch("scanpy.read_h5ad", lambda _: get_AnnData()):
         socketio, app = create_app(test_mode=True)
         yield socketio
 
 
 @pytest.fixture()
 def app():
-    with patch("scanpy.datasets.pbmc3k", get_AnnData), patch("scanpy.read_h5ad", lambda _: get_AnnData()):
+    with patch("scanpy.read_h5ad", lambda _: get_AnnData()):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         yield app
@@ -48,6 +48,7 @@ def get_AnnData(qc_filtering=False):
         adata = anndata.AnnData(counts)
         adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
         adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars)]
+        adata.obs["sample"] = ["1"] * adata.n_obs
     else:
         counts = csr_matrix(np.array([[0, 1, 2, 0],
                                       [0, 3, 4, 1],
@@ -58,6 +59,7 @@ def get_AnnData(qc_filtering=False):
         adata = anndata.AnnData(counts)
         adata.obs_names = [f"Cell_{i:d}" for i in range(adata.n_obs)]
         adata.var_names = [f"Gene_{i:d}" for i in range(adata.n_vars - 1)] + ["MT-Gene"]
+        adata.obs["sample"] = ["1"] * adata.n_obs
     return adata
 
 
@@ -523,7 +525,7 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
 
 def test_executeblocks_OnlyOneClientReceivesResponse():
     adata = get_AnnData()
-    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+    with patch("scanpy.read_h5ad", lambda _: adata):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         client1 = socketio.test_client(app)
@@ -650,7 +652,7 @@ def test_qcplots_ReturnsCorrectString(socketio_client):
 
 
 def test_qcfiltering_FilterByAllParametersWorks():
-    with patch("scanpy.datasets.pbmc3k", lambda: get_AnnData(qc_filtering=True)):
+    with patch("scanpy.read_h5ad", lambda _: get_AnnData(qc_filtering=True)):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         socketio_client = socketio.test_client(app)
@@ -694,7 +696,7 @@ def test_variablegenes_ReturnsCorrectString(socketio_client):
 def test_pca_ReturnsCorrectString():
     adata = get_AnnData(qc_filtering=True)
     adata.obs["total_counts"] = list(range(0, adata.n_obs))
-    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+    with patch("scanpy.read_h5ad", lambda _: adata):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         socketio_client = socketio.test_client(app)
@@ -744,7 +746,7 @@ def test_integration_ReturnsCorrectString(socketio_client):
 def test_runumap_ReturnsCorrectString():
     adata = get_AnnData(qc_filtering=True)
     adata.obs["total_counts"] = list(range(0, adata.n_obs))
-    with patch("scanpy.datasets.pbmc3k", lambda: adata):
+    with patch("scanpy.read_h5ad", lambda _: adata):
         socketio, app = create_app(test_mode=True)
         app.config.update({"TESTING": True})
         socketio_client = socketio.test_client(app)

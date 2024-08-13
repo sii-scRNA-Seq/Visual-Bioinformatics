@@ -83,8 +83,8 @@ def create_app(test_mode=False):
 
     logger.info("Loading raw data...")
     raw_data_cache = {
-        "pbmc3k": sc.datasets.pbmc3k(),
-        "pf_dogga": sc.read_h5ad("../datasets/pf/MCA_PF_DOGGA.h5ad")
+        "pbmc3k": sc.read_h5ad("../datasets/pbmc3k/PBMC3K.h5ad"),
+        "pf_dogga": sc.read_h5ad("../datasets/pf_dogga/MCA_PF_DOGGA.h5ad")
     }
     logger.info("Finished loading raw data")
 

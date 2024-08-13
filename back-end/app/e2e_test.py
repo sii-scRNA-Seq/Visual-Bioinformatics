@@ -660,7 +660,7 @@ def test_qcfiltering_FilterByAllParametersWorks():
         "user_id": "bob",
         "blocks": [
             {"block_id": "loaddata", "dataset": "pbmc3k"},
-            {"block_id": "qcfiltering", "sample": 1, "min_n_genes_by_counts": 1, "max_n_genes_by_counts": 4, "pct_counts_mt": 95}
+            {"block_id": "qcfiltering", "sample": "1", "min_n_genes_by_counts": 1, "max_n_genes_by_counts": 4, "pct_counts_mt": 95}
         ],
     }
     socketio_client.emit("json", message)

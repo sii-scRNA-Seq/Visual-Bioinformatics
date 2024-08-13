@@ -44,8 +44,10 @@ export class OutputService implements OutputServiceInterface {
         const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
         const processedResponse: Output = {
           blockId: res.blockId,
-          image: newImage,
-          alttext: res.alttext
+          image: {
+            image: newImage,
+            altText: res.alttext
+          }
         };
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
@@ -59,7 +61,7 @@ export class OutputService implements OutputServiceInterface {
           const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
           imageList.push({
             image: newImage,
-            alttext: res.image_list[i].alttext
+            altText: res.image_list[i].alttext
           });
         }
         const processedResponse: Output = {

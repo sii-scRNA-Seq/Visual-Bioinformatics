@@ -4,12 +4,11 @@ import {BlockId} from './block.interface';
 export interface Output {
   blockId: BlockId
   text?: string
-  image?: SafeUrl
-  alttext?: string
+  image?: ImageInfo
   imageList?: ImageInfo[]
 }
 
 export interface ImageInfo {
   image: SafeUrl
-  alttext: string
+  altText: string
 }

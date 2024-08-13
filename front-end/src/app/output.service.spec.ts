@@ -140,8 +140,8 @@ describe('OutputService', () => {
       expect(outputs.length).toBe(1);
       expect(spy).toHaveBeenCalledTimes(1);
       const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image text');
-      expect(outputs[0].image).toBe(expectedValue);
-      expect(outputs[0].alttext).toBe('Alt text');
+      expect(outputs[0].image?.image).toBe(expectedValue);
+      expect(outputs[0].image?.altText).toBe('Alt text');
     });
 
     it('should add a list of ImageInfo objects to outputs array when it receives a valid image list response', async () => {
@@ -161,7 +161,7 @@ describe('OutputService', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image text');
       expect(outputs[0].imageList?.at(0)?.image).toBe(expectedValue);
-      expect(outputs[0].imageList?.at(0)?.alttext).toBe('Alt text');
+      expect(outputs[0].imageList?.at(0)?.altText).toBe('Alt text');
     });
 
     it('should not change the outputs array when it receives an end_connection response', async () => {

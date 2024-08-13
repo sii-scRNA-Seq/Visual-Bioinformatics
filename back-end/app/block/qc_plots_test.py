@@ -58,4 +58,4 @@ def test_run_callsScanpyFunctions(example_adata):
     with patch("scanpy.pp.calculate_qc_metrics", wraps=scanpy.pp.calculate_qc_metrics) as mock1, patch("scanpy.pl.violin", wraps=scanpy.pl.violin) as mock2:
         block.run(example_adata, "pbmc3k", input)
     mock1.assert_called_once()
-    mock2.assert_called_once()
+    assert mock2.call_count == 3

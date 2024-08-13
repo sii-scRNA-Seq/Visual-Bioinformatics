@@ -62,7 +62,7 @@ export class BlockService implements BlockServiceInterface {
       }
       console.log(this.currentDataset.key);
     } else {
-      console.log("ERROR");
+      console.log('ERROR');
     }
   }
 

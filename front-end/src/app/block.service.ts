@@ -121,7 +121,7 @@ export class BlockService implements BlockServiceInterface {
             parameters: [
               {type: 'SelectParameter', key: 'sample', text: 'Sample', value: value, options: options},
               {type: 'InputParameter', key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
-              {type: 'InputParameter', key: 'max_n_genes_by_counts', text: 'Maximum Gene Per Cell', value: 2500},
+              {type: 'InputParameter', key: 'max_n_genes_by_counts', text: 'Maximum Genes Per Cell', value: 2500},
               {type: 'InputParameter', key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
             ],
           });

@@ -37,8 +37,8 @@ export class OutputService implements OutputServiceInterface {
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
         this.outputs$.next(outputs);
-      } else if (res.image && res.alttext) {
-        const imageString = res.image as string;
+      } else if (res.image) {
+        const imageString = res.image.image as string;
         const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
         const objectURL = 'data:image/png;base64,' + processedString;
         const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
@@ -46,7 +46,7 @@ export class OutputService implements OutputServiceInterface {
           blockId: res.blockId,
           image: {
             image: newImage,
-            altText: res.alttext
+            altText: res.image.alttext
           }
         };
         const outputs = this.outputs$.getValue();

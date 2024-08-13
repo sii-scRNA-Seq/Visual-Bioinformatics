@@ -10,7 +10,6 @@ export interface Output {
 }
 
 export interface ImageInfo {
-  title: string
   image: SafeUrl
   alttext: string
 }

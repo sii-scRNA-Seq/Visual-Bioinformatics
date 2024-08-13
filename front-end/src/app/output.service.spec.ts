@@ -155,12 +155,11 @@ describe('OutputService', () => {
       let outputs = await firstValueFrom(service.outputs);
       expect(outputs).toEqual([]);
       const spy = spyOn(sanitizer, 'bypassSecurityTrustUrl');
-      cb('{"image_list": [{"title": "Image title", "image": "Image text", "alttext": "Alt text"}]}');
+      cb('{"image_list": [{"image": "Image text", "alttext": "Alt text"}]}');
       outputs = await firstValueFrom(service.outputs);
       expect(outputs.length).toBe(1);
       expect(spy).toHaveBeenCalledTimes(1);
       const expectedValue = sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + 'Image text');
-      expect(outputs[0].imageList?.at(0)?.title).toBe('Image title');
       expect(outputs[0].imageList?.at(0)?.image).toBe(expectedValue);
       expect(outputs[0].imageList?.at(0)?.alttext).toBe('Alt text');
     });

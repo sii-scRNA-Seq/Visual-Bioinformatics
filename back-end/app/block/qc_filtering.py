@@ -29,6 +29,9 @@ class QCFiltering(Block):
         else:
             raise Exception("Selected dataset does not exist.")
 
+        if sample not in adata.obs["sample"].unique():
+            raise Exception("Selected sample does not exist.")
+
         sc.pp.calculate_qc_metrics(adata, qc_vars=["mt"], percent_top=None, log1p=False, inplace=True)
         adata.obs["total_UMIs"] = adata.obs["total_counts"]
         adata.obs = adata.obs.drop("total_counts", axis=1)

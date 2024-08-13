@@ -118,6 +118,20 @@ def test_run_raisesExceptionIfDatasetDoesNotExist(example_adata):
     assert str(e_info.value) == "Selected dataset does not exist."
 
 
+def test_run_raisesExceptionIfSampleDoesNotExist(example_adata):
+    block = QCFiltering()
+    input = {
+        "sample": "ThisSampleDoesNotExist",
+        "min_n_genes_by_counts": 42,
+        "max_n_genes_by_counts": 42,
+        "pct_counts_mt": 42
+    }
+
+    with pytest.raises(Exception) as e_info:
+        block.run(example_adata, "pbmc3k", input)
+    assert str(e_info.value) == "Selected sample does not exist."
+
+
 def test_run_callsScanpyFunctions(example_adata):
     block = QCFiltering()
     input = {

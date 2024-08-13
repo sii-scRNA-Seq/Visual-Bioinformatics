@@ -146,6 +146,22 @@ def test_run_callsScanpyFunctions(example_adata):
     mock.assert_called_once()
 
 
+def test_run_filtersOnlyCellsFromGivenSample(example_adata):
+    block = QCFiltering()
+    adata = example_adata.copy()
+    adata.obs["sample"] = ["1"] + ([0] * (adata.n_obs - 1))
+    input = {
+        "sample": "1",
+        "min_n_genes_by_counts": 1000,
+        "max_n_genes_by_counts": 5,
+        "pct_counts_mt": 100
+    }
+
+    result_adata, result_message = block.run(adata, "pbmc3k", input)
+    assert result_adata.n_vars == adata.n_vars
+    assert result_adata.n_obs == adata.n_obs - 1
+
+
 def test_run_filtersNothingWhenValuesSetToBoundaries(example_adata):
     block = QCFiltering()
     input = {

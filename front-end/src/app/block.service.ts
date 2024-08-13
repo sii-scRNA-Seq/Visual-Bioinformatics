@@ -42,6 +42,30 @@ export class BlockService implements BlockServiceInterface {
     );
   }
 
+  onMatSelectValueChanges(block: Block): void {
+    if (block.blockId == 'loaddata') {
+      this.currentDataset = this.datasetInfo.find(dataset => dataset.key == block.parameters[0].value) || this.datasetInfo[0] || this.currentDataset;
+      const blockList = this.blocksOnCanvas$.getValue();
+      for (let i = 0; i < blockList.length; i++) {
+        if (blockList[i].blockId == 'integration') {
+          let value: string = '';
+          const options: Option[] = [];
+          if (this.currentDataset.integration_obs.length > 0) {
+            value = this.currentDataset.integration_obs[0];
+            this.currentDataset.integration_obs.forEach( observation => {
+              options.push({key: observation, text: observation});
+            });
+          }
+          blockList[i].parameters[0].options = options;
+          blockList[i].parameters[0].value = value;          
+        }
+      }
+      console.log(this.currentDataset.key);
+    } else {
+      console.log("ERROR");
+    }
+  }
+
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
     const lastBlock: Block = blockList[blockList.length-1];

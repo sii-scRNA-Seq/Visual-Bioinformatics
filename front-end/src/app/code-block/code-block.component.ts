@@ -20,6 +20,10 @@ export class CodeBlockComponent {
     );
   }
 
+  onMatSelectValueChanges(): void {
+    this.blockService.onMatSelectValueChanges(this.block);
+  }
+
   removeBlock(): void {
     this.blockService.removeBlock(this.block.blockUUID);
   }

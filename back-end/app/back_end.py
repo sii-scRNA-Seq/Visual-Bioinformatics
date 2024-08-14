@@ -1,8 +1,11 @@
+from gevent import monkey
+monkey.patch_all()
+
 from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from gevent import monkey
+
 from matplotlib import pyplot as plt
 import argparse
 import gevent
@@ -30,8 +33,6 @@ from block.run_umap import RunUMAP
 from block.block_interface import adata_text
 
 from dataset_info import dataset_info
-
-monkey.patch_all()
 
 sc.settings.verbosity = 0
 plt.switch_backend("agg")
@@ -61,9 +62,11 @@ def create_app(test_mode=False):
     if test_mode:
         logger = logging.getLogger("scampi-test")
         user_cache_config = simple_cache_config
+        logger.info("Starting in test mode")
     else:
         logger = logging.getLogger("scampi")
         user_cache_config = file_cache_config
+        logger.info("Starting in production mode")
 
     logger.debug("DEBUG logs enabled")
 
@@ -181,6 +184,10 @@ def create_app(test_mode=False):
             # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1473
             for current_block_info in blocks:
                 logger.info(f"Executing block={current_block_info} user={user_id}")
+
+                # Allow other threads to execute
+                # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
+                gevent.sleep(0.1)
 
                 if "block_id" not in current_block_info:
                     raise BadRequestException("Block ID is missing")

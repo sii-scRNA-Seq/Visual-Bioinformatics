@@ -54,14 +54,14 @@ export class OutputService implements OutputServiceInterface {
         this.outputs$.next(outputs);
       } else if (res.image_list) {
         const imageList: ImageInfo[] = [];
-        for (let i = 0; i < res.image_list.length; i++) {
-          const imageString = res.image_list[i].image as string;
+        for (const imageListItem of res.image_list) {
+          const imageString = imageListItem.image as string;
           const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
           const objectURL = 'data:image/png;base64,' + processedString;
           const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
           imageList.push({
             image: newImage,
-            altText: res.image_list[i].alttext
+            altText: imageListItem.alttext
           });
         }
         const processedResponse: Output = {

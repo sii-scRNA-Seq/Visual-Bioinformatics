@@ -48,17 +48,28 @@ export class BlockService implements BlockServiceInterface {
       this.currentDataset = this.datasetInfo.find(dataset => dataset.key == block.parameters[0].value) || this.datasetInfo[0] || this.currentDataset;
       const blockList = this.blocksOnCanvas$.getValue();
       for (let i = 0; i < blockList.length; i++) {
-        if (blockList[i].blockId == 'integration') {
-          let value: string = '';
-          const options: Option[] = [];
-          if (this.currentDataset.integration_obs.length > 0) {
-            value = this.currentDataset.integration_obs[0];
-            this.currentDataset.integration_obs.forEach( observation => {
-              options.push({key: observation, text: observation});
+        if (blockList[i].blockId == 'qcfiltering') {
+          let sampleValue: string = '';
+          const sampleOptions: Option[] = [];
+          if (this.currentDataset.samples.length > 0) {
+            sampleValue = this.currentDataset.samples[0];
+            this.currentDataset.samples.forEach( sample => {
+              sampleOptions.push({key: sample, text: sample});
             });
           }
-          blockList[i].parameters[0].options = options;
-          blockList[i].parameters[0].value = value;          
+          blockList[i].parameters[0].options = sampleOptions;
+          blockList[i].parameters[0].value = sampleValue;          
+        } else if (blockList[i].blockId == 'integration') {
+          let observationValue: string = '';
+          const observationOptions: Option[] = [];
+          if (this.currentDataset.integration_obs.length > 0) {
+            observationValue = this.currentDataset.integration_obs[0];
+            this.currentDataset.integration_obs.forEach( observation => {
+              observationOptions.push({key: observation, text: observation});
+            });
+          }
+          blockList[i].parameters[0].options = observationOptions;
+          blockList[i].parameters[0].value = observationValue;
         }
       }
       console.log(this.currentDataset.key);

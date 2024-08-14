@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {Block, BlockId, BlockIdToTitleMap, Option} from './block.interface';
 import { BlockServiceInterface } from './block.service.interface';
+import { CurrentDatasetService } from './current-dataset.service';
 import { DatasetInfo } from './dataset-info';
 import { DatasetInfoService } from './dataset-info.service';
 import { OutputService } from './output.service';
@@ -16,65 +17,55 @@ export class BlockService implements BlockServiceInterface {
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 
-  private datasetInfo: DatasetInfo[] = [];
-
   private currentDataset: DatasetInfo = {
     key: '',
     title: '',
     samples: [],
     integration_obs: []
   };
+  
+  private datasetInfo: DatasetInfo[] = [];
 
-  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService) {
+  constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService, private currentDatasetService: CurrentDatasetService) {
+    this.currentDatasetService.currentDataset.subscribe(
+      (res) => {
+        this.currentDataset = res;
+        this.onCurrentDatasetChanges();
+      },
+    );
     this.datasetInfoService.datasetInfo.subscribe(
       (res) => {
         this.datasetInfo = res;
-        if (this.datasetInfo.length > 0) {
-          this.currentDataset = this.datasetInfo[0];
-        }
       },
-    );
-    this.blocksOnCanvas.subscribe(
-      (res) => {
-        if (res.length > 0) {
-          this.currentDataset = this.datasetInfo.find(dataset => dataset.key == res[0].parameters[0].value) || this.datasetInfo[0] || this.currentDataset;
-        }
-      }
     );
   }
 
-  onMatSelectValueChanges(block: Block): void {
-    if (block.blockId == 'loaddata') {
-      this.currentDataset = this.datasetInfo.find(dataset => dataset.key == block.parameters[0].value) || this.datasetInfo[0] || this.currentDataset;
-      const blockList = this.blocksOnCanvas$.getValue();
-      for (let i = 0; i < blockList.length; i++) {
-        if (blockList[i].blockId == 'qcfiltering') {
-          let sampleValue: string = '';
-          const sampleOptions: Option[] = [];
-          if (this.currentDataset.samples.length > 0) {
-            sampleValue = this.currentDataset.samples[0];
-            this.currentDataset.samples.forEach( sample => {
-              sampleOptions.push({key: sample, text: sample});
-            });
-          }
-          blockList[i].parameters[0].options = sampleOptions;
-          blockList[i].parameters[0].value = sampleValue;          
-        } else if (blockList[i].blockId == 'integration') {
-          let observationValue: string = '';
-          const observationOptions: Option[] = [];
-          if (this.currentDataset.integration_obs.length > 0) {
-            observationValue = this.currentDataset.integration_obs[0];
-            this.currentDataset.integration_obs.forEach( observation => {
-              observationOptions.push({key: observation, text: observation});
-            });
-          }
-          blockList[i].parameters[0].options = observationOptions;
-          blockList[i].parameters[0].value = observationValue;
+  onCurrentDatasetChanges(): void {
+    const blockList = this.blocksOnCanvas$.getValue();
+    for (let i = 0; i < blockList.length; i++) {
+      if (blockList[i].blockId == 'qcfiltering') {
+        let sampleValue: string = '';
+        const sampleOptions: Option[] = [];
+        if (this.currentDataset.samples.length > 0) {
+          sampleValue = this.currentDataset.samples[0];
+          this.currentDataset.samples.forEach( sample => {
+            sampleOptions.push({key: sample, text: sample});
+          });
         }
+        blockList[i].parameters[0].options = sampleOptions;
+        blockList[i].parameters[0].value = sampleValue;          
+      } else if (blockList[i].blockId == 'integration') {
+        let observationValue: string = '';
+        const observationOptions: Option[] = [];
+        if (this.currentDataset.integration_obs.length > 0) {
+          observationValue = this.currentDataset.integration_obs[0];
+          this.currentDataset.integration_obs.forEach( observation => {
+            observationOptions.push({key: observation, text: observation});
+          });
+        }
+        blockList[i].parameters[0].options = observationOptions;
+        blockList[i].parameters[0].value = observationValue;
       }
-      console.log(this.currentDataset.key);
-    } else {
-      console.log('ERROR');
     }
   }
 
@@ -140,14 +131,11 @@ export class BlockService implements BlockServiceInterface {
       }
       case 'qcfiltering': {
         if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
-          let sampleValue: string = '';
+          const sampleValue: string = this.currentDataset.samples[0] || '';
           const sampleOptions: Option[] = [];
-          if (this.currentDataset.samples.length > 0) {
-            sampleValue = this.currentDataset.samples[0];
-            this.currentDataset.samples.forEach( sample => {
-              sampleOptions.push({key: sample, text: sample});
-            });
-          }
+          this.currentDataset.samples.forEach( sample => {
+            sampleOptions.push({key: sample, text: sample});
+          });
           blockList.push({
             blockId: 'qcfiltering',
             blockUUID: uuidv4(),
@@ -205,14 +193,11 @@ export class BlockService implements BlockServiceInterface {
       }
       case 'integration': {
         if (lastBlock?.possibleChildBlocks.indexOf('integration') > -1) {
-          let observationValue: string = '';
+          const observationValue: string = this.currentDataset.integration_obs[0] || '';
           const observationOptions: Option[] = [];
-          if (this.currentDataset.integration_obs.length > 0) {
-            observationValue = this.currentDataset.integration_obs[0];
-            this.currentDataset.integration_obs.forEach( observation => {
-              observationOptions.push({key: observation, text: observation});
-            });
-          }
+          this.currentDataset.integration_obs.forEach( observation => {
+            observationOptions.push({key: observation, text: observation});
+          });
           blockList.push({
             blockId: 'integration',
             blockUUID: uuidv4(),

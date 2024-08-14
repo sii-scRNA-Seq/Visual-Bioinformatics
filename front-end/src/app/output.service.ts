@@ -46,7 +46,7 @@ export class OutputService implements OutputServiceInterface {
           blockId: res.blockId,
           image: {
             image: newImage,
-            altText: res.image.alttext
+            altText: res.image.alt_text
           }
         };
         const outputs = this.outputs$.getValue();
@@ -61,7 +61,7 @@ export class OutputService implements OutputServiceInterface {
           const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
           imageList.push({
             image: newImage,
-            altText: imageListItem.alttext
+            altText: imageListItem.alt_text
           });
         }
         const processedResponse: Output = {

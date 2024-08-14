@@ -21,6 +21,7 @@ export class BlockService implements BlockServiceInterface {
   private currentDataset: DatasetInfo = {
     key: '',
     title: '',
+    samples: [],
     integration_obs: []
   };
 
@@ -72,9 +73,9 @@ export class BlockService implements BlockServiceInterface {
     switch (id) {
       case 'loaddata': {
         if (blockList.length == 0) {
-          const options: Option[] = [];
+          const datasetOptions: Option[] = [];
           this.datasetInfo.forEach( dataset => {
-            options.push({key: dataset.key, text: dataset.title});
+            datasetOptions.push({key: dataset.key, text: dataset.title});
           });
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
@@ -82,7 +83,7 @@ export class BlockService implements BlockServiceInterface {
             title: BlockIdToTitleMap.loaddata,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
-              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset.key, options: options},
+              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset.key, options: datasetOptions},
             ],
           }]);
         }
@@ -128,14 +129,23 @@ export class BlockService implements BlockServiceInterface {
       }
       case 'qcfiltering': {
         if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
+          let sampleValue: string = '';
+          const sampleOptions: Option[] = [];
+          if (this.currentDataset.samples.length > 0) {
+            sampleValue = this.currentDataset.samples[0];
+            this.currentDataset.samples.forEach( sample => {
+              sampleOptions.push({key: sample, text: sample});
+            });
+          }
           blockList.push({
             blockId: 'qcfiltering',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.qcfiltering,
             possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
             parameters: [
+              {type: 'SelectParameter', key: 'sample', text: 'Sample', value: sampleValue, options: sampleOptions},
               {type: 'InputParameter', key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
-              {type: 'InputParameter', key: 'max_n_genes_by_counts', text: 'Maximum Gene Per Cell', value: 2500},
+              {type: 'InputParameter', key: 'max_n_genes_by_counts', text: 'Maximum Genes Per Cell', value: 2500},
               {type: 'InputParameter', key: 'pct_counts_mt', text: 'Maximum % Mitochondrial Genes', value: 5}
             ],
           });
@@ -184,12 +194,12 @@ export class BlockService implements BlockServiceInterface {
       }
       case 'integration': {
         if (lastBlock?.possibleChildBlocks.indexOf('integration') > -1) {
-          let value: string = '';
-          const options: Option[] = [];
+          let observationValue: string = '';
+          const observationOptions: Option[] = [];
           if (this.currentDataset.integration_obs.length > 0) {
-            value = this.currentDataset.integration_obs[0];
+            observationValue = this.currentDataset.integration_obs[0];
             this.currentDataset.integration_obs.forEach( observation => {
-              options.push({key: observation, text: observation});
+              observationOptions.push({key: observation, text: observation});
             });
           }
           blockList.push({
@@ -198,7 +208,7 @@ export class BlockService implements BlockServiceInterface {
             title: BlockIdToTitleMap.integration,
             possibleChildBlocks: ['integration', 'runumap'],
             parameters: [
-              {type: 'SelectParameter', key: 'observation', text: 'Observation', value: value, options: options},
+              {type: 'SelectParameter', key: 'observation', text: 'Observation', value: observationValue, options: observationOptions},
             ],
           });
           this.blocksOnCanvas$.next(blockList);

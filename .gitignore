@@ -2,5 +2,5 @@
 **/.pytest_cache/
 **/*.log
 back-end/app/back-end-cache/
-back-end/app/data/
+**/data/
 back-end/dist/

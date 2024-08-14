@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
 import { NewBlock, Request } from './request';
-import { Output } from './output';
+import { ImageInfo, Output } from './output';
 import { OutputServiceInterface } from './output.service.interface';
 import { UserIdService } from './user-id.service';
 
@@ -37,15 +37,36 @@ export class OutputService implements OutputServiceInterface {
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);
         this.outputs$.next(outputs);
-      } else if (res.img && res.alttext) {
-        const imageString = res.img as string;
+      } else if (res.image) {
+        const imageString = res.image.image as string;
         const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
         const objectURL = 'data:image/png;base64,' + processedString;
-        const newImg = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+        const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
         const processedResponse: Output = {
           blockId: res.blockId,
-          img: newImg,
-          alttext: res.alttext
+          image: {
+            image: newImage,
+            altText: res.image.alt_text
+          }
+        };
+        const outputs = this.outputs$.getValue();
+        outputs.push(processedResponse);
+        this.outputs$.next(outputs);
+      } else if (res.image_list) {
+        const imageList: ImageInfo[] = [];
+        for (const imageListItem of res.image_list) {
+          const imageString = imageListItem.image as string;
+          const processedString = imageString.substring(2, imageString.length-3).replace(/\\n/g, '');
+          const objectURL = 'data:image/png;base64,' + processedString;
+          const newImage = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          imageList.push({
+            image: newImage,
+            altText: imageListItem.alt_text
+          });
+        }
+        const processedResponse: Output = {
+          blockId: res.blockId,
+          imageList: imageList
         };
         const outputs = this.outputs$.getValue();
         outputs.push(processedResponse);

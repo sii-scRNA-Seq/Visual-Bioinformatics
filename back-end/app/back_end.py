@@ -185,10 +185,6 @@ def create_app(test_mode=False):
             for current_block_info in blocks:
                 logger.info(f"Executing block={current_block_info} user={user_id}")
 
-                # Allow other threads to execute
-                # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
-                gevent.sleep(0.1)
-
                 if "block_id" not in current_block_info:
                     raise BadRequestException("Block ID is missing")
                 elif current_block_info["block_id"] == "loaddata" and not executed_blocks:

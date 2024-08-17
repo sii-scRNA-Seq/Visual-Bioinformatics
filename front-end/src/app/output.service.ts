@@ -23,7 +23,6 @@ export class OutputService implements OutputServiceInterface {
   private userId: string | null = null;
 
   constructor(private userIdService: UserIdService, private backendSocketClient: BackendSocketClient, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
-    console.log('OutputService created');
 
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },

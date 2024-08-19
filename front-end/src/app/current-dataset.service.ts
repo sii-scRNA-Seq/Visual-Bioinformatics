@@ -1,7 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 
-import { Block } from './block.interface';
 import { DatasetInfo } from './dataset-info';
 import { DatasetInfoService } from './dataset-info.service';
 
@@ -29,10 +28,8 @@ export class CurrentDatasetService {
     );
   }
 
-  onMatSelectValueChanges(block: Block): void {
-    if (block.blockId == 'loaddata') {
-      const currentDataset = this.datasetInfo.find(dataset => dataset.key == block.parameters[0].value) || this.currentDataset$.getValue();
-      this.currentDataset$.next(currentDataset);
-    }
+  setCurrentDataset(newDataset: String): void {
+    const currentDataset = this.datasetInfo.find(dataset => dataset.key == newDataset) || this.currentDataset$.getValue();
+    this.currentDataset$.next(currentDataset);
   }
 }

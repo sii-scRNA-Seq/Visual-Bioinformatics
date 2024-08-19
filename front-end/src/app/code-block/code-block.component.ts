@@ -22,7 +22,9 @@ export class CodeBlockComponent {
   }
 
   onMatSelectValueChanges(): void {
-    this.currentDatasetService.onMatSelectValueChanges(this.block);
+    if (this.block.blockId == 'loaddata') {
+      this.currentDatasetService.setCurrentDataset(this.block.parameters[0].value as string);
+    }
   }
 
   removeBlock(): void {

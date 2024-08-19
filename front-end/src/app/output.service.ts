@@ -23,10 +23,13 @@ export class OutputService implements OutputServiceInterface {
   private userId: string | null = null;
 
   constructor(private userIdService: UserIdService, private backendSocketClient: BackendSocketClient, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
+
     this.userIdService.userId.subscribe(
       (res) => { this.userId = res; },
     );
 
+    // TODO should this just be a normal http request? do we really need socket io lib?
+    // e.g. https://angulargems.beehiiv.com/p/web-sockets-in-angular
     this.backendSocketClient.listen((msg: string) => {
       const res = JSON.parse(msg);
       if (res.text) {

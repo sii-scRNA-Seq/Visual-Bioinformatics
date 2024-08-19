@@ -1,13 +1,14 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 
+import { CurrentDatasetServiceInterface } from './current-dataset.service.interface';
 import { DatasetInfo } from './dataset-info';
 import { DatasetInfoService } from './dataset-info.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CurrentDatasetService {
+export class CurrentDatasetService implements CurrentDatasetServiceInterface {
 
   private readonly currentDataset$: BehaviorSubject<DatasetInfo> = new BehaviorSubject<DatasetInfo> ({
     key: '',

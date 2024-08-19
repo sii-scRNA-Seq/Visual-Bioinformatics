@@ -24,6 +24,7 @@ export class CurrentDatasetService {
     this.datasetInfoService.datasetInfo.subscribe(
       (res) => {
         this.datasetInfo = res;
+        this.currentDataset$.next(this.datasetInfo[0]);
       },
     );
   }

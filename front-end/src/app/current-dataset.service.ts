@@ -28,7 +28,7 @@ export class CurrentDatasetService {
     );
   }
 
-  setCurrentDataset(newDataset: String): void {
+  setCurrentDataset(newDataset: string): void {
     const currentDataset = this.datasetInfo.find(dataset => dataset.key == newDataset) || this.currentDataset$.getValue();
     this.currentDataset$.next(currentDataset);
   }

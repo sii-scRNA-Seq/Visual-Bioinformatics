@@ -16,6 +16,8 @@ import { MockBlockService } from '../mock-block.service';
 import { OutputService } from '../output.service';
 import { MockOutputService } from '../mock-output.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { CurrentDatasetService } from '../current-dataset.service';
+import { MockCurrentDatasetService } from '../mock-current-dataset.service';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -35,6 +37,7 @@ describe('CodeBlockComponent', () => {
       ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
+        { provide: CurrentDatasetService, useClass: MockCurrentDatasetService },
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -352,6 +355,50 @@ describe('CodeBlockComponent', () => {
       component.executingBlocks = false;
       fixture.detectChanges(); 
       expect(fixture.debugElement.query(By.css('mat-select')).nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');
+    });
+
+    it('should call currentDatasetService.setCurrentDataset() when value changes and blockId is loaddata', () => {
+      component.block = {
+        blockId: 'loaddata',
+        blockUUID: '',
+        title: 'Load Data',
+        possibleChildBlocks: [],
+        parameters: [
+          {type: 'SelectParameter', key: 'test_param', text: 'Test Parameter', value: 'option1', options: [
+            {key: 'option1', text: 'Option 1'},
+            {key: 'option2', text: 'Option 2'}
+          ]},
+        ],
+      };
+      fixture.detectChanges();
+      const event = {value: 'option2'};
+      const currentDatasetService: CurrentDatasetService = TestBed.inject(CurrentDatasetService);
+      spyOn(currentDatasetService, 'setCurrentDataset');
+      fixture.debugElement.query(By.css('mat-select')).triggerEventHandler('selectionChange', event);
+      fixture.detectChanges();
+      expect(currentDatasetService.setCurrentDataset).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call currentDatasetService.setCurrentDataset() when value changes and blockId is not loaddata', () => {
+      component.block = {
+        blockId: 'qcfiltering',
+        blockUUID: '',
+        title: 'Quality Control Filtering',
+        possibleChildBlocks: [],
+        parameters: [
+          {type: 'SelectParameter', key: 'test_param', text: 'Test Parameter', value: 'option1', options: [
+            {key: 'option1', text: 'Option 1'},
+            {key: 'option2', text: 'Option 2'}
+          ]},
+        ],
+      };
+      fixture.detectChanges();
+      const event = {value: 'option2'};
+      const currentDatasetService: CurrentDatasetService = TestBed.inject(CurrentDatasetService);
+      spyOn(currentDatasetService, 'setCurrentDataset');
+      fixture.debugElement.query(By.css('mat-select')).triggerEventHandler('selectionChange', event);
+      fixture.detectChanges();
+      expect(currentDatasetService.setCurrentDataset).toHaveBeenCalledTimes(0);
     });
   });
 });

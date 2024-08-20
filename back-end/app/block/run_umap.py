@@ -10,15 +10,43 @@ from threadpoolctl import threadpool_limits
 
 class RunUMAP(Block):
 
+    """
+    `RunUMAP` subclass, which inherits from the `Block` superclass.
+    """
+
     required_parameters = ["n_neighbors", "n_pcs"]
+    """The parameters required by a `RunUMAP` block."""
 
     def __init__(self):
+        """Initialise a `RunUMAP` object."""
         super().__init__()
 
     def validate_parameters(self, parameters: dict) -> None:
+        """
+        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+
+        Parameters:
+
+            - `parameters`: A dictionary mapping block parameters to their values.
+        """
         super(RunUMAP, self).validate_parameters(parameters)
 
     def run(self, adata: AnnData, parameters: dict) -> (AnnData, dict):
+        """
+        Execute the code for a `PCA` block.
+
+        Extracts the values for `n_neighbors` and `n_pcs` from the `parameters` dictionary, then computes the nearest neighbors and plots a UMAP from the data.
+
+        Parameters:
+
+            - `adata`: The AnnData for which the code should be executed.
+            - `parameters`: A dictionary mapping parameter names to their values, which should be used while executing the code.
+
+        Return:
+
+            - The resulting AnnData after performing the block's behaviour.
+            - A dictionary containing the results that will be seen by the user.
+        """
         self.validate_parameters(parameters)
 
         n_neighbors = int(parameters["n_neighbors"])

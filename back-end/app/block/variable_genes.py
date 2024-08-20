@@ -8,15 +8,43 @@ import scanpy as sc
 
 class VariableGenes(Block):
 
+    """
+    `VariableGenes` subclass, which inherits from the `Block` superclass.
+    """
+
     required_parameters = ["min_mean", "max_mean", "min_disp"]
+    """The parameters required by a `VariableGenes` block."""
 
     def __init__(self):
+        """Initialise a `VariableGenes` object."""
         super().__init__()
 
     def validate_parameters(self, parameters: dict) -> None:
+        """
+        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+
+        Parameters:
+
+            - `parameters`: A dictionary mapping block parameters to their values.
+        """
         super(VariableGenes, self).validate_parameters(parameters)
 
     def run(self, adata: AnnData, parameters: dict) -> (AnnData, dict):
+        """
+        Execute the code for a `VariableGenes` block.
+
+        Extracts the values for `min_mean`, `max_mean` and `min_disp` from the `parameters` dictionary, normalises and logarithmises the data, then calculates and plots highly variable genes.
+
+        Parameters:
+
+            - `adata`: The AnnData for which the code should be executed.
+            - `parameters`: A dictionary mapping parameter names to their values, which should be used while executing the code.
+
+        Return:
+
+            - The resulting AnnData after performing the block's behaviour.
+            - A dictionary containing the results that will be seen by the user.
+        """
         self.validate_parameters(parameters)
 
         min_mean = float(parameters["min_mean"])

@@ -10,15 +10,43 @@ from threadpoolctl import threadpool_limits
 
 class PCA(Block):
 
+    """
+    `PCA` subclass, which inherits from the `Block` superclass.
+    """
+
     required_parameters = []
+    """The parameters required by a `PCA` block."""
 
     def __init__(self):
+        """Initialise a `PCA` object."""
         super().__init__()
 
     def validate_parameters(self, parameters: dict) -> None:
+        """
+        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+
+        Parameters:
+
+            - `parameters`: A dictionary mapping block parameters to their values.
+        """
         super(PCA, self).validate_parameters(parameters)
 
     def run(self, adata: AnnData, parameters: dict) -> (AnnData, dict):
+        """
+        Execute the code for a `PCA` block.
+
+        Calculates QC metrics, scales the data, carries out PCA and plots the variance ratio.
+
+        Parameters:
+
+            - `adata`: The AnnData for which the code should be executed.
+            - `parameters`: A dictionary mapping parameter names to their values, which should be used while executing the code.
+
+        Return:
+
+            - The resulting AnnData after performing the block's behaviour.
+            - A dictionary containing the results that will be seen by the user.
+        """
         self.validate_parameters(parameters)
 
         adata.var["mt"] = adata.var_names.str.startswith("MT-")

@@ -188,11 +188,11 @@ def create_app(test_mode=False):
         Extract `blocks` from `message` and raise an exception if it is missing or invalid.
         Process each individual block in `blocks`, emitting a JSON response to the client for each block.
         Begin accepting request from user again.
-        Emit a final JSON to the client to end the connection. 
+        Emit a final JSON to the client to end the connection.
 
-        Parameters: 
+        Parameters:
 
-            - `message`: A dictionary containing the user's request.   
+            - `message`: A dictionary containing the user's request.
 
         Exceptions: `UserIDException`, `NotAcceptingRequestException`, `BadRequestException`, `MissingParametersException`, `Exception`.
         """

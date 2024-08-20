@@ -58,6 +58,18 @@ file_cache_config = {
 
 
 def create_app(test_mode=False):
+    """
+    Create the SocketIO and Flask apps.
+
+    Parameters:
+
+        - `test_mode`: Will be True if creating an app for testing, and False if creating an app for production.
+
+    Return:
+
+        - The SocketIO app.
+        - The Flask app.
+    """
 
     if test_mode:
         logger = logging.getLogger("scampi-test")
@@ -126,6 +138,17 @@ def create_app(test_mode=False):
 
     @app.route("/api/getuserid")
     def get_user_id():
+        """
+        A function called by a HTTP request to /api/getuserid.
+
+        Receive a `user_id` argument. If it is not a string, raise an error; if it is empty, create a new user id; otherwise, use the existing user id.
+
+        Return:
+
+            - A JSON response object containing a user id.
+
+        Exceptions: `werkzeug.exceptions.BadRequest`.
+        """
         user_id = request.args.get("user_id")
         if not isinstance(user_id, str):
             raise we.BadRequest("Not a valid user_id")
@@ -142,6 +165,13 @@ def create_app(test_mode=False):
 
     @app.route("/api/getdatasetinfo")
     def get_dataset_info():
+        """
+        A function called by a HTTP request to /api/getdatasetinfo.
+
+        Return:
+
+            - A JSON response object containing the dataset info.
+        """
         logger.info("Sending dataset info")
         message = {
             "datasets": dataset_info
@@ -150,6 +180,22 @@ def create_app(test_mode=False):
 
     @socketio.on("json")
     def execute_blocks(message):
+        """
+        A function called by a WebSocket request.
+
+        Extract `user_id` from `message` and raise an exception if it is missing or invalid.
+        Raise an exception if not accepting requests, otherwise, stop accepting requests from this user.
+        Extract `blocks` from `message` and raise an exception if it is missing or invalid.
+        Process each individual block in `blocks`, emitting a JSON response to the client for each block.
+        Begin accepting request from user again.
+        Emit a final JSON to the client to end the connection. 
+
+        Parameters: 
+
+            - `message`: A dictionary containing the user's request.   
+
+        Exceptions: `UserIDException`, `NotAcceptingRequestException`, `BadRequestException`, `MissingParametersException`, `Exception`.
+        """
         logger.info(f"Executing blocks, json={message}")
 
         try:
@@ -255,6 +301,25 @@ def create_app(test_mode=False):
             socketio.emit("json", json.dumps(end_connection), room=client)
 
     def load_data(user_data, block):
+        """
+        Execute the code for a `LoadData` block.
+
+        Extract the value for `dataset` from `block`, or raise an exception if it is missing.
+        Create a copy of the AnnData for the dataset, or raise an exception if the dataset does not exist.
+
+        Parameters:
+
+            - `user_data`: The AnnData for which the code should be executed.
+            - `block`: A dictionary mapping parameter names to their values, which should be used while executing the code.
+
+        Return:
+
+            - The resulting AnnData after performing the block's behaviour.
+            - The dataset chosen by the user.
+            - A dictionary containing the results that will be seen by the user.
+
+        Exceptions: `MissingParametersException`, `Exception`.
+        """
         missing_parameters = get_missing_parameters(["dataset"], block)
         if missing_parameters:
             logger.error("Parameters missing from Block: " + json.dumps(missing_parameters))
@@ -272,6 +337,18 @@ def create_app(test_mode=False):
         return user_data, dataset, message
 
     def get_missing_parameters(params, block):
+        """
+        Find which parameters from `params` are not in `block`.
+
+        Parameters:
+
+            - `params`: A list of the required parameters.
+            - `block`: A dictionary mapping block parameters to their values.
+
+        Return:
+
+            - A list of parameters which are in `params` but not in `block`
+        """
         missing_params = []
         for param in params:
             if param not in block:

@@ -18,7 +18,7 @@ class QCFiltering(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -30,7 +30,7 @@ class QCFiltering(Block):
         """
         Execute the code for a `QCFiltering` block.
 
-        Extracts the values for `sample`, `min_n_genes_by_counts`, `max_n_genes_by_counts` and `pct_counts_mt` from the `parameters` dictionary, calculates the QC metrics, then filters cells from the chosen sample based on these metrics.
+        Extract the values for `sample`, `min_n_genes_by_counts`, `max_n_genes_by_counts` and `pct_counts_mt` from the `parameters` dictionary, calculate the QC metrics, then filter cells from the chosen sample based on these metrics.
 
         Parameters:
 

@@ -23,7 +23,7 @@ class RunUMAP(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -35,7 +35,7 @@ class RunUMAP(Block):
         """
         Execute the code for a `PCA` block.
 
-        Extracts the values for `n_neighbors` and `n_pcs` from the `parameters` dictionary, then computes the nearest neighbors and plots a UMAP from the data.
+        Extract the values for `n_neighbors` and `n_pcs` from the `parameters` dictionary, then compute the nearest neighbors and plot a UMAP from the data.
 
         Parameters:
 

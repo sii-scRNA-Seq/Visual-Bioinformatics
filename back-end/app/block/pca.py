@@ -23,7 +23,7 @@ class PCA(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -35,7 +35,7 @@ class PCA(Block):
         """
         Execute the code for a `PCA` block.
 
-        Calculates QC metrics, scales the data, carries out PCA and plots the variance ratio.
+        Calculate QC metrics, scale the data, carry out PCA and plot the variance ratio.
 
         Parameters:
 

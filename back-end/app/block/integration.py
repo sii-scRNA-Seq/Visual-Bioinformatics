@@ -19,7 +19,7 @@ class Integration(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -31,7 +31,7 @@ class Integration(Block):
         """
         Execute the code for an `Integration` block.
 
-        Extracts the value for `observation` from the `parameters` dictionary, then integrates samples based on this observation.
+        Extract the value for `observation` from the `parameters` dictionary, then integrate samples based on this observation.
 
         Parameters:
 

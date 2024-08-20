@@ -21,7 +21,7 @@ class QCPlots(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -33,7 +33,7 @@ class QCPlots(Block):
         """
         Execute the code for a `QCPlots` block.
 
-        Calculates the QC metrics, then creates 3 violin plots (one for each metric), with cells grouped by sample.
+        Calculate the QC metrics, then create 3 violin plots (one for each metric), with cells grouped by sample.
 
         Parameters:
 

@@ -18,7 +18,7 @@ class BasicFiltering(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -30,7 +30,7 @@ class BasicFiltering(Block):
         """
         Execute the code for a `BasicFiltering` block.
 
-        Extracts the values for `min_genes` and `min_cells` from the `parameters` dictionary, then filters cells and genes using Scanpy functions.
+        Extract the values for `min_genes` and `min_cells` from the `parameters` dictionary, then filter cells and genes using Scanpy functions.
 
         Parameters:
 

@@ -21,7 +21,7 @@ class VariableGenes(Block):
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validates that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
 
         Parameters:
 
@@ -33,7 +33,7 @@ class VariableGenes(Block):
         """
         Execute the code for a `VariableGenes` block.
 
-        Extracts the values for `min_mean`, `max_mean` and `min_disp` from the `parameters` dictionary, normalises and logarithmises the data, then calculates and plots highly variable genes.
+        Extract the values for `min_mean`, `max_mean` and `min_disp` from the `parameters` dictionary, normalise and logarithmise the data, then calculate and plot highly variable genes.
 
         Parameters:
 

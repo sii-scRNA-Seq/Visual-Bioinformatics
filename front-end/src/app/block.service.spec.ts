@@ -10,10 +10,13 @@ import { MockDatasetInfoService } from './mock-dataset-info.service';
 import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { CurrentDatasetService } from './current-dataset.service';
+import { MockCurrentDatasetService } from './mock-current-dataset.service';
 
 describe('BlockService', () => {
   let service: BlockService;
   let snackBar: MatSnackBar;
+  let currentDatasetService: CurrentDatasetService;
   let datasetInfoService: DatasetInfoService;
 
   beforeEach(() => {
@@ -23,12 +26,14 @@ describe('BlockService', () => {
       providers: [
         { provide: OutputService, useClass: MockOutputService },
         { provide: DatasetInfoService, useClass: MockDatasetInfoService },
+        { provide: CurrentDatasetService, useClass: MockCurrentDatasetService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ]
     });
     service = TestBed.inject(BlockService);
     snackBar = TestBed.inject(MatSnackBar);
+    currentDatasetService = TestBed.inject(CurrentDatasetService);
     datasetInfoService = TestBed.inject(DatasetInfoService);
   });
 
@@ -49,8 +54,8 @@ describe('BlockService', () => {
       blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas[0].blockId).toBe('loaddata');
       expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
-      expect(blocksOnCanvas[0].parameters[0].options).toEqual([]);
       expect(blocksOnCanvas[0].parameters[0].value).toBe('');
+      expect(blocksOnCanvas[0].parameters[0].options).toEqual([]);
     });
 
     it('should have the correct options on Load Data block after loading DatasetInfo', async () => {
@@ -61,27 +66,30 @@ describe('BlockService', () => {
       blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas[0].blockId).toBe('loaddata');
       expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[0].parameters[0].value).toBe('');
       expect(blocksOnCanvas[0].parameters[0].options).toEqual([
         {key: 'option1', text: 'Option 1'},
         {key: 'option2', text: 'Option 2'}
       ]);
-      expect(blocksOnCanvas[0].parameters[0].value).toBe('option1');
     });
 
-    it('should have the correct options on QC Filtering block before loading DatasetInfo', async () => {
-      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocksOnCanvas.length).toBe(0);
-      service.addBlock('loaddata');
-      service.addBlock('qcfiltering');
-      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
-      expect(blocksOnCanvas[1].blockId).toBe('qcfiltering');
-      expect(blocksOnCanvas[1].parameters[0].type).toBe('SelectParameter');
-      expect(blocksOnCanvas[1].parameters[0].options).toEqual([]);
-      expect(blocksOnCanvas[1].parameters[0].value).toBe('');
-    });
-
-    it('should have the correct options on QC Filtering block after loading DatasetInfo', async () => {
+    it('should have the correct options on Load Data block after loading DatasetInfo and setting CurrentDataset', async () => {
       datasetInfoService.setDatasetInfo();
+      currentDatasetService.setCurrentDataset('option1');
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[0].blockId).toBe('loaddata');
+      expect(blocksOnCanvas[0].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[0].parameters[0].value).toBe('option1');
+      expect(blocksOnCanvas[0].parameters[0].options).toEqual([
+        {key: 'option1', text: 'Option 1'},
+        {key: 'option2', text: 'Option 2'}
+      ]);
+    });
+
+    it('should have the correct options on QC Filtering block before setting CurrentDataset', async () => {
       let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas.length).toBe(0);
       service.addBlock('loaddata');
@@ -89,14 +97,27 @@ describe('BlockService', () => {
       blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas[1].blockId).toBe('qcfiltering');
       expect(blocksOnCanvas[1].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[1].parameters[0].value).toBe('');
+      expect(blocksOnCanvas[1].parameters[0].options).toEqual([]);
+    });
+
+    it('should have the correct options on QC Filtering block after setting CurrentDataset', async () => {
+      currentDatasetService.setCurrentDataset('option1');
+      let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas.length).toBe(0);
+      service.addBlock('loaddata');
+      service.addBlock('qcfiltering');
+      blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
+      expect(blocksOnCanvas[1].blockId).toBe('qcfiltering');
+      expect(blocksOnCanvas[1].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[1].parameters[0].value).toBe('sample1');
       expect(blocksOnCanvas[1].parameters[0].options).toEqual([
         {key: 'sample1', text: 'sample1'},
         {key: 'sample2', text: 'sample2'}
       ]);
-      expect(blocksOnCanvas[1].parameters[0].value).toBe('sample1');
     });
 
-    it('should have the correct options on Integration block before loading DatasetInfo', async () => {
+    it('should have the correct options on Integration block before setting CurrentDataset', async () => {
       let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas.length).toBe(0);
       service.addBlock('loaddata');
@@ -106,12 +127,12 @@ describe('BlockService', () => {
       blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas[3].blockId).toBe('integration');
       expect(blocksOnCanvas[3].parameters[0].type).toBe('SelectParameter');
-      expect(blocksOnCanvas[3].parameters[0].options).toEqual([]);
       expect(blocksOnCanvas[3].parameters[0].value).toBe('');
+      expect(blocksOnCanvas[3].parameters[0].options).toEqual([]);
     });
 
-    it('should have the correct options on Integration block after loading DatasetInfo', async () => {
-      datasetInfoService.setDatasetInfo();
+    it('should have the correct options on Integration block after setting CurrentDataset', async () => {
+      currentDatasetService.setCurrentDataset('option1');
       let blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas.length).toBe(0);
       service.addBlock('loaddata');
@@ -121,11 +142,11 @@ describe('BlockService', () => {
       blocksOnCanvas = await firstValueFrom(service.blocksOnCanvas.pipe(first()));
       expect(blocksOnCanvas[3].blockId).toBe('integration');
       expect(blocksOnCanvas[3].parameters[0].type).toBe('SelectParameter');
+      expect(blocksOnCanvas[3].parameters[0].value).toBe('ob1');
       expect(blocksOnCanvas[3].parameters[0].options).toEqual([
         {key: 'ob1', text: 'ob1'},
         {key: 'ob2', text: 'ob2'}
       ]);
-      expect(blocksOnCanvas[3].parameters[0].value).toBe('ob1');
     });
   });
 

@@ -96,9 +96,9 @@ def create_app(test_mode=False):
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
 
-    # Consider permitted sources for CORS requests (see Trello)
     CORS(app)
     socketio = SocketIO(app, cors_allowed_origins="*")
+    # TODO: Consider permitted sources for CORS requests (see Trello)
 
     def handle_exception(e):
         response = e.get_response()
@@ -179,9 +179,9 @@ def create_app(test_mode=False):
             dataset = None
             executed_blocks = []
 
-            # TODO consider dispatching this whole pipeline to another thread, which seems to be best way to approach
-            # TODO cpu intense tasks with gevents. Probably best to do this after we split the code out better.
-            # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1473
+            # TODO: Consider dispatching this whole pipeline to another thread, which seems to be best way to approach cpu intense tasks with gevents.
+            # TODO: Probably best to do this after we split the code out better.
+            # TODO: https://github.com/miguelgrinberg/Flask-SocketIO/issues/1473
             for current_block_info in blocks:
                 logger.info(f"Executing block={current_block_info} user={user_id}")
 
@@ -221,9 +221,9 @@ def create_app(test_mode=False):
                 socketio.emit("json", json.dumps(output_message), room=client)
                 logger.debug("emitted:" + json.dumps(output_message))
 
+                gevent.sleep(0.1)
                 # Allow other threads to execute
                 # https://stackoverflow.com/questions/30901998/threading-true-with-flask-socketio
-                gevent.sleep(0.1)
 
             logger.debug(f"Finished processing blocks for user={user_id}")
             end_connection = {"end_connection": "end_connection"}
@@ -287,15 +287,16 @@ if __name__ == "__main__":
     parser.add_argument("--production-mode", default=False, action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     production_mode = args.production_mode
+    """`production_mode` will be True if the --production_mode flag was used, or False otherwise."""
 
     if production_mode:
-        # Production configuration
         socketio, app = create_app(False)
         socketio.run(app, port=8080)
+        """Starts the server in production mode."""
     else:
-        # Testing configuration
         socketio, app = create_app(True)
         socketio.run(app)
+        """Starts the server in test mode."""
 
     # By default, threading is handled by gevent.spawn:
     # https://github.com/miguelgrinberg/Flask-SocketIO/blob/40007fded6228013ce7e408ea1d9628da8b125fa/src/flask_socketio/__init__.py#L700C36-L700C42

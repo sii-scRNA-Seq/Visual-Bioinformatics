@@ -54,7 +54,7 @@ class PCA(Block):
         adata.obs["total_UMIs"] = adata.obs["total_counts"]
         adata.obs = adata.obs.drop("total_counts", axis=1)
 
-        # Consider adding Regress Out PCA step (see Trello)
+        # TODO: Consider adding Regress Out PCA step (see Trello)
         # sc.pp.regress_out(adata, ["total_UMIs", "pct_counts_mt"], n_jobs=1)
 
         with parallel_backend("threading", n_jobs=1):

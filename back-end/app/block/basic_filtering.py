@@ -30,7 +30,7 @@ class BasicFiltering(Block):
         """
         Execute the code for a `BasicFiltering` block.
 
-        Extracts the values for `min_genes` and `min_cells` from the `parameters` dictionary, then filters cells and genes using ScanPy functions.
+        Extracts the values for `min_genes` and `min_cells` from the `parameters` dictionary, then filters cells and genes using Scanpy functions.
 
         Parameters:
 

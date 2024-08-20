@@ -45,10 +45,18 @@ export class BlockLibraryComponent implements OnInit {
     this.updateDisabledBlocks();
   }
 
+  /**
+   * Calls the addBlock() method in the blockService with the blockId of the block to be added.
+   * 
+   * @param id - The blockId of the block to be added
+   */
   addBlock(id: BlockId): void {
     this.blockService.addBlock(id);
   }
 
+  /**
+   * Updates the block library to show which blocks should be available/unavailable to be added at any given time.
+   */
   updateDisabledBlocks(): void {
     this.blockLibrary[0].disabled = this.executingBlocks || this.blockList.length !== 0;
     for (let i = 1; i < this.blockLibrary.length; i++) {
@@ -56,6 +64,11 @@ export class BlockLibraryComponent implements OnInit {
     }
   }
 
+  /**
+   * Chooses the text that should be displayed on tooltips at any given time.
+   * 
+   * @returns The text to display on the tooltip
+   */
   getTooltipMessage(): string {
     if (this.executingBlocks) {
       return 'Blocks cannot be added while blocks are being executed.';

@@ -29,6 +29,12 @@ export class CurrentDatasetService implements CurrentDatasetServiceInterface {
     );
   }
 
+  /**
+   * Updates the current dataset if the new dataset exists in datasetInfo.
+   * If the new dataset cannot be found, the current dataset is used instead.
+   *
+   * @param newDataset - The key of the new dataset
+   */
   setCurrentDataset(newDataset: string): void {
     const currentDataset = this.datasetInfo.find(dataset => dataset.key == newDataset) || this.currentDataset$.getValue();
     this.currentDataset$.next(currentDataset);

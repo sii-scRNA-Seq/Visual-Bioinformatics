@@ -23,6 +23,9 @@ export class CanvasComponent {
     );
   }
 
+  /**
+   * Calls the executeBlocks() method in the blockService.
+   */
   executeBlocks() {
     this.blockService.executeBlocks();
   }

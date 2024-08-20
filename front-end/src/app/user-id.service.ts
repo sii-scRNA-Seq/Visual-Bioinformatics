@@ -15,6 +15,9 @@ export class UserIdService implements UserIdServiceInterface {
     this.setUserId();
   }
 
+  /**
+   * Asks the backendHttpClient to get the user id, and updates the user id when it receives a response.
+   */
   async setUserId(): Promise<void> {
     const userId = await this.backendHttpClient.getUserId(localStorage.getItem('userId') || '');
     localStorage.setItem('userId', userId);

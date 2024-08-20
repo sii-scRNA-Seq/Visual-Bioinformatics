@@ -4,23 +4,30 @@ import json
 
 
 def adata_text(adata: AnnData) -> str:
+    """
+    Generate text to describe an AnnData.
+
+    Parameters:
+
+        - `adata`: The AnnData from which text should be generated.
+
+    Return:
+
+        - Text describing the given AnnData.
+    """
     return f"Object with: {adata.n_obs:,} cells and {adata.n_vars:,} genes"
 
 
 class Block:
 
     """
-    Block superclass. Should only be instantiated through subclasses and never directly.
+    `Block` superclass. Should only be instantiated through subclasses and never directly.
 
-    Contains two methods:
-
-        - validate_parameters() validates that all of the required parameters are present in the given dictionary and is provided concretely.
-        - run() executes the code expected for a particular block and is provided abstractly.
+    A block represents a stage in the single cell pipeline, responsible for receiving and validating parameters, then executing that stage of the pipeline.
     """
 
     required_parameters = []
-    """The parameters required by a particular block."""
-
+    """The parameters required by a particular block, which will be used to validate that these parameters exist."""
 
     def __init__(self):
         """Initialise a `Block` object."""
@@ -28,11 +35,11 @@ class Block:
 
     def validate_parameters(self, parameters: dict) -> None:
         """
-        Validate that all of the parameters in the required_parameters attribute are also present in the parameters dictionary. Raise an exception if this is not the case.
+        Validate that all of the parameters in the `required_parameters` attribute are present in the `parameters` dictionary. Raise an exception if this is not the case.
 
         Parameters:
 
-            - `parameters`: a dictionary mapping block parameters to their values.
+            - `parameters`: A dictionary mapping block parameters to their values.
 
         Exceptions: `MissingParametersException`.
         """
@@ -49,12 +56,14 @@ class Block:
 
         Parameters:
 
-            - `adata`: the AnnData for which the code should be executed.
-            - `parameters`: a dictionary mapping parameter names to their values, which should be used while executing the code.
+            - `adata`: The AnnData for which the code should be executed.
+            - `parameters`: A dictionary mapping parameter names to their values, which should be used while executing the code.
 
         Return:
 
             - The resulting AnnData after performing the block's behaviour.
             - A dictionary containing the results that will be seen by the user.
+
+        Exceptions: `NotImplementedError`.
         """
         raise NotImplementedError()

@@ -233,3 +233,18 @@ def test_run_filterAllWhenValuesSetToNormalValues(example_adata):
     result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
     assert result_adata.n_vars == example_adata.n_vars
     assert result_adata.n_obs == 3
+
+
+def test_run_hasCorrectReturnValues(example_adata):
+    block = QCFiltering()
+    input = {
+        "sample": "1",
+        "min_n_genes_by_counts": 1,
+        "max_n_genes_by_counts": 4,
+        "pct_counts_mt": 95
+    }
+
+    result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
+    assert result_adata.n_obs == 3
+    assert result_adata.n_vars == 4
+    assert result_message["text"] == "Object with: 3 cells and 4 genes"

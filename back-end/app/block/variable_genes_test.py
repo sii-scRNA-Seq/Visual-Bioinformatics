@@ -71,7 +71,7 @@ def test_run_callsScanpyFunctions(example_adata):
     }
 
     with patch("scanpy.pp.normalize_total", wraps=scanpy.pp.normalize_total) as mock1, patch("scanpy.pp.log1p", wraps=scanpy.pp.log1p) as mock2, patch("scanpy.pp.highly_variable_genes", wraps=scanpy.pp.highly_variable_genes) as mock3, patch("scanpy.pl.highly_variable_genes", wraps=scanpy.pl.highly_variable_genes) as mock4:
-        block.run(example_adata, input)
+        block.run(example_adata, "pbmc3k", input)
     mock1.assert_called_once()
     mock2.assert_called_once()
     mock3.assert_called_once()
@@ -86,7 +86,7 @@ def test_run_hasCorrectReturnValues(example_adata):
         "min_disp": 42
     }
 
-    result_adata, result_message = block.run(example_adata, input)
+    result_adata, result_message = block.run(example_adata, "pbmc3k", input)
     assert result_adata.n_obs == example_adata.n_obs
     assert result_adata.n_vars == example_adata.n_vars
     assert result_message["image"]["image"][:20] == "b'iVBORw0KGgoAAAANSU"

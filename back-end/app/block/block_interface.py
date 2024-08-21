@@ -50,13 +50,14 @@ class Block:
         if missing_parameters:
             raise MissingParametersException("Missing parameters: " + json.dumps(missing_parameters))
 
-    def run(self, adata: AnnData, parameters: dict) -> (AnnData, dict):
+    def run(self, adata: AnnData, dataset: str, parameters: dict) -> (AnnData, dict):
         """
         Execute the code for a particular block.
 
         Parameters:
 
             - `adata`: The AnnData for which the code should be executed.
+            - `dataset`: The user's selected dataset.
             - `parameters`: A dictionary mapping parameter names to their values, which should be used while executing the code.
 
         Return:

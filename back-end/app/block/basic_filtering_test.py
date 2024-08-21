@@ -55,7 +55,7 @@ def test_run_callsScanpyFunctions(example_adata):
     }
 
     with patch("scanpy.pp.filter_cells") as mock1, patch("scanpy.pp.filter_genes") as mock2:
-        block.run(example_adata, input)
+        block.run(example_adata, "pbmc3k", input)
         mock1.assert_called_once()
         mock2.assert_called_once()
 
@@ -67,7 +67,7 @@ def test_run_filtersNothingWhenValuesSetToZero(example_adata):
         "min_cells": "0"
     }
 
-    result_adata, result_message = block.run(example_adata.copy(), input)
+    result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
     assert result_adata.n_vars == example_adata.n_vars
     assert result_adata.n_obs == example_adata.n_obs
 
@@ -79,7 +79,7 @@ def test_run_filtersCellsWhenValuesSetToNormalValues(example_adata):
         "min_cells": "1"
     }
 
-    result_adata, result_message = block.run(example_adata.copy(), input)
+    result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
     assert result_adata.n_vars == 2
     assert result_adata.n_obs == example_adata.n_obs
 
@@ -91,7 +91,7 @@ def test_run_filtersGenesWhenValuesSetToNormalValues(example_adata):
         "min_cells": "0"
     }
 
-    result_adata, result_message = block.run(example_adata.copy(), input)
+    result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
     assert result_adata.n_vars == example_adata.n_vars
     assert result_adata.n_obs == 4
 
@@ -103,7 +103,7 @@ def test_run_filterBothWhenValuesSetToNormalValues(example_adata):
         "min_cells": "2"
     }
 
-    result_adata, result_message = block.run(example_adata.copy(), input)
+    result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
     assert result_adata.n_vars == 2
     assert result_adata.n_obs == 4
 
@@ -115,7 +115,7 @@ def test_run_hasCorrectReturnValues(example_adata):
         "min_cells": "1"
     }
 
-    result_adata, result_message = block.run(example_adata.copy(), input)
+    result_adata, result_message = block.run(example_adata.copy(), "pbmc3k", input)
     assert result_adata.n_obs == 4
     assert result_adata.n_vars == 2
     assert result_message["text"] == "Object with: 4 cells and 2 genes"

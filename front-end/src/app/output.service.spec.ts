@@ -3,8 +3,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
 import { first, firstValueFrom } from 'rxjs';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
@@ -26,9 +24,7 @@ describe('OutputService', () => {
       ],
       providers: [
         { provide: BackendSocketClient, useValue: clientMock },
-        { provide: UserIdService, useClass: MockUserIdService },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting()
+        { provide: UserIdService, useClass: MockUserIdService }
       ]
     });
     snackBar = TestBed.inject(MatSnackBar);

@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { Block } from '../block.interface';
 import { MockOutputService } from '../mock-output.service';
@@ -23,9 +21,7 @@ describe('OutputDisplayComponent', () => {
         MatSnackBarModule
       ],
       providers: [
-        { provide: OutputService, useClass: MockOutputService },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting()
+        { provide: OutputService, useClass: MockOutputService }
       ]
     });
     fixture = TestBed.createComponent(OutputDisplayComponent);

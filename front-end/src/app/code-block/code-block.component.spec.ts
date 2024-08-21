@@ -8,8 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { BlockService } from '../block.service';
 import { CodeBlockComponent } from './code-block.component';
@@ -40,9 +38,7 @@ describe('CodeBlockComponent', () => {
       providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: CurrentDatasetService, useClass: MockCurrentDatasetService },
-        { provide: OutputService, useClass: MockOutputService },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting()
+        { provide: OutputService, useClass: MockOutputService }
       ]
     });
     fixture = TestBed.createComponent(CodeBlockComponent);

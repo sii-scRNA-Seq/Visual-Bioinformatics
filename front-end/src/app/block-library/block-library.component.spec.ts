@@ -3,8 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { BlockId } from '../block.interface';
 import { BlockLibraryComponent } from './block-library.component';
@@ -29,9 +27,7 @@ describe('BlockLibraryComponent', () => {
       ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
-        { provide: OutputService, useClass: MockOutputService },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting()
+        { provide: OutputService, useClass: MockOutputService }
       ]
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);

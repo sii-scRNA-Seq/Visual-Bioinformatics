@@ -168,6 +168,8 @@ def create_app(test_mode=False):
         """
         A function called by a HTTP request to /api/getdatasetinfo.
 
+        Send a list of available datasets, with information such as names and samples, to the frontend for configuration.
+
         Return:
 
             - A JSON response object containing the dataset info.
@@ -338,7 +340,7 @@ def create_app(test_mode=False):
 
     def get_missing_parameters(params, block):
         """
-        Find which parameters from `params` are not in `block`.
+        Find which parameters from `params` are not in `block`, to validate that the block contains the required parameters.
 
         Parameters:
 

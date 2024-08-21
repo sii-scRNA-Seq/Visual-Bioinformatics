@@ -106,3 +106,16 @@ def test_run_filterBothWhenValuesSetToNormalValues(example_adata):
     result_adata, result_message = block.run(example_adata.copy(), input)
     assert result_adata.n_vars == 2
     assert result_adata.n_obs == 4
+
+
+def test_run_hasCorrectReturnValues(example_adata):
+    block = BasicFiltering()
+    input = {
+        "min_genes": "1",
+        "min_cells": "1"
+    }
+
+    result_adata, result_message = block.run(example_adata.copy(), input)
+    assert result_adata.n_obs == 4
+    assert result_adata.n_vars == 2
+    assert result_message["text"] == "Object with: 4 cells and 2 genes"

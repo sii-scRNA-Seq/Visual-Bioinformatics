@@ -59,3 +59,16 @@ def test_run_callsScanpyFunctions(example_adata):
     with patch("scanpy.external.pp.harmony_integrate") as mock, patch("anndata.AnnData.obsm"):
         block.run(example_adata, "pf_dogga", input)
     mock.assert_called_once()
+
+
+def test_run_hasCorrectReturnValues(example_adata):
+    block = Integration()
+    input = {
+        "observation": "day"
+    }
+
+    with patch("scanpy.external.pp.harmony_integrate"), patch("anndata.AnnData.obsm"):
+        result_adata, result_message = block.run(example_adata.copy(), "pf_dogga", input)
+    assert result_adata.n_obs == 5
+    assert result_adata.n_vars == 3
+    assert result_message["text"] == "Object with: 5 cells and 3 genes"

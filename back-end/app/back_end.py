@@ -111,7 +111,7 @@ def create_app(test_mode=False):
     # TODO: Consider permitted sources for CORS requests (see Trello)
     CORS(app)
     socketio = SocketIO(app, cors_allowed_origins="*")
-    
+
     def handle_exception(e):
         response = e.get_response()
         response.data = json.dumps({

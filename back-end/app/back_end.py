@@ -239,7 +239,7 @@ def create_app(test_mode=False):
                     user_data, dataset, output_message = load_data(user_data, current_block_info)
                 elif current_block_info["block_id"] == "basicfiltering" and "loaddata" in executed_blocks:
                     block = BasicFiltering()
-                    user_data, output_message = block.run(user_data, current_block_info)
+                    user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "qcplots" and "loaddata" in executed_blocks:
                     block = QCPlots()
                     user_data, output_message = block.run(user_data, dataset, current_block_info)
@@ -248,16 +248,16 @@ def create_app(test_mode=False):
                     user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "variablegenes" and "loaddata" in executed_blocks:
                     block = VariableGenes()
-                    user_data, output_message = block.run(user_data, current_block_info)
+                    user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "pca" and "variablegenes" in executed_blocks:
                     block = PCA()
-                    user_data, output_message = block.run(user_data, current_block_info)
+                    user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "integration" and "pca" in executed_blocks:
                     block = Integration()
                     user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] == "runumap" and "pca" in executed_blocks:
                     block = RunUMAP()
-                    user_data, output_message = block.run(user_data, current_block_info)
+                    user_data, output_message = block.run(user_data, dataset, current_block_info)
                 elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering", "variablegenes", "pca", "integration", "runumap"]:
                     raise BadRequestException("Blocks have an invalid order")
                 else:

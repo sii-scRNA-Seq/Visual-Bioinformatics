@@ -16,6 +16,9 @@ export class DatasetInfoService implements DatasetInfoServiceInterface {
     this.setDatasetInfo();
   }
 
+  /**
+   * Asks the backendHttpClient to get the dataset info, and updates the dataset info when it receives a response.
+   */
   async setDatasetInfo(): Promise<void> {
     const datasetInfo = await this.backendHttpClient.getDatasetInfo();
     this.datasetInfo$.next(datasetInfo);

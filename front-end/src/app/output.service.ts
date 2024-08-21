@@ -28,8 +28,8 @@ export class OutputService implements OutputServiceInterface {
       (res) => { this.userId = res; },
     );
 
-    // TODO should this just be a normal http request? do we really need socket io lib?
-    // e.g. https://angulargems.beehiiv.com/p/web-sockets-in-angular
+    // TODO: Should this just be a normal HTTP request? Do we really need the SocketIO library?
+    // TODO: e.g. https://angulargems.beehiiv.com/p/web-sockets-in-angular
     this.backendSocketClient.listen((msg: string) => {
       const res = JSON.parse(msg);
       if (res.text) {
@@ -86,10 +86,20 @@ export class OutputService implements OutputServiceInterface {
     });
   }
 
+  /**
+   * Resets the Output Display by setting the outputs list to be empty.
+   */
   resetOutputs(): void {
     this.outputs$.next([]);
   }
 
+  /**
+   * Opens a snackbar if there is no user id.
+   * Reformats the blocks parameter, and adds the user id to create a Request object.
+   * Calls the sendRequest() method in the backendSocketClient with a request to send to the backend.
+   *
+   * @param blocks - A list of Block objects that should be executed
+   */
   executeBlocks(blocks: Block[]): void {
     if (this.userId === null) {
       this.snackBar.open('No User ID. Please refresh the page and try again.', 'Close', { duration: 5000 });

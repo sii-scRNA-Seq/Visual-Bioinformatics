@@ -13,10 +13,20 @@ export class BackendSocketClient {
     this.socket.connect();
   }
 
+  /**
+   * Sends a WebSocket request to the backend.
+   *
+   * @param request - The request which will be sent to the backend
+   */
   sendRequest(request: Request): void {
     this.socket.emit('json', request);
   }
 
+  /**
+   * Listens for WebSocket responses from the backend and executes a function on any responses.
+   *
+   * @param foo - The function to be executed on each response
+   */
   listen(foo: (res: string) => void): void {
     this.socket.on('json', (msg: string) => {
       foo(msg);

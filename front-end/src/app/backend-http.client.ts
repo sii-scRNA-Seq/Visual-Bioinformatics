@@ -12,6 +12,13 @@ export class BackendHttpClient {
 
   constructor(private http: HttpClient, private snackBar: MatSnackBar) { }
 
+  /**
+   * Makes a HTTP request to the backend, receives the response and returns the user id.
+   * Opens a snackbar with an appropriate message if an error occurs.
+   *
+   * @param id - The old user id
+   * @returns The user id provided by the backend
+   */
   async getUserId(id: string): Promise<string> {
     let url = '';
     if (isDevMode()) {
@@ -31,6 +38,12 @@ export class BackendHttpClient {
     return response.user_id;
   }
 
+  /**
+   * Makes a HTTP request to the backend, receives the response and returns the dataset info.
+   * Opens a snackbar with an appropriate message if an error occurs.
+   *
+   * @returns The list of dataset info provided by the backend
+   */
   async getDatasetInfo(): Promise<DatasetInfo[]> {
     let url = '';
     if (isDevMode()) {

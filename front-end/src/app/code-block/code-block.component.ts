@@ -21,12 +21,18 @@ export class CodeBlockComponent {
     );
   }
 
+  /**
+   * If the dataset parameter has changed, calls the setCurrentDataset() method in the currentDatasetService with the key of the new dataset.
+   */
   onMatSelectValueChanges(): void {
     if (this.block.blockId == 'loaddata') {
       this.currentDatasetService.setCurrentDataset(this.block.parameters[0].value as string);
     }
   }
 
+  /**
+   * Calls the removeBlock() method in the blockService with the blockUUID of this block.
+   */
   removeBlock(): void {
     this.blockService.removeBlock(this.block.blockUUID);
   }

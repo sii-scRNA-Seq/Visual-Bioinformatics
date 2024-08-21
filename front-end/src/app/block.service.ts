@@ -40,6 +40,10 @@ export class BlockService implements BlockServiceInterface {
     );
   }
 
+  /**
+   * Updates the value and options for the sample parameter on all 'qcfiltering' blocks to match the current dataset.
+   * Updates the value and options for the observation parameter on all 'integration' blocks to match the current dataset.
+   */
   onCurrentDatasetChanges(): void {
     const blockList = this.blocksOnCanvas$.getValue();
     for (let i = 0; i < blockList.length; i++) {
@@ -69,6 +73,11 @@ export class BlockService implements BlockServiceInterface {
     }
   }
 
+  /**
+   * Creates a block with all the required information and adds it to the Canvas.
+   *
+   * @param id - The BlockId of the block that should be added
+   */
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
     const lastBlock: Block = blockList[blockList.length-1];
@@ -236,6 +245,11 @@ export class BlockService implements BlockServiceInterface {
     }
   }
 
+  /**
+   * Finds the first block with the given uuid and removes that block and all blocks below it from the Canvas.
+   *
+   * @param uuid - The uuid of the block that should be removed
+   */
   removeBlock(uuid: string): void {
     const newBlockList: Block[] = [];
     for (let i = 0; i < this.blocksOnCanvas$.getValue().length; i++) {
@@ -249,6 +263,10 @@ export class BlockService implements BlockServiceInterface {
     }
   }
 
+  /**
+   * Calls the resetOutputs() method in the outputService to clear the Output Display.
+   * Calls the executeBlocks() method in the outputService with all of the information of the blocks currently on the Canvas.
+   */
   executeBlocks(): void {
     this.outputService.resetOutputs();
     this.outputService.executeBlocks(this.blocksOnCanvas$.getValue());

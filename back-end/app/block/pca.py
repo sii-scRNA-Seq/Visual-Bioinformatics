@@ -10,15 +10,43 @@ from threadpoolctl import threadpool_limits
 
 class PCA(Block):
 
+    """
+    `PCA` subclass, which inherits from the `Block` superclass.
+    """
+
     required_parameters = []
+    """The parameters required by a `PCA` block."""
 
     def __init__(self):
+        """Initialise a `PCA` object."""
         super().__init__()
 
     def validate_parameters(self, parameters: dict) -> None:
+        """
+        Validate that all of the parameters in the `required_parameters` attribute are present in the parameters dictionary. The implementation is inherited from the `Block` superclass.
+
+        Parameters:
+
+            - `parameters`: A dictionary mapping block parameters to their values.
+        """
         super(PCA, self).validate_parameters(parameters)
 
     def run(self, adata: AnnData, parameters: dict) -> (AnnData, dict):
+        """
+        Execute the code for a `PCA` block.
+
+        Calculate QC metrics, scale the data, carry out PCA and plot the variance ratio.
+
+        Parameters:
+
+            - `adata`: The AnnData for which the code should be executed.
+            - `parameters`: A dictionary mapping parameter names to their values, which should be used while executing the code.
+
+        Return:
+
+            - The resulting AnnData after performing the block's behaviour.
+            - A dictionary containing the results that will be seen by the user.
+        """
         self.validate_parameters(parameters)
 
         adata.var["mt"] = adata.var_names.str.startswith("MT-")
@@ -26,7 +54,7 @@ class PCA(Block):
         adata.obs["total_UMIs"] = adata.obs["total_counts"]
         adata.obs = adata.obs.drop("total_counts", axis=1)
 
-        # Consider adding Regress Out PCA step (see Trello)
+        # TODO: Consider adding Regress Out PCA step (see Trello)
         # sc.pp.regress_out(adata, ["total_UMIs", "pct_counts_mt"], n_jobs=1)
 
         with parallel_backend("threading", n_jobs=1):

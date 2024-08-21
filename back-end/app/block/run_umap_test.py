@@ -58,7 +58,7 @@ def test_run_callsScanpyFunctions(example_adata):
     }
 
     with patch("scanpy.pp.neighbors", wraps=scanpy.pp.neighbors) as mock1, patch("scanpy.tl.umap", wraps=scanpy.tl.umap) as mock2, patch("scanpy.tl.leiden", wraps=scanpy.tl.leiden) as mock3, patch("scanpy.pl.umap", wraps=scanpy.pl.umap) as mock4:
-        block.run(example_adata, input)
+        block.run(example_adata, "pbmc3k", input)
     mock1.assert_called_once()
     mock2.assert_called_once()
     mock3.assert_called_once()
@@ -73,7 +73,7 @@ def test_run_hasCorrectReturnValues(example_adata):
     }
 
     with patch("scanpy.pp.highly_variable_genes"), patch("scanpy.pl.highly_variable_genes"):
-        result_adata, result_message = block.run(example_adata, input)
+        result_adata, result_message = block.run(example_adata, "pbmc3k", input)
     assert result_adata.n_obs == example_adata.n_obs
     assert result_adata.n_vars == example_adata.n_vars
     assert result_message["image"]["image"][:20] == "b'iVBORw0KGgoAAAANSU"

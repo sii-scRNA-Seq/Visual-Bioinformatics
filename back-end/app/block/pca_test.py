@@ -29,7 +29,7 @@ def test_run_callsScanpyFunctions(example_adata):
     input = {}
 
     with patch("scanpy.pp.calculate_qc_metrics", wraps=scanpy.pp.calculate_qc_metrics) as mock1, patch("scanpy.pp.scale", wraps=scanpy.pp.scale) as mock2, patch("scanpy.tl.pca", wraps=scanpy.tl.pca) as mock3, patch("scanpy.pl.pca_variance_ratio", wraps=scanpy.pl.pca_variance_ratio) as mock4:
-        block.run(example_adata, input)
+        block.run(example_adata, "pbmc3k", input)
     mock1.assert_called_once()
     mock2.assert_called_once()
     mock3.assert_called_once()
@@ -40,7 +40,7 @@ def test_run_hasCorrectReturnValues(example_adata):
     block = PCA()
     input = {}
 
-    result_adata, result_message = block.run(example_adata, input)
+    result_adata, result_message = block.run(example_adata, "pbmc3k", input)
     assert result_adata.n_obs == example_adata.n_obs
     assert result_adata.n_vars == example_adata.n_vars
     assert result_message["image"]["image"][:20] == "b'iVBORw0KGgoAAAANSU"

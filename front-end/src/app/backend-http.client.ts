@@ -1,7 +1,7 @@
-import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { firstValueFrom } from 'rxjs';
 
 import { DatasetInfo } from './dataset-info';
 

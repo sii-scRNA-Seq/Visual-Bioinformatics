@@ -11,6 +11,7 @@ import { OutputService } from '../output.service';
 })
 
 export class BlockLibraryComponent implements OnInit {
+
   blockList: Block[] = [];
 
   executingBlocks: boolean = false;

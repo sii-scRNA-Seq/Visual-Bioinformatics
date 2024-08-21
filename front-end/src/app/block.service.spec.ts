@@ -1,17 +1,17 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { first, firstValueFrom } from 'rxjs';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed } from '@angular/core/testing';
+import { first, firstValueFrom } from 'rxjs';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { BlockService } from './block.service';
+import { CurrentDatasetService } from './current-dataset.service';
 import { DatasetInfoService } from './dataset-info.service';
+import { MockCurrentDatasetService } from './mock-current-dataset.service';
 import { MockDatasetInfoService } from './mock-dataset-info.service';
 import { MockOutputService } from './mock-output.service';
 import { OutputService } from './output.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { CurrentDatasetService } from './current-dataset.service';
-import { MockCurrentDatasetService } from './mock-current-dataset.service';
 
 describe('BlockService', () => {
   let service: BlockService;
@@ -21,14 +21,16 @@ describe('BlockService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule,
-        MatSnackBarModule],
+      imports: [
+        BrowserAnimationsModule,
+        MatSnackBarModule
+      ],
       providers: [
-        { provide: OutputService, useClass: MockOutputService },
-        { provide: DatasetInfoService, useClass: MockDatasetInfoService },
         { provide: CurrentDatasetService, useClass: MockCurrentDatasetService },
+        { provide: DatasetInfoService, useClass: MockDatasetInfoService },
+        { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
+        provideHttpClientTesting()
       ]
     });
     service = TestBed.inject(BlockService);

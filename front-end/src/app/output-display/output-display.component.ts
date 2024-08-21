@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
+import { BlockIdToTitleMap } from '../block.interface';
 import { Output } from './../output';
 import { OutputService } from '../output.service';
-import {BlockIdToTitleMap} from '../block.interface';
 
 @Component({
   selector: 'app-output-display',

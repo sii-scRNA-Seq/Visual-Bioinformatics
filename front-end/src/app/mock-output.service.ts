@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
 
 import { Block } from './block.interface';
 import { Output } from './output';
@@ -11,6 +11,7 @@ import { OutputServiceInterface } from './output.service.interface';
   providedIn: 'root'
 })
 export class MockOutputService implements OutputServiceInterface {
+
   private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
   readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
 

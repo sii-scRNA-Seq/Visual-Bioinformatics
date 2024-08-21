@@ -1,18 +1,18 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { BlockService } from '../block.service';
 import { CanvasComponent } from './canvas.component';
 import { CodeBlockComponent } from '../code-block/code-block.component';
 import { MockBlockService } from '../mock-block.service';
-import { OutputService } from '../output.service';
 import { MockOutputService } from '../mock-output.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { OutputService } from '../output.service';
 
 describe('CanvasComponent', () => {
   let component: CanvasComponent;
@@ -34,7 +34,7 @@ describe('CanvasComponent', () => {
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
+        provideHttpClientTesting()
       ]
     });
     fixture = TestBed.createComponent(CanvasComponent);

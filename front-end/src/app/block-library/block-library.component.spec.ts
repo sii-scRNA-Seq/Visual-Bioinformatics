@@ -1,9 +1,10 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { BlockId } from '../block.interface';
 import { BlockLibraryComponent } from './block-library.component';
@@ -11,7 +12,6 @@ import { BlockService } from '../block.service';
 import { MockBlockService } from '../mock-block.service';
 import { MockOutputService } from '../mock-output.service';
 import { OutputService } from '../output.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('BlockLibraryComponent', () => {
   let component: BlockLibraryComponent;
@@ -19,15 +19,19 @@ describe('BlockLibraryComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [BlockLibraryComponent],
-      imports: [MatCardModule,
+      declarations: [
+        BlockLibraryComponent
+      ],
+      imports: [
+        MatCardModule,
         MatSnackBarModule,
-        MatTooltipModule],
+        MatTooltipModule
+      ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
+        provideHttpClientTesting()
       ]
     });
     fixture = TestBed.createComponent(BlockLibraryComponent);

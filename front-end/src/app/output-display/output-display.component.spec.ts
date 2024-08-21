@@ -1,24 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { Block } from '../block.interface';
 import { MockOutputService } from '../mock-output.service';
 import { OutputDisplayComponent } from './output-display.component';
 import { OutputService } from '../output.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('OutputDisplayComponent', () => {
   let component: OutputDisplayComponent;
   let fixture: ComponentFixture<OutputDisplayComponent>;
 
-
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [OutputDisplayComponent],
-      imports: [MatCardModule,
-        MatSnackBarModule],
+      declarations: [
+        OutputDisplayComponent
+      ],
+      imports: [
+        MatCardModule,
+        MatSnackBarModule
+      ],
       providers: [
         { provide: OutputService, useClass: MockOutputService },
         provideHttpClient(withInterceptorsFromDi()),

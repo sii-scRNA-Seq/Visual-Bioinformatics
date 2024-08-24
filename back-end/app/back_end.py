@@ -108,9 +108,11 @@ def create_app(test_mode=False):
     accepting_user_requests = Cache(config=user_cache_config)
     accepting_user_requests.init_app(app)
 
-    # TODO: Consider permitted sources for CORS requests (see Trello)
-    CORS(app)
     socketio = SocketIO(app, cors_allowed_origins="*")
+
+    if test_mode:
+        # Only required in local mode as in production we serve the frontend from flask.
+        CORS(app)
 
     def handle_exception(e):
         response = e.get_response()

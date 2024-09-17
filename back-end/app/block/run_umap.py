@@ -58,7 +58,7 @@ class RunUMAP(Block):
                 sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
                 sc.tl.umap(adata)
                 sc.tl.leiden(adata)
-                sc.pl.umap(adata, color=["leiden"], legend_loc="on data")
+                sc.pl.umap(adata, color=["leiden"], legend_loc="on data", show=False)
 
         image_stream = io.BytesIO()
         plt.savefig(image_stream, format="png")

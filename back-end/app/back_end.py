@@ -169,7 +169,9 @@ def create_app(test_mode=False):
     def return_results_to_correct_user(message):
         logger.info(f'Emitting user results {message}')
         room = message["session_id"]
+        user_id = message["user_id"]
         socketio.emit("json", json.dumps(message), room=room)
+        socketio.emit("handled_users", json.dumps({"user_id": user_id}))
 
     @socketio.on("json")
     def dispatch_execute_blocks(message):

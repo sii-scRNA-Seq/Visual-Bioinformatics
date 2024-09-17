@@ -167,6 +167,7 @@ def execute_blocks(self, message, session_id, socketio_url):
 
                 output_message["blockId"] = current_block_info["block_id"]
                 output_message["session_id"] = session_id
+                output_message["user_id"] = user_id
                 sio.emit("results", output_message)
                 logger.debug("emitted:" + json.dumps(output_message))
 
@@ -190,4 +191,5 @@ def execute_blocks(self, message, session_id, socketio_url):
             #     accepting_user_requests.set(user_id, True)
         finally:
             end_connection["session_id"] = session_id
-            sio.emit("results", end_connection)
+            end_connection["user_id"] = user_id
+            sio.call("results", end_connection)

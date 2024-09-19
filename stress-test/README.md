@@ -24,5 +24,8 @@ $ artillery run --output stress-test/prod-stress.json --environment production s
 
 ### HTML Reports
 ```
-$ artillery report --output stress-test/[local|prod]-report.html stress-test/[local|prod]-stress.json
+$ artillery report --output stress-test/local-report.html stress-test/local-stress.json
+```
+```
+$ artillery report --output stress-test/prod-report.html stress-test/prod-stress.json
 ```

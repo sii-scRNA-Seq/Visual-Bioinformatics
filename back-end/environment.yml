@@ -88,3 +88,4 @@ dependencies:
       - zope-interface==6.2
       - celery[redis]
       - requests
+      - websocket-client

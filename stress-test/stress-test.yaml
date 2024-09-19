@@ -13,8 +13,8 @@ config:
         - maxErrorRate: 1
   phases:
     - name: 20 users arrive over one minute
-      duration: 20
-      arrivalCount: 4
+      duration: 120
+      arrivalCount: 50
 
 scenarios:
   - name: Run PBMC workflow

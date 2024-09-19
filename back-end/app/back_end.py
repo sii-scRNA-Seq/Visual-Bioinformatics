@@ -23,7 +23,7 @@ import yaml
 
 from dataset_info import dataset_info
 
-from tasks import execute_blocks
+from tasks import execute_blocks, execute_blocks_celery
 
 sc.settings.verbosity = 0
 plt.switch_backend("agg")
@@ -192,13 +192,11 @@ def create_app(test_mode=False):
             #         raise NotAcceptingRequestException("Not accepting requests from user")
             #     accepting_user_requests.set(user_id, False)
 
-            if production_mode:
-                port = 8080
+            if test_mode:
+                execute_blocks(message, sid, f"ws://127.0.0.1:5000")
             else:
-                port = 5000
+                execute_blocks_celery.delay(message, sid, f"ws://127.0.0.1:8080")
 
-            task = execute_blocks.delay(message, sid, f"ws://127.0.0.1:{port}")
-            logger.info(task)
         except UserIDException as e:
             logger.error(e, exc_info=True)
             end_connection = {

@@ -91,8 +91,11 @@ def get_missing_parameters(params, block):
                 missing_params.append(param)
         return missing_params
 
-@celery.task(bind=True)
-def execute_blocks(self, message, session_id, socketio_url):
+@celery.task()
+def execute_blocks_celery(message, session_id, socketio_url):
+    execute_blocks(message, session_id, socketio_url)
+
+def execute_blocks(message, session_id, socketio_url):
     """
     A function called by a WebSocket request.
 

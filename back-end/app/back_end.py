@@ -12,7 +12,6 @@ from flask_socketio import SocketIO
 
 from matplotlib import pyplot as plt
 import argparse
-import gevent
 import json
 import logging
 import logging.config
@@ -23,7 +22,6 @@ import yaml
 
 from dataset_info import dataset_info
 
-from tasks import execute_blocks, execute_blocks_celery
 
 sc.settings.verbosity = 0
 plt.switch_backend("agg")
@@ -63,7 +61,7 @@ def create_app(test_mode=False):
 
     if test_mode:
         logger = logging.getLogger("scampi-test")
-        user_cache_config = file_cache_config
+        user_cache_config = simple_cache_config
         logger.info("Starting in test mode")
     else:
         logger = logging.getLogger("scampi")
@@ -173,8 +171,13 @@ def create_app(test_mode=False):
         socketio.emit("json", json.dumps(message), room=room)
         socketio.emit("handled_users", json.dumps({"user_id": user_id}))
 
+        if "error" in message or "end_connection" in message:
+            with app.app_context():
+                accepting_user_requests.set(user_id, True)
+
     @socketio.on("json")
     def dispatch_execute_blocks(message):
+
         logger.info(f"Dispatching blocks, json={message}")
         sid = request.sid
 
@@ -187,25 +190,36 @@ def create_app(test_mode=False):
                 raise UserIDException("User ID is empty")
             user_id = message["user_id"]
 
-            # with app.app_context():
-            #     if accepting_user_requests.get(user_id) is False:
-            #         raise NotAcceptingRequestException("Not accepting requests from user")
-            #     accepting_user_requests.set(user_id, False)
+            with app.app_context():
+                if not accepting_user_requests.has(user_id):
+                    logger.info(f"Creating accepting_user_requests entry for {user_id}")
+                    accepting_user_requests.set(user_id, True)
+                if not accepting_user_requests.get(user_id):
+                    raise NotAcceptingRequestException("Not accepting requests from user")
+                accepting_user_requests.set(user_id, False)
 
-            if test_mode:
-                execute_blocks(message, sid, f"ws://127.0.0.1:5000")
+            if app.config.get("TESTING"):
+                # Running Tests
+                from block_execution import execute_blocks
+                execute_blocks(message, sid, "somewhere")
+            elif test_mode:
+                # Running locally
+                from tasks import execute_blocks_celery
+                execute_blocks_celery.delay(message, sid, f"ws://127.0.0.1:5000")
             else:
+                # Running in produciton
+                from tasks import execute_blocks_celery
                 execute_blocks_celery.delay(message, sid, f"ws://127.0.0.1:8080")
 
         except UserIDException as e:
             logger.error(e, exc_info=True)
             end_connection = {
                 "error": "Your UserID is invalid: " + e.message + ". Please refresh the page and try again."}
-            socketio.emit("json", json.dumps(end_connection), room=sid)
+            socketio.emit("results", json.dumps(end_connection), room=sid)
         except NotAcceptingRequestException as e:
             logger.error(e, exc_info=True)
             end_connection = {"error": "You have another request in progress. Please wait and try again."}
-            socketio.emit("json", json.dumps(end_connection), room=sid)
+            socketio.emit("results", json.dumps(end_connection), room=sid)
 
     return socketio, app
 

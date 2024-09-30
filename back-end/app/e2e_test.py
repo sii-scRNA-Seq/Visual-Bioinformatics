@@ -138,6 +138,7 @@ def test_executeblocks_WarnsWhenUserIDIsMissing(socketio_client):
     assert len(received[0]["args"]) == 1
     assert received[0]["args"][0] == expected
 
+
 def test_executeblocks_WarnsWhenUserIDIsNone(socketio_client):
     socketio_client.get_received()
     message = {
@@ -179,6 +180,7 @@ def test_executeblocks_WarnsWhenUserIDIsEmptyString(socketio_client):
     assert len(received[0]["args"]) == 1
     assert received[0]["args"][0] == expected
 
+
 def test_executeblocks_ChangesValueOfAcceptingUserRequests(socketio_client):
     socketio_client.get_received()
     message = {
@@ -189,7 +191,7 @@ def test_executeblocks_ChangesValueOfAcceptingUserRequests(socketio_client):
         with patch("flask_caching.Cache.get", lambda x, y: True):
             with patch("block_execution.get_socketio_client", lambda x: socketio_client):
                 with patch("block_execution.disconnect_socketio_client", lambda x: True):
-                    with patch("block_execution.emit_synchronous", lambda cl, ch, msg: cl.emit(ch,msg)):
+                    with patch("block_execution.emit_synchronous", lambda cl, ch, msg: cl.emit(ch, msg)):
 
                         socketio_client.emit("json", message)
                         received = socketio_client.get_received()
@@ -201,7 +203,6 @@ def test_executeblocks_ChangesValueOfAcceptingUserRequests(socketio_client):
                         assert len(json_received) == 1
                         result = json.loads(json_received[0]["args"])
                         assert result["end_connection"] == "end_connection"
-
 
 
 def test_executeblocks_WarnsWhenNotAcceptingRequestsFromUser(socketio_client):
@@ -221,6 +222,7 @@ def test_executeblocks_WarnsWhenNotAcceptingRequestsFromUser(socketio_client):
                     assert len(json_received) == 1
                     result = json.loads(json_received[0]["args"][0])
                     assert result["error"] == "You have another request in progress. Please wait and try again."
+
 
 def test_executeblocks_AcceptsRequestsAfterEndConnection(socketio_client):
     socketio_client.get_received()
@@ -247,7 +249,6 @@ def test_executeblocks_AcceptsRequestsAfterEndConnection(socketio_client):
                 assert result["end_connection"] == "end_connection"
 
 
-
 def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client):
     socketio_client.get_received()
     message = {
@@ -263,6 +264,7 @@ def test_executeblocks_WarnsWhenBlocksIsMissing(socketio_client):
                 assert len(json_received) == 1
                 result = json.loads(json_received[0]["args"])
                 assert result["error"] == "Received a bad request: Blocks is missing. Please refresh the page and try again."
+
 
 def test_executeblocks_WarnsWhenBlocksIsNone(socketio_client):
     socketio_client.get_received()
@@ -360,7 +362,6 @@ def test_executeblocks_WarnsWhenBasicFilteringIsBeforeLoadData(socketio_client):
                 assert result["error"] == "Received a bad request: Blocks have an invalid order. Please refresh the page and try again."
 
 
-
 def test_executeblocks_WarnsWhenQcPlotsIsBeforeLoadData(socketio_client):
     socketio_client.get_received()
     message = {
@@ -399,7 +400,6 @@ def test_executeblocks_WarnsWhenQcFilteringIsBeforeLoadData(socketio_client):
                 assert len(json_received) == 1
                 result = json.loads(json_received[0]["args"])
                 assert result["error"] == "Received a bad request: Blocks have an invalid order. Please refresh the page and try again."
-
 
 
 def test_executeblocks_WarnsWhenVariableGenesIsBeforeLoadData(socketio_client):
@@ -441,7 +441,6 @@ def test_executeblocks_WarnsWhenPcaIsBeforeVariableGenes(socketio_client):
                 assert len(json_received) == 2
                 result = json.loads(json_received[1]["args"])
                 assert result["error"] == "Received a bad request: Blocks have an invalid order. Please refresh the page and try again."
-
 
 
 def test_executeblocks_WarnsWhenIntegrationIsBeforePca(socketio_client):
@@ -488,7 +487,6 @@ def test_executeblocks_WarnsWhenRunUmapIsBeforePca(socketio_client):
                 assert result["error"] == "Received a bad request: Blocks have an invalid order. Please refresh the page and try again."
 
 
-
 def test_executeblocks_WarnsWhenBlockIDDoesNotMatchExpectedValues(socketio_client):
     socketio_client.get_received()
     message = {
@@ -528,7 +526,6 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
                 assert len(json_received) == 2
                 result = json.loads(json_received[1]["args"])
                 assert result["error"] == "Unknown error. Please refresh the page and try again."
-
 
 
 def test_executeblocks_OnlyOneClientReceivesResponse():
@@ -685,14 +682,15 @@ def test_qcplots_EndToEnd(socketio_client):
                 assert len(json.loads(json_received[1]["args"])["image_list"]) == 3
                 assert json.loads(json_received[1]["args"])["image_list"][0]["image"][:20] == "b'iVBORw0KGgoAAAANSU"
                 assert json.loads(json_received[1]["args"])["image_list"][0][
-                           "alt_text"] == "A violin plot displaying the distribution of the n_genes_by_counts observation generated by a QC Plots block"
+                    "alt_text"] == "A violin plot displaying the distribution of the n_genes_by_counts observation generated by a QC Plots block"
                 assert json.loads(json_received[1]["args"])["image_list"][1]["image"][:20] == "b'iVBORw0KGgoAAAANSU"
                 assert json.loads(json_received[1]["args"])["image_list"][1][
-                           "alt_text"] == "A violin plot displaying the distribution of the total_UMIs observation generated by a QC Plots block"
+                    "alt_text"] == "A violin plot displaying the distribution of the total_UMIs observation generated by a QC Plots block"
                 assert json.loads(json_received[1]["args"])["image_list"][2]["image"][:20] == "b'iVBORw0KGgoAAAANSU"
                 assert json.loads(json_received[1]["args"])["image_list"][2][
-                           "alt_text"] == "A violin plot displaying the distribution of the pct_counts_mt observation generated by a QC Plots block"
+                    "alt_text"] == "A violin plot displaying the distribution of the pct_counts_mt observation generated by a QC Plots block"
                 assert json.loads(json_received[2]["args"])["end_connection"] == "end_connection"
+
 
 def test_qcfiltering_EndToEnd():
     with patch("scanpy.read_h5ad", lambda _: get_AnnData(qc_filtering=True)):
@@ -739,7 +737,7 @@ def test_variablegenes_EndToEnd(socketio_client):
                 assert len(json_received) == 3
                 assert json.loads(json_received[1]["args"])["blockId"] == "variablegenes"
                 assert json.loads(json_received[1]["args"])["image"][
-                           "alt_text"] == "A scatter plot displaying dispersions of genes generated by an Identify Highly Variable Genes block"
+                    "alt_text"] == "A scatter plot displaying dispersions of genes generated by an Identify Highly Variable Genes block"
                 assert json.loads(json_received[2]["args"])["end_connection"] == "end_connection"
 
 
@@ -770,8 +768,9 @@ def test_pca_EndToEnd():
                     assert len(json_received) == 4
                     assert json.loads(json_received[2]["args"])["blockId"] == "pca"
                     assert json.loads(json_received[2]["args"])["image"][
-                               "alt_text"] == "A scatter plot displaying the contribution of each PC to the total variance in the data, generated by a Principal Component Analysis block"
+                        "alt_text"] == "A scatter plot displaying the contribution of each PC to the total variance in the data, generated by a Principal Component Analysis block"
                     assert json.loads(json_received[3]["args"])["end_connection"] == "end_connection"
+
 
 def test_integration_EndToEnd(socketio_client):
     socketio_client.get_received()
@@ -827,5 +826,5 @@ def test_runumap_EndToEnd():
                     assert len(json_received) == 5
                     assert json.loads(json_received[3]["args"])["blockId"] == "runumap"
                     assert json.loads(json_received[3]["args"])["image"][
-                               "alt_text"] == "A UMAP of Leiden clusters using the principal components generated by a Run UMAP block"
+                        "alt_text"] == "A UMAP of Leiden clusters using the principal components generated by a Run UMAP block"
                     assert json.loads(json_received[4]["args"])["end_connection"] == "end_connection"

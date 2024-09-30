@@ -45,6 +45,7 @@ file_cache_config = {
     "CACHE_THRESHOLD": 500,        # Default
 }
 
+
 def create_app(test_mode=False):
     """
     Create the SocketIO and Flask apps.
@@ -205,11 +206,11 @@ def create_app(test_mode=False):
             elif test_mode:
                 # Running locally
                 from tasks import execute_blocks_celery
-                execute_blocks_celery.delay(message, sid, f"ws://127.0.0.1:5000")
+                execute_blocks_celery.delay(message, sid, "ws://127.0.0.1:5000")
             else:
                 # Running in produciton
                 from tasks import execute_blocks_celery
-                execute_blocks_celery.delay(message, sid, f"ws://127.0.0.1:8080")
+                execute_blocks_celery.delay(message, sid, "ws://127.0.0.1:8080")
 
         except UserIDException as e:
             logger.error(e, exc_info=True)

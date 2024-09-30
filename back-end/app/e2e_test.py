@@ -527,7 +527,6 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
 
 
 def test_executeblocks_OnlyOneClientReceivesResponse():
-    adata = get_AnnData()
     socketio, app = create_app(test_mode=True)
     app.config.update({"TESTING": True})
     client1 = socketio.test_client(app)

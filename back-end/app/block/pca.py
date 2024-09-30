@@ -62,7 +62,7 @@ class PCA(Block):
             with threadpool_limits(limits=1, user_api="blas"):
                 sc.pp.scale(adata, max_value=10)
                 sc.tl.pca(adata, svd_solver="arpack")
-        sc.pl.pca_variance_ratio(adata, log=True)
+        sc.pl.pca_variance_ratio(adata, log=True, show=False)
         plt.ylabel("log variance ratio")
 
         image_stream = io.BytesIO()

@@ -56,7 +56,7 @@ class VariableGenes(Block):
         sc.pp.log1p(adata)
         sc.pp.highly_variable_genes(adata, min_mean=min_mean, max_mean=max_mean, min_disp=min_disp)
         plt.rcParams["font.size"] = 14
-        sc.pl.highly_variable_genes(adata)
+        sc.pl.highly_variable_genes(adata, show=False)
         plt.rcdefaults()
 
         image_stream = io.BytesIO()

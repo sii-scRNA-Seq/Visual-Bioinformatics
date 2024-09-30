@@ -4,3 +4,4 @@
 back-end/app/back-end-cache/
 **/data/
 back-end/dist/
+redis-stable

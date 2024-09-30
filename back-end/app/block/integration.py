@@ -1,4 +1,7 @@
 from anndata import AnnData
+from joblib import parallel_backend
+from threadpoolctl import threadpool_limits
+
 from block.block_interface import Block, adata_text
 from dataset_info import dataset_info
 import scanpy as sc
@@ -53,7 +56,9 @@ class Integration(Block):
             if d["key"] == dataset and observation not in d["integration_obs"]:
                 raise Exception("Selected observation does not exist.")
 
-        sc.external.pp.harmony_integrate(adata, observation)
+        with parallel_backend("threading", n_jobs=1):
+            with threadpool_limits(limits=1, user_api="blas"):
+                sc.external.pp.harmony_integrate(adata, observation)
         adata.obsm["X_pca"] = adata.obsm["X_pca_harmony"]
 
         message = {

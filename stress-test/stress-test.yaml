@@ -9,12 +9,12 @@ config:
   ensure:
       thresholds:
         - http.response_time.p95: 100
-        - socketio.response_time.p95: 5000
+        - socketio.response_time.p95: 30000
         - maxErrorRate: 1
   phases:
     - name: 20 users arrive over one minute
-      duration: 60
-      arrivalCount: 20
+      duration: 120
+      arrivalCount: 50
 
 scenarios:
   - name: Run PBMC workflow
@@ -28,7 +28,10 @@ scenarios:
       - emit:
           channel: 'json'
           data: {"user_id":"{{userId}}","blocks":[{"block_id":"loaddata","dataset":"pbmc3k"},{"block_id":"basicfiltering","min_genes":200,"min_cells":3},{"block_id":"qcplots"},{"block_id":"qcfiltering","sample":"1","min_n_genes_by_counts":200,"max_n_genes_by_counts":2500,"pct_counts_mt":5},{"block_id":"variablegenes","min_mean":0.0125,"max_mean":3,"min_disp":0.5},{"block_id":"pca"},{"block_id":"runumap","n_neighbors":10,"n_pcs":"20"}]}
-      - think: 5
+        response:
+          channel: handled_users
+          data: '{"user_id": "{{userId}}"}'
+      - think: 30
   - name: Run PF workflow
     engine: socketio # Enable the Socket.IO engine
     flow:
@@ -40,4 +43,7 @@ scenarios:
       - emit:
           channel: 'json'
           data: {"user_id":"{{userId}}","blocks":[{"block_id":"loaddata","dataset":"pf_dogga"},{"block_id":"basicfiltering","min_genes":200,"min_cells":3},{"block_id":"qcplots"},{"block_id":"qcfiltering","sample":"0","min_n_genes_by_counts":200,"max_n_genes_by_counts":2500,"pct_counts_mt":5},{"block_id":"qcfiltering","sample":"3","min_n_genes_by_counts":200,"max_n_genes_by_counts":2500,"pct_counts_mt":5},{"block_id":"qcfiltering","sample":"5","min_n_genes_by_counts":200,"max_n_genes_by_counts":2500,"pct_counts_mt":5},{"block_id":"qcfiltering","sample":"10a","min_n_genes_by_counts":200,"max_n_genes_by_counts":2500,"pct_counts_mt":5},{"block_id":"qcfiltering","sample":"10b","min_n_genes_by_counts":200,"max_n_genes_by_counts":2500,"pct_counts_mt":5},{"block_id":"variablegenes","min_mean":0.0125,"max_mean":3,"min_disp":0.5},{"block_id":"pca"},{"block_id":"integration","observation":"day"},{"block_id":"runumap","n_neighbors":10,"n_pcs":40}]}
-      - think: 5
+        response:
+          channel: handled_users
+          data: '{"user_id": "{{userId}}"}'
+      - think: 60

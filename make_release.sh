@@ -60,8 +60,8 @@ rm -f $tempfile2
 tempfile2=$(mktemp)
 cat > $tempfile2 <<EOF
 conda activate scampi
-chmod +x ../start_celery_worker.sh
-../start_celery_worker.sh
+chmod +x ../start_celeryworker.sh
+../start_celeryworker.sh
 EOF
 screen -S celery -X readbuf $tempfile2
 screen -S celery -X paste .

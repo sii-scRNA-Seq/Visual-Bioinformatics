@@ -10,18 +10,16 @@ from back_end import create_app
 
 @pytest.fixture()
 def socketio():
-    with patch("scanpy.read_h5ad", lambda _: get_AnnData()):
-        socketio, app = create_app(test_mode=True)
-        app.config.update({"TESTING": True})
-        yield socketio
+    socketio, app = create_app(test_mode=True)
+    app.config.update({"TESTING": True})
+    yield socketio
 
 
 @pytest.fixture()
 def app():
-    with patch("scanpy.read_h5ad", lambda _: get_AnnData()):
-        socketio, app = create_app(test_mode=True)
-        app.config.update({"TESTING": True})
-        yield app
+    socketio, app = create_app(test_mode=True)
+    app.config.update({"TESTING": True})
+    yield app
 
 
 @pytest.fixture()
@@ -530,11 +528,10 @@ def test_executeblocks_WarnsForOtherErrors(socketio_client):
 
 def test_executeblocks_OnlyOneClientReceivesResponse():
     adata = get_AnnData()
-    with patch("scanpy.read_h5ad", lambda _: adata):
-        socketio, app = create_app(test_mode=True)
-        app.config.update({"TESTING": True})
-        client1 = socketio.test_client(app)
-        client2 = socketio.test_client(app)
+    socketio, app = create_app(test_mode=True)
+    app.config.update({"TESTING": True})
+    client1 = socketio.test_client(app)
+    client2 = socketio.test_client(app)
 
     client1.get_received()
     client2.get_received()
@@ -595,7 +592,7 @@ def test_loaddata_AnnDataIsLoadedCorrectlyForPbmc3k(socketio_client):
                 json_received = list(filter(lambda x: x["name"] == "json", received))
                 assert len(json_received) == 2
                 assert json.loads(json_received[0]["args"])["blockId"] == "loaddata"
-                assert json.loads(json_received[0]["args"])["text"] == "Object with: 5 cells and 3 genes"
+                assert json.loads(json_received[0]["args"])["text"] == "Object with: 2,700 cells and 32,738 genes"
                 assert json.loads(json_received[1]["args"])["end_connection"] == "end_connection"
 
 
@@ -616,7 +613,7 @@ def test_loaddata_AnnDataIsLoadedCorrectlyForPfdogga(socketio_client):
                 json_received = list(filter(lambda x: x["name"] == "json", received))
                 assert len(json_received) == 2
                 assert json.loads(json_received[0]["args"])["blockId"] == "loaddata"
-                assert json.loads(json_received[0]["args"])["text"] == "Object with: 5 cells and 3 genes"
+                assert json.loads(json_received[0]["args"])["text"] == "Object with: 10,000 cells and 5,720 genes"
                 assert json.loads(json_received[1]["args"])["end_connection"] == "end_connection"
 
 
@@ -657,7 +654,7 @@ def test_basicfiltering_EndToEnd(socketio_client):
                 json_received = list(filter(lambda x: x["name"] == "json", received))
                 assert len(json_received) == 3
                 assert json.loads(json_received[1]["args"])["blockId"] == "basicfiltering"
-                assert json.loads(json_received[1]["args"])["text"] == "Object with: 4 cells and 2 genes"
+                assert json.loads(json_received[1]["args"])["text"] == "Object with: 2,700 cells and 16,634 genes"
                 assert json.loads(json_received[2]["args"])["end_connection"] == "end_connection"
 
 
@@ -714,7 +711,7 @@ def test_qcfiltering_EndToEnd():
                 json_received = list(filter(lambda x: x["name"] == "json", received))
                 assert len(json_received) == 3
                 assert json.loads(json_received[1]["args"])["blockId"] == "qcfiltering"
-                assert json.loads(json_received[1]["args"])["text"] == "Object with: 4 cells and 3 genes"
+                assert json.loads(json_received[1]["args"])["text"] == "Object with: 0 cells and 32,738 genes"
                 assert json.loads(json_received[2]["args"])["end_connection"] == "end_connection"
 
 
@@ -793,7 +790,7 @@ def test_integration_EndToEnd(socketio_client):
                     json_received = list(filter(lambda x: x["name"] == "json", received))
                     assert len(json_received) == 5
                     assert json.loads(json_received[3]["args"])["blockId"] == "integration"
-                    assert json.loads(json_received[3]["args"])["text"] == "Object with: 5 cells and 3 genes"
+                    assert json.loads(json_received[3]["args"])["text"] == "Object with: 10,000 cells and 5,720 genes"
                     assert json.loads(json_received[4]["args"])["end_connection"] == "end_connection"
 
 

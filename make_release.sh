@@ -41,7 +41,7 @@ cp -r front-end/dist back-end/
 
 # Rebuild conda environment
 conda env remove -n scampi -y
-conda env create -f ../environment.yml
+conda env create -f back-end/environment.yml
 
 # Restart Redis
 # WD: back-end

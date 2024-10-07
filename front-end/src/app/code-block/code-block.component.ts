@@ -12,6 +12,7 @@ import { OutputService } from '../output.service';
 })
 
 export class CodeBlockComponent {
+
   @Input() block!: Block;
   executingBlocks: boolean = false;
 

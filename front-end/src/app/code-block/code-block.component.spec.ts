@@ -3,21 +3,19 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { BlockService } from '../block.service';
 import { CodeBlockComponent } from './code-block.component';
-import { MockBlockService } from '../mock-block.service';
-import { OutputService } from '../output.service';
-import { MockOutputService } from '../mock-output.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { CurrentDatasetService } from '../current-dataset.service';
+import { MockBlockService } from '../mock-block.service';
 import { MockCurrentDatasetService } from '../mock-current-dataset.service';
+import { MockOutputService } from '../mock-output.service';
+import { OutputService } from '../output.service';
 
 describe('CodeBlockComponent', () => {
   let component: CodeBlockComponent;
@@ -25,22 +23,22 @@ describe('CodeBlockComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CodeBlockComponent],
+      declarations: [
+        CodeBlockComponent
+      ],
       imports: [
         BrowserAnimationsModule,
+        FormsModule,
         MatCardModule,
         MatFormFieldModule,
         MatIconModule,
         MatSelectModule,
-        MatSnackBarModule,
-        FormsModule
+        MatSnackBarModule
       ],
       providers: [
         { provide: BlockService, useClass: MockBlockService },
         { provide: CurrentDatasetService, useClass: MockCurrentDatasetService },
-        { provide: OutputService, useClass: MockOutputService },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
+        { provide: OutputService, useClass: MockOutputService }
       ]
     });
     fixture = TestBed.createComponent(CodeBlockComponent);

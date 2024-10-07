@@ -5,8 +5,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { BackendSocketClient } from './backend-socket.client';
 import { Block } from './block.interface';
-import { NewBlock, Request } from './request';
 import { ImageInfo, Output } from './output';
+import { NewBlock, Request } from './request';
 import { OutputServiceInterface } from './output.service.interface';
 import { UserIdService } from './user-id.service';
 
@@ -14,6 +14,7 @@ import { UserIdService } from './user-id.service';
   providedIn: 'root',
 })
 export class OutputService implements OutputServiceInterface {
+
   private readonly executingBlocks$: BehaviorSubject<boolean> = new BehaviorSubject<boolean> (false);
   readonly executingBlocks: Observable<boolean> = this.executingBlocks$.asObservable();
 

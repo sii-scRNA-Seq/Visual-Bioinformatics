@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { first, firstValueFrom } from 'rxjs';
 
 import { CurrentDatasetService } from './current-dataset.service';
 import { DatasetInfoService } from './dataset-info.service';
 import { MockDatasetInfoService } from './mock-dataset-info.service';
-import { first, firstValueFrom } from 'rxjs';
 
 describe('CurrentDatasetService', () => {
   let service: CurrentDatasetService;
@@ -12,7 +12,7 @@ describe('CurrentDatasetService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: DatasetInfoService, useClass: MockDatasetInfoService },
+        { provide: DatasetInfoService, useClass: MockDatasetInfoService }
       ]
     });
     service = TestBed.inject(CurrentDatasetService);

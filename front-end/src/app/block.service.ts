@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { v4 as uuidv4 } from 'uuid';
 
-import {Block, BlockId, BlockIdToTitleMap, Option} from './block.interface';
+import { Block, BlockId, BlockIdToTitleMap, Option } from './block.interface';
 import { BlockServiceInterface } from './block.service.interface';
 import { CurrentDatasetService } from './current-dataset.service';
 import { DatasetInfo } from './dataset-info';
@@ -14,6 +14,7 @@ import { OutputService } from './output.service';
   providedIn: 'root',
 })
 export class BlockService implements BlockServiceInterface {
+
   private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
 

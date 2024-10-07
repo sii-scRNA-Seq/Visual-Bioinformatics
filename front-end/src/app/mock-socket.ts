@@ -7,6 +7,7 @@ import { Request } from './request';
   providedIn: 'root'
 })
 export class MockSocket {
+
   connect(): void { }
 
   emit(eventName: string, request: Request): void { }

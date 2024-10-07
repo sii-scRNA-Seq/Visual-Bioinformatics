@@ -31,7 +31,7 @@ def test_run_correctlyIdentifiesMTGenesForPbmc3k(example_adata):
 
     with patch("pandas.Index.str.startswith") as mock, pytest.raises(Exception):
         block.run(example_adata, "pbmc3k", input)
-    mock.assert_called_once_with('MT-')
+    mock.assert_called_once_with("MT-")
 
 
 def test_run_correctlyIdentifiesMTGenesForPf_dogga(example_adata):
@@ -40,7 +40,7 @@ def test_run_correctlyIdentifiesMTGenesForPf_dogga(example_adata):
 
     with patch("pandas.Index.str.contains") as mock, pytest.raises(Exception):
         block.run(example_adata, "pf_dogga", input)
-    mock.assert_called_once_with('MIT')
+    mock.assert_called_once_with("MIT")
 
 
 def test_run_raisesExceptionIfDatasetDoesNotExist(example_adata):

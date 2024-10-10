@@ -23,7 +23,7 @@ export class BlockService implements BlockServiceInterface {
     samples: [],
     integration_obs: []
   };
-  
+
   private datasetInfo: DatasetInfo[] = [];
 
   constructor(private outputService: OutputService, private snackBar: MatSnackBar, private datasetInfoService: DatasetInfoService, private currentDatasetService: CurrentDatasetService) {
@@ -57,7 +57,7 @@ export class BlockService implements BlockServiceInterface {
           });
         }
         blockList[i].parameters[0].options = sampleOptions;
-        blockList[i].parameters[0].value = sampleValue;          
+        blockList[i].parameters[0].value = sampleValue;
       } else if (blockList[i].blockId == 'integration') {
         let observationValue: string = '';
         const observationOptions: Option[] = [];
@@ -190,7 +190,7 @@ export class BlockService implements BlockServiceInterface {
             blockId: 'pca',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.pca,
-            possibleChildBlocks: ['pca', 'integration', 'runumap'],
+            possibleChildBlocks: ['pca', 'integration', 'runumap', 'plot_reddim'],
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
@@ -211,7 +211,7 @@ export class BlockService implements BlockServiceInterface {
             blockId: 'integration',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.integration,
-            possibleChildBlocks: ['integration', 'runumap'],
+            possibleChildBlocks: ['integration', 'runumap', 'plot_reddim'],
             parameters: [
               {type: 'SelectParameter', key: 'observation', text: 'Observation', value: observationValue, options: observationOptions},
             ],
@@ -229,10 +229,31 @@ export class BlockService implements BlockServiceInterface {
             blockId: 'runumap',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.runumap,
-            possibleChildBlocks: ['integration', 'runumap'],
+            possibleChildBlocks: ['integration', 'runumap', 'plot_reddim'],
             parameters: [
               {type: 'InputParameter', key: 'n_neighbors', text: 'Number of Neighbours', value: 10},
               {type: 'InputParameter', key: 'n_pcs', text: 'Number of Principal Components', value: 40},
+            ],
+          });
+          this.blocksOnCanvas$.next(blockList);
+        }
+        else {
+          this.snackBar.open('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
+        }
+        break;
+      }
+      case 'plot_reddim': {
+        if (lastBlock?.possibleChildBlocks.indexOf('plot_reddim') > -1) {
+          blockList.push({
+            blockId: 'plot_reddim',
+            blockUUID: uuidv4(),
+            title: BlockIdToTitleMap.plot_reddim,
+            possibleChildBlocks: ['integration', 'runumap', 'plot_reddim'],
+            parameters: [
+              {type: 'SelectParameter', key: 'reduction', text: 'Reduction', value: 'PCA', options: [
+                {key: 'PCA', text: 'PCA'},
+                {key: 'UMAP', text: 'UMAP'}
+              ]},
             ],
           });
           this.blocksOnCanvas$.next(blockList);

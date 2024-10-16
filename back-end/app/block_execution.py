@@ -1,5 +1,7 @@
 import json
 import logging
+
+from block.plot_reddim import PlotDimensionReduction
 from exception.bad_request_exception import BadRequestException
 from block.exception.missing_param_exception import MissingParametersException
 
@@ -184,8 +186,11 @@ def execute_blocks(message, session_id, socketio_url):
             elif current_block_info["block_id"] == "runumap" and "pca" in executed_blocks:
                 block = RunUMAP()
                 user_data, output_message = block.run(user_data, dataset, current_block_info)
+            elif current_block_info["block_id"] == "plot_reddim" and "pca" in executed_blocks:
+                block = PlotDimensionReduction()
+                user_data, output_message = block.run(user_data, dataset, current_block_info)
             elif current_block_info["block_id"] in ["loaddata", "basicfiltering", "qcplots", "qcfiltering",
-                                                    "variablegenes", "pca", "integration", "runumap"]:
+                                                    "variablegenes", "pca", "integration", "runumap", "plot_reddim"]:
                 raise BadRequestException("Blocks have an invalid order")
             else:
                 raise BadRequestException("Block ID does not match expected values")

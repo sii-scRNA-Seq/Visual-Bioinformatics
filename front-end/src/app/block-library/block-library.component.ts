@@ -24,12 +24,13 @@ export class BlockLibraryComponent implements OnInit {
     {blockId: 'variablegenes', title: 'Identify Highly Variable Genes', disabled: true, helpText: 'This selects a set of genes that explain the most variation in our data and explain most of the underlying biology'},
     {blockId: 'pca', title: 'Principal Component Analysis', disabled: true, helpText: 'PCA helps us group genes together in principle components that explain the biological differences in our data'},
     {blockId: 'integration', title: 'Integration', disabled: true, helpText: 'Unwanted sources of variation need to be corrected for, revealing differences that are driven by the biology and not batch effects'},
-    {blockId: 'runumap', title: 'Run UMAP', disabled: true, helpText: 'This allows us to visualise our complex data in a simpler way'}
+    {blockId: 'runumap', title: 'Run UMAP', disabled: true, helpText: 'This allows us to visualise our complex data in a simpler way'},
+    {blockId: 'plot_reddim', title: 'Plot Dimension Reduction', disabled: true, helpText: 'Visualise our data from the PCA or UMAP reductions.'}
   ];
 
   constructor(private blockService: BlockService, private outputService: OutputService) {
     this.blockService.blocksOnCanvas.subscribe(
-      (res) => { 
+      (res) => {
         this.blockList = res;
         this.updateDisabledBlocks();
       },
@@ -48,7 +49,7 @@ export class BlockLibraryComponent implements OnInit {
 
   /**
    * Calls the addBlock() method in the blockService with the blockId of the block to be added.
-   * 
+   *
    * @param id - The blockId of the block to be added
    */
   addBlock(id: BlockId): void {
@@ -67,7 +68,7 @@ export class BlockLibraryComponent implements OnInit {
 
   /**
    * Chooses the text that should be displayed on tooltips at any given time.
-   * 
+   *
    * @returns The text to display on the tooltip
    */
   getTooltipMessage(): string {

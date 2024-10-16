@@ -6,7 +6,7 @@ export interface Block {
   parameters: Parameter[]
 }
 
-export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering' | 'variablegenes' | 'pca' | 'integration' | 'runumap';
+export type BlockId = 'loaddata' | 'basicfiltering' | 'qcplots' | 'qcfiltering' | 'variablegenes' | 'pca' | 'integration' | 'runumap' | 'plot_reddim';
 export const BlockIdToTitleMap: Record<BlockId, string> = {
   loaddata: 'Load Data',
   basicfiltering: 'Basic Filtering',
@@ -15,7 +15,8 @@ export const BlockIdToTitleMap: Record<BlockId, string> = {
   variablegenes: 'Identify Highly Variable Genes',
   pca: 'Principal Component Analysis',
   integration: 'Integration',
-  runumap: 'Run UMAP'
+  runumap: 'Run UMAP',
+  plot_reddim: 'Plot Dimension Reduction'
 };
 
 export interface Parameter {

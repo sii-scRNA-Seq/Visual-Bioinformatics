@@ -15,6 +15,13 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
 * Launch the back-end in development mode
   * `$ cd back-end/app/`
   * `$ python back_end.py`
+* Start Redis
+  * `$ cd back-end`
+  * `$ ./start_redis.sh`
+* Start Celery Worker
+  * `$ cd back-end/app`
+  * `$ ./start_celeryworker.sh`
+    * If on Mac Apple Silicon, `$ ./start_celeryworker_apple_silicon.sh`
 
 ### Starting the front-end
 * Open a new command line
@@ -79,5 +86,15 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `$ conda activate scampi`
 * Launch the server
   * `$ python back_end.py --production-mode`
+  * `Ctrl + a + d`
+* Launch Redis
+  * `$ screen -S redis`
+  * `$ cd back-end`
+  * `$ ./start_redis.sh`
+  * `Ctrl + a + d`
+* Start Celery Worker
+  * `$ screen -S redis`
+  * `$ cd back-end/app`
+  * `$ ./start_celeryworker.sh`
   * `Ctrl + a + d`
 * Verify that the application is running on https://scampi.mvls.gla.ac.uk

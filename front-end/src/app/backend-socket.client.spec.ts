@@ -13,7 +13,7 @@ describe('BackendSocketService', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: SOCKET, useClass: MockSocket },
-      ],
+      ]
     });
   });
 

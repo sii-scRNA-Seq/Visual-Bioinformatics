@@ -3,13 +3,14 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 
-import { DatasetInfo } from './dataset-info';
 import { CurrentDatasetServiceInterface } from './current-dataset.service.interface';
+import { DatasetInfo } from './dataset-info';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MockCurrentDatasetService implements CurrentDatasetServiceInterface {
+
   private readonly currentDataset$: BehaviorSubject<DatasetInfo> = new BehaviorSubject<DatasetInfo> ({
     key: '',
     title: '',
@@ -25,7 +26,5 @@ export class MockCurrentDatasetService implements CurrentDatasetServiceInterface
       samples: ['sample1', 'sample2'],
       integration_obs: ['ob1', 'ob2']
     });
-
-
   }
 }

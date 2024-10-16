@@ -11,6 +11,7 @@ import { OutputService } from '../output.service';
 })
 
 export class CanvasComponent {
+
   blockList: Block[] = [];
   executingBlocks: boolean = false;
 

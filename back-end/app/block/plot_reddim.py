@@ -1,19 +1,14 @@
-import logging
-
 from anndata import AnnData
 from block.block_interface import Block
 import codecs
 import io
-from joblib import parallel_backend
 from matplotlib import pyplot as plt
 import scanpy as sc
-from threadpoolctl import threadpool_limits
 
 from block.exception.invalid_param_exception import InvalidParametersException
 
 
 class PlotDimensionReduction(Block):
-
     """
     `PlotReducedDimension` subclass, which inherits from the `Block` superclass.
     """
@@ -61,18 +56,21 @@ class PlotDimensionReduction(Block):
             color = "leiden"
 
         if reduction == "PCA":
-
             if "X_pca" in adata.obsm.keys():
                 sc.pl.pca(adata, color=color, show=False)
             else:
-                raise InvalidParametersException(f"PCA not run yet")
+                raise InvalidParametersException("PCA not run yet")
         elif reduction == "UMAP":
             if "X_umap" in adata.obsm.keys():
                 sc.pl.umap(adata, color=color, show=False)
             else:
-                raise InvalidParametersException(f"UMAP not run yet")
+                raise InvalidParametersException("UMAP not run yet")
+        elif reduction == "TSNE":
+            if "X_tsne" not in adata.obsm.keys():
+                sc.tl.tsne(adata)
+            sc.pl.tsne(adata, color=color, show=False)
         else:
-            raise InvalidParametersException(f"{reduction} not one of PCA or UMAP")
+            raise InvalidParametersException(f"{reduction} not supported")
 
         image_stream = io.BytesIO()
         plt.savefig(image_stream, format="png")

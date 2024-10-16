@@ -1,21 +1,23 @@
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { v4 as uuidv4 } from 'uuid';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {v4 as uuidv4} from 'uuid';
 
 import {Block, BlockId, BlockIdToTitleMap, Option} from './block.interface';
-import { BlockServiceInterface } from './block.service.interface';
-import { CurrentDatasetService } from './current-dataset.service';
-import { DatasetInfo } from './dataset-info';
-import { DatasetInfoService } from './dataset-info.service';
-import { OutputService } from './output.service';
+import {BlockServiceInterface} from './block.service.interface';
+import {CurrentDatasetService} from './current-dataset.service';
+import {DatasetInfo} from './dataset-info';
+import {DatasetInfoService} from './dataset-info.service';
+import {OutputService} from './output.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BlockService implements BlockServiceInterface {
-  private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]> ([]);
+  private readonly blocksOnCanvas$: BehaviorSubject<Block[]> = new BehaviorSubject<Block[]>([]);
   readonly blocksOnCanvas: Observable<Block[]> = this.blocksOnCanvas$.asObservable();
+
+  private readonly toastDisplayMilliSeconds = 5000;
 
   private currentDataset: DatasetInfo = {
     key: '',
@@ -52,7 +54,7 @@ export class BlockService implements BlockServiceInterface {
         const sampleOptions: Option[] = [];
         if (this.currentDataset.samples.length > 0) {
           sampleValue = this.currentDataset.samples[0];
-          this.currentDataset.samples.forEach( sample => {
+          this.currentDataset.samples.forEach(sample => {
             sampleOptions.push({key: sample, text: sample});
           });
         }
@@ -63,7 +65,7 @@ export class BlockService implements BlockServiceInterface {
         const observationOptions: Option[] = [];
         if (this.currentDataset.integration_obs.length > 0) {
           observationValue = this.currentDataset.integration_obs[0];
-          this.currentDataset.integration_obs.forEach( observation => {
+          this.currentDataset.integration_obs.forEach(observation => {
             observationOptions.push({key: observation, text: observation});
           });
         }
@@ -80,26 +82,31 @@ export class BlockService implements BlockServiceInterface {
    */
   addBlock(id: BlockId): void {
     const blockList = this.blocksOnCanvas$.getValue();
-    const lastBlock: Block = blockList[blockList.length-1];
+    const lastBlock: Block = blockList[blockList.length - 1];
     switch (id) {
       case 'loaddata': {
         if (blockList.length == 0) {
           const datasetOptions: Option[] = [];
-          this.datasetInfo.forEach( dataset => {
+          this.datasetInfo.forEach(dataset => {
             datasetOptions.push({key: dataset.key, text: dataset.title});
           });
           this.blocksOnCanvas$.next([{
             blockId: 'loaddata',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.loaddata,
-            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
+            possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
             parameters: [
-              {type: 'SelectParameter', key: 'dataset', text: 'Dataset', value: this.currentDataset.key, options: datasetOptions},
+              {
+                type: 'SelectParameter',
+                key: 'dataset',
+                text: 'Dataset',
+                value: this.currentDataset.key,
+                options: datasetOptions
+              },
             ],
           }]);
-        }
-        else {
-          this.snackBar.open('Load Data block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Load Data block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -109,16 +116,15 @@ export class BlockService implements BlockServiceInterface {
             blockId: 'basicfiltering',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.basicfiltering,
-            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
+            possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
             parameters: [
               {type: 'InputParameter', key: 'min_genes', text: 'Minimum Genes Per Cell', value: 200},
               {type: 'InputParameter', key: 'min_cells', text: 'Minimum Cells Per Gene', value: 3}
             ],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Basic Filtering block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Basic Filtering block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -128,13 +134,12 @@ export class BlockService implements BlockServiceInterface {
             blockId: 'qcplots',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.qcplots,
-            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
+            possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Quality Control Plots block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Quality Control Plots block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -142,14 +147,14 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('qcfiltering') > -1) {
           const sampleValue: string = this.currentDataset.samples[0] || '';
           const sampleOptions: Option[] = [];
-          this.currentDataset.samples.forEach( sample => {
+          this.currentDataset.samples.forEach(sample => {
             sampleOptions.push({key: sample, text: sample});
           });
           blockList.push({
             blockId: 'qcfiltering',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.qcfiltering,
-            possibleChildBlocks: ['basicfiltering','qcplots','qcfiltering','variablegenes'],
+            possibleChildBlocks: ['basicfiltering', 'qcplots', 'qcfiltering', 'variablegenes'],
             parameters: [
               {type: 'SelectParameter', key: 'sample', text: 'Sample', value: sampleValue, options: sampleOptions},
               {type: 'InputParameter', key: 'min_n_genes_by_counts', text: 'Minimum Genes Per Cell', value: 200},
@@ -158,9 +163,8 @@ export class BlockService implements BlockServiceInterface {
             ],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Quality Control Filtering block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Quality Control Filtering block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -178,9 +182,8 @@ export class BlockService implements BlockServiceInterface {
             ],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Identify Highly Variable Genes block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Identify Highly Variable Genes block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -194,9 +197,8 @@ export class BlockService implements BlockServiceInterface {
             parameters: [],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Principal Component Analysis block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Principal Component Analysis block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -204,7 +206,7 @@ export class BlockService implements BlockServiceInterface {
         if (lastBlock?.possibleChildBlocks.indexOf('integration') > -1) {
           const observationValue: string = this.currentDataset.integration_obs[0] || '';
           const observationOptions: Option[] = [];
-          this.currentDataset.integration_obs.forEach( observation => {
+          this.currentDataset.integration_obs.forEach(observation => {
             observationOptions.push({key: observation, text: observation});
           });
           blockList.push({
@@ -213,13 +215,18 @@ export class BlockService implements BlockServiceInterface {
             title: BlockIdToTitleMap.integration,
             possibleChildBlocks: ['integration', 'runumap', 'plot_reddim'],
             parameters: [
-              {type: 'SelectParameter', key: 'observation', text: 'Observation', value: observationValue, options: observationOptions},
+              {
+                type: 'SelectParameter',
+                key: 'observation',
+                text: 'Observation',
+                value: observationValue,
+                options: observationOptions
+              },
             ],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Integration block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Integration block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -236,9 +243,8 @@ export class BlockService implements BlockServiceInterface {
             ],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Run UMAP block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -250,16 +256,18 @@ export class BlockService implements BlockServiceInterface {
             title: BlockIdToTitleMap.plot_reddim,
             possibleChildBlocks: ['integration', 'runumap', 'plot_reddim'],
             parameters: [
-              {type: 'SelectParameter', key: 'reduction', text: 'Reduction', value: 'PCA', options: [
-                {key: 'PCA', text: 'PCA'},
-                {key: 'UMAP', text: 'UMAP'}
-              ]},
+              {
+                type: 'SelectParameter', key: 'reduction', text: 'Reduction', value: 'PCA', options: [
+                  {key: 'PCA', text: 'PCA'},
+                  {key: 'UMAP', text: 'UMAP'},
+                  {key: 'TSNE', text: 'TSNE'}
+                ]
+              },
             ],
           });
           this.blocksOnCanvas$.next(blockList);
-        }
-        else {
-          this.snackBar.open('Run UMAP block cannot be added.', 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Run UMAP block cannot be added.', 'Close', {duration: this.toastDisplayMilliSeconds});
         }
         break;
       }
@@ -277,8 +285,7 @@ export class BlockService implements BlockServiceInterface {
       if (this.blocksOnCanvas$.getValue()[i].blockUUID == uuid) {
         this.blocksOnCanvas$.next(newBlockList);
         break;
-      }
-      else {
+      } else {
         newBlockList.push(this.blocksOnCanvas$.getValue()[i]);
       }
     }

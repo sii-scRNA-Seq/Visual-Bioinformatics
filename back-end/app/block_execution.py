@@ -23,7 +23,8 @@ logger = logging.getLogger()
 logger.info("Loading raw data...")
 raw_data_cache = {
     "pbmc3k": sc.read_h5ad("../datasets/pbmc3k/PBMC3K.h5ad"),
-    "pf_dogga": sc.read_h5ad("../datasets/pf_dogga/MCA_PF_DOGGA.h5ad")
+    "pf_dogga": sc.read_h5ad("../datasets/pf_dogga/MCA_PF_DOGGA.h5ad"),
+    "covid": sc.read_h5ad("../datasets/covid/COVID.h5ad")
 }
 logger.info("Finished loading raw data")
 

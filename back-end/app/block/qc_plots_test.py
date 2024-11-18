@@ -43,6 +43,15 @@ def test_run_correctlyIdentifiesMTGenesForPf_dogga(example_adata):
     mock.assert_called_once_with("MIT")
 
 
+def test_run_correctlyIdentifiesMTGenesForCovid(example_adata):
+    block = QCPlots()
+    input = {}
+
+    with patch("pandas.Index.str.startswith") as mock, pytest.raises(Exception):
+        block.run(example_adata, "covid", input)
+    mock.assert_called_once_with("MT.")
+
+
 def test_run_raisesExceptionIfDatasetDoesNotExist(example_adata):
     block = QCPlots()
     input = {}

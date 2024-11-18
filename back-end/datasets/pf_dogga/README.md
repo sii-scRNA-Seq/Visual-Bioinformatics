@@ -1,7 +1,7 @@
 # PF dataset
 This dataset taken from the lab reference dataset generated here: https://www.science.org/doi/10.1126/science.adj4088
 
-## To recreate:
+## To recreate:
 
 ### Requirements
 1. Python3 with pandas and scanpy

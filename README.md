@@ -2,6 +2,9 @@
 
 Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactively).
 
+## Monitor Production Queue Length
+On the production machine
+./redis-cli -h localhost -p 6379 -n 0 llen celery
 
 ## Starting the application in development
 
@@ -20,7 +23,7 @@ Welcome to the SCAMPI project (Single Cell Analysis Methods Presented Interactiv
   * `$ ./start_redis.sh`
 * Start Celery Worker
   * `$ cd back-end/app`
-  * `$ ./start_celeryworker.sh`
+  * `$ ../start_celeryworker.sh`
     * If on Mac Apple Silicon, `$ ./start_celeryworker_apple_silicon.sh`
 
 ### Starting the front-end

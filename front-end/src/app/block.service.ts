@@ -23,7 +23,8 @@ export class BlockService implements BlockServiceInterface {
     key: '',
     title: '',
     samples: [],
-    integration_obs: []
+    integration_obs: [],
+    grouping_obs: []
   };
 
   private datasetInfo: DatasetInfo[] = [];
@@ -250,12 +251,20 @@ export class BlockService implements BlockServiceInterface {
       }
       case 'plot_reddim': {
         if (lastBlock?.possibleChildBlocks.indexOf('plot_reddim') > -1) {
+
+          const color_options = this.currentDataset.grouping_obs.map(obs_key => {
+            return {key: obs_key, text: obs_key} ;
+          });
+
           blockList.push({
             blockId: 'plot_reddim',
             blockUUID: uuidv4(),
             title: BlockIdToTitleMap.plot_reddim,
             possibleChildBlocks: ['integration', 'runumap', 'plot_reddim'],
             parameters: [
+              {
+                type: 'SelectParameter', key: 'group_by', text: 'Color By', value: 'leiden', options: color_options
+              },
               {
                 type: 'SelectParameter', key: 'reduction', text: 'Reduction', value: 'PCA', options: [
                   {key: 'PCA', text: 'PCA'},

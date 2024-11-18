@@ -14,7 +14,8 @@ export class CurrentDatasetService implements CurrentDatasetServiceInterface {
     key: '',
     title: '',
     samples: [],
-    integration_obs: []
+    integration_obs: [],
+    grouping_obs: []
   });
   readonly currentDataset: Observable<DatasetInfo> = this.currentDataset$.asObservable();
 

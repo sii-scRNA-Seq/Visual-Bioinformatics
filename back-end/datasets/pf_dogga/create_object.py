@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import scanpy as sc
 import anndata
 from scipy import sparse
@@ -34,4 +36,4 @@ adata.X = sparse.csr_matrix(adata.X)
 sc.pp.subsample(adata, n_obs=10000, random_state=7, copy=False)
 
 print("saving")
-adata.write_h5ad('MCA_PF_DOGGA.h5ad')
+adata.write_h5ad(Path('MCA_PF_DOGGA.h5ad'), compression="gzip")

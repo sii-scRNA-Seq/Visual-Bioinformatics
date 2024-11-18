@@ -10,5 +10,11 @@ dataset_info = [
         "title": "Malaria Cell Atlas P. falciparum",
         "samples": ["0", "3", "5", "10a", "10b"],
         "integration_obs": ["day"]
+    },
+    {
+        "key": "covid",
+        "title": "COVID19 PBMCs",
+        "samples": ["C1"],
+        "integration_obs": ["Donor"]
     }
 ]

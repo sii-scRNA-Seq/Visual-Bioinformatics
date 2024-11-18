@@ -55,6 +55,9 @@ class QCFiltering(Block):
         elif dataset == "pf_dogga":
             adata.var["mt"] = adata.var_names.str.contains("MIT")
             adata.obs["sample"] = adata.obs["day"]
+        elif dataset == "covid":
+            adata.var["mt"] = adata.var_names.str.startswith("MT.")
+            adata.obs["sample"] = adata.obs["Donor"]
         else:
             raise Exception("Selected dataset does not exist.")
 

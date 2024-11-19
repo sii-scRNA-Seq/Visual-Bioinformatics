@@ -21,15 +21,26 @@ def test_param_validation_requires_reduction():
     block = PlotDimensionReduction()
     with pytest.raises(MissingParametersException) as e_info:
         block.validate_parameters({
+            "group_by": "leiden"
         })
     assert e_info.value.message == 'Missing parameters: ["reduction"]'
+
+
+def test_param_validation_requires_groupby():
+    block = PlotDimensionReduction()
+    with pytest.raises(MissingParametersException) as e_info:
+        block.validate_parameters({
+            "reduction": "UMAP"
+        })
+    assert e_info.value.message == 'Missing parameters: ["group_by"]'
 
 
 def test_run_throwsErrorIfReductionNotSupported(example_adata):
     block = PlotDimensionReduction()
 
     input = {
-        "reduction": "AMAZING_MAP"
+        "reduction": "AMAZING_MAP",
+        "group_by": "leiden"
     }
 
     with pytest.raises(InvalidParametersException) as e_info:
@@ -42,6 +53,7 @@ def test_run_TSNE_callsScanpyFunctions(example_adata):
     block = PlotDimensionReduction()
     input = {
         "reduction": 'TSNE',
+        "group_by": "leiden"
     }
 
     example_adata = example_adata.copy()
@@ -60,6 +72,7 @@ def test_run_TSNE_generatesTSNEifNotAlreadyGenerated(example_adata):
     block = PlotDimensionReduction()
     input = {
         "reduction": 'TSNE',
+        "group_by": "leiden"
     }
 
     example_adata = example_adata.copy()
@@ -77,6 +90,7 @@ def test_run_PCA_callsScanpyFunctions(example_adata):
     block = PlotDimensionReduction()
     input = {
         "reduction": 'PCA',
+        "group_by": "leiden"
     }
 
     example_adata = example_adata.copy()
@@ -93,7 +107,8 @@ def test_run_PCA_throwsErrorIfPCANotRun(example_adata):
     block = PlotDimensionReduction()
 
     input = {
-        "reduction": "PCA"
+        "reduction": "PCA",
+        "group_by": "leiden"
     }
 
     with pytest.raises(InvalidParametersException) as e_info:
@@ -106,6 +121,7 @@ def test_run_UMAP_callsScanpyFunctions(example_adata):
     block = PlotDimensionReduction()
     input = {
         "reduction": 'UMAP',
+        "group_by": "leiden"
     }
 
     example_adata = example_adata.copy()
@@ -124,7 +140,8 @@ def test_run_UMAP_throwsErrorIfUMAPNotRun(example_adata):
     block = PlotDimensionReduction()
 
     input = {
-        "reduction": "UMAP"
+        "reduction": "UMAP",
+        "group_by": "leiden"
     }
 
     with pytest.raises(InvalidParametersException) as e_info:
@@ -137,6 +154,7 @@ def test_run_usesLeidenColorsIfPresent(example_adata):
     block = PlotDimensionReduction()
     input = {
         "reduction": 'PCA',
+        "group_by": "leiden"
     }
 
     example_adata = example_adata.copy()

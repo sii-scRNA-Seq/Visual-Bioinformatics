@@ -118,9 +118,27 @@ def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
     assert response.status_code == 200
     message = {
         "datasets": [
-            {"key": "pbmc3k", "title": "Peripheral Blood Mononuclear Cells", "samples": ["1"], "integration_obs": []},
-            {"key": "pf_dogga", "title": "Malaria Cell Atlas P. falciparum", "samples": ["0", "3", "5", "10a", "10b"], "integration_obs": ["day"]},
-            {"key": "covid", "title": "COVID19 PBMCs", "samples": ["C1"], "integration_obs": ["Donor"]}
+            {
+                "key": "pbmc3k",
+                "title": "Peripheral Blood Mononuclear Cells",
+                "samples": ["1"],
+                "integration_obs": [],
+                "grouping_obs": ["leiden", "sample"]
+            },
+            {
+                "key": "pf_dogga",
+                "title": "Malaria Cell Atlas P. falciparum",
+                "samples": ["0", "3", "5", "10a", "10b"],
+                "integration_obs": ["day"],
+                "grouping_obs": ["leiden", "day"]
+            },
+            {
+                "key": "covid",
+                "title": "COVID19 PBMCs",
+                "samples": ["C1"],
+                "integration_obs": ["Donor"],
+                "grouping_obs": ["leiden", "Donor", "Status"]
+            }
         ]
     }
     assert json.loads(response.data) == message
@@ -843,7 +861,7 @@ def test_plotReducedDim_EndToEnd():
             {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
             {"block_id": "pca"},
             {"block_id": "runumap", "n_neighbors": 10, "n_pcs": 40},
-            {"block_id": "plot_reddim", "reduction": "UMAP"}
+            {"block_id": "plot_reddim", "reduction": "UMAP", "group_by": "leiden"}
         ],
     }
 

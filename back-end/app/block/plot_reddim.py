@@ -13,7 +13,7 @@ class PlotDimensionReduction(Block):
     `PlotReducedDimension` subclass, which inherits from the `Block` superclass.
     """
 
-    required_parameters = ["reduction"]
+    required_parameters = ["reduction", "group_by"]
     """The parameters required by a `PlotDimensionReduction` block."""
 
     def __init__(self):
@@ -50,10 +50,11 @@ class PlotDimensionReduction(Block):
         self.validate_parameters(parameters)
 
         reduction = str(parameters["reduction"])
+        color_by = str(parameters["group_by"])
 
         color = None
-        if "leiden" in list(adata.obs):
-            color = "leiden"
+        if color_by in list(adata.obs):
+            color = color_by
 
         if reduction == "PCA":
             if "X_pca" in adata.obsm.keys():

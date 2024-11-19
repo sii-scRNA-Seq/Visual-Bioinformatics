@@ -49,7 +49,7 @@ describe('BackendHttpClient', () => {
       const req = mockHttp.expectOne('http://localhost:5000/api/getuserid?user_id=');
       expect(req.request.method).toBe('GET');
       req.flush('', { status: 406, statusText: 'Bad Request'});
-      mockHttp.verify(); 
+      mockHttp.verify();
     }));
   });
 
@@ -61,10 +61,10 @@ describe('BackendHttpClient', () => {
       const req = mockHttp.expectOne('http://localhost:5000/api/getdatasetinfo');
       expect(req.request.method).toBe('GET');
       req.flush({datasets: [
-        {key: 'datasetKey', title: 'datasetText', samples: [], integration_obs: []}
+        {key: 'datasetKey', title: 'datasetText', samples: [], integration_obs: [], grouping_obs: []}
       ]});
       mockHttp.verify();
-      expect(await return_value).toEqual([{key: 'datasetKey', title: 'datasetText', samples: [], integration_obs: []}]);
+      expect(await return_value).toEqual([{key: 'datasetKey', title: 'datasetText', samples: [], integration_obs: [], grouping_obs: []}]);
     }));
 
     it('should open snack bar if the response is an error', fakeAsync(async () => {
@@ -77,7 +77,7 @@ describe('BackendHttpClient', () => {
       const req = mockHttp.expectOne('http://localhost:5000/api/getdatasetinfo');
       expect(req.request.method).toBe('GET');
       req.flush('', { status: 406, statusText: 'Bad Request'});
-      mockHttp.verify(); 
+      mockHttp.verify();
     }));
   });
 });

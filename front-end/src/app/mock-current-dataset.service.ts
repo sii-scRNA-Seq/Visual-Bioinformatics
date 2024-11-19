@@ -15,7 +15,8 @@ export class MockCurrentDatasetService implements CurrentDatasetServiceInterface
     key: '',
     title: '',
     samples: [],
-    integration_obs: []
+    integration_obs: [],
+    grouping_obs: []
   });
   readonly currentDataset: Observable<DatasetInfo> = this.currentDataset$.asObservable();
 
@@ -24,7 +25,8 @@ export class MockCurrentDatasetService implements CurrentDatasetServiceInterface
       key: 'option1',
       title: 'Option 1',
       samples: ['sample1', 'sample2'],
-      integration_obs: ['ob1', 'ob2']
+      integration_obs: ['ob1', 'ob2'],
+      grouping_obs: ['ob1', 'ob2']
     });
   }
 }

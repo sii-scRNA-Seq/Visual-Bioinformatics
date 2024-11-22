@@ -122,7 +122,7 @@ def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
                 "key": "pbmc3k",
                 "title": "Peripheral Blood Mononuclear Cells",
                 "samples": ["1"],
-                "integration_obs": [],
+                "integration_obs": ["sample"],
                 "grouping_obs": ["leiden", "sample"]
             },
             {

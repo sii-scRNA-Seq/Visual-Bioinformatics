@@ -49,7 +49,7 @@ def test_run_correctlyIdentifiesMTGenesForCovid(example_adata):
 
     with patch("pandas.Index.str.startswith") as mock, pytest.raises(Exception):
         block.run(example_adata, "covid", input)
-    mock.assert_called_once_with("MT.")
+    mock.assert_called_once_with("MT")
 
 
 def test_run_raisesExceptionIfDatasetDoesNotExist(example_adata):

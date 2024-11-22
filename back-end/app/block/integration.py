@@ -4,10 +4,10 @@ from threadpoolctl import threadpool_limits
 
 from block.block_interface import Block, adata_text
 from dataset_info import dataset_info
-from harmony import harmonize
+import scanpy as sc
+
 
 class Integration(Block):
-
     """
     `Integration` subclass, which inherits from the `Block` superclass.
     """
@@ -57,15 +57,15 @@ class Integration(Block):
 
         with parallel_backend("threading", n_jobs=1):
             with threadpool_limits(limits=1, user_api="blas"):
-                adata.obsm['X_pca_harmony'] = harmonize(
-                  adata.obsm['X_pca'],
-                  adata.obs,
-                  batch_key=observation,
-                  use_gpu=False,
-                  n_jobs=1
-                )
-
-        adata.obsm["X_pca"] = adata.obsm["X_pca_harmony"]
+                # TODO migrate to harmony-pytorch
+                # adata.obsm['X_pca_harmony'] = harmonize(
+                #   adata.obsm['X_pca'],
+                #   adata.obs,
+                #   batch_key=observation,
+                #   use_gpu=False,
+                #   n_jobs=1
+                # )
+                sc.external.pp.harmony_integrate(adata, observation)
 
         message = {
             "text": adata_text(adata)

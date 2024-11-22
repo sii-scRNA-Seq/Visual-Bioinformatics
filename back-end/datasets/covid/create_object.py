@@ -4,14 +4,20 @@ import pandas as pd
 from scipy import sparse
 
 print("reading data")
-meta = pd.read_csv("./temp/covid_meta.csv")
+meta = pd.read_csv("./temp/Covid_555_1_meta.csv")
+adata = sc.read_csv(Path("./temp/Covid_555_1_matrix.csv"))
+adata.obs = meta
+
+meta_hc = pd.read_csv("./temp/HC_HIP002_meta.csv")
+adata_hc = sc.read_csv(Path("./temp/HC_HIP002_matrix.csv"))
+adata_hc.obs = meta_hc
+
+adata = adata.concatenate(adata_hc)
 
 # Convert strings to categories to reduce file size
 for col in ['Donor', 'Status']:
-    meta[col] = meta[col].astype('category')
+    adata.obs[col] = adata.obs[col].astype('category')
 
-adata = sc.read_csv(Path("./temp/covid_matrix.csv"))
-adata.obs = meta
 print(adata)
 
 print("Compressing matrix")

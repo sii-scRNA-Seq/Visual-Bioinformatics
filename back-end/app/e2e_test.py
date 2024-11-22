@@ -135,7 +135,7 @@ def test_getdatasetinfo_ReturnsTheCorrectDatasetInfo(app_client):
             {
                 "key": "covid",
                 "title": "COVID19 PBMCs",
-                "samples": ["C1"],
+                "samples": ["C1", "H1"],
                 "integration_obs": ["Donor"],
                 "grouping_obs": ["leiden", "Donor", "Status"]
             }

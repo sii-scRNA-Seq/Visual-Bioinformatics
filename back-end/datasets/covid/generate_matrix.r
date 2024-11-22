@@ -1,20 +1,22 @@
 library(Seurat)
 
-print("Loading Object")
-seurat_obj <- readRDS('Covid_555_1.rds')
+objects <- c("Covid_555_1", "HC_HIP002")
+for (object in objects) {
+  print(object)
+  print("Loading Object")
+  seurat_obj <- readRDS(paste0(object,".rds"))
+  raw_counts <- GetAssayData(seurat_obj, layer='counts', assay='RNA')
 
-print(seurat_obj)
-print(colnames(seurat_obj@meta.data))
+  dir.create("./temp")
 
-raw_counts <- GetAssayData(seurat_obj, layer='counts', assay='RNA')
+  print("Saving metadata")
+  path <- paste0('temp/', object, '_meta.csv')
+  write.table(seurat_obj@meta.data[,c("Donor", "Status")], file=path, sep=",") # keeps the rownames
+  print(paste0("Saved metadata to", path))
 
-dir.create("./temp")
-
-print("Saving metadata")
-write.table(seurat_obj@meta.data[,c("Donor", "Status")], file="temp/covid_meta.csv", sep=",") # keeps the rownames
-print("Saved metadata to temp/covid_meta.csv")
-
-print("Saving Matrix")
-write.table(t(raw_counts), file="temp/covid_matrix.csv", sep=",") # keeps the rownames
-print("Saved matrix to temp/covid_matrix.csv")
+  print("Saving Matrix")
+  path <- paste0('temp/', object, '_matrix.csv')
+  write.table(t(raw_counts), file=path, sep=",") # keeps the rownames
+  print(paste0("Saved matrix to", path))
+}
 

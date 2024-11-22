@@ -3,7 +3,7 @@ dataset_info = [
         "key": "pbmc3k",
         "title": "Peripheral Blood Mononuclear Cells",
         "samples": ["1"],
-        "integration_obs": [],
+        "integration_obs": ["sample"],
         "grouping_obs": ["leiden", "sample"]
     },
     {
@@ -16,7 +16,7 @@ dataset_info = [
     {
         "key": "covid",
         "title": "COVID19 PBMCs",
-        "samples": ["C1"],
+        "samples": ["C1", "H1"],
         "integration_obs": ["Donor"],
         "grouping_obs": ["leiden", "Donor", "Status"]
     }

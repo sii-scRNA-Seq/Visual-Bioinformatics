@@ -4,8 +4,7 @@ from threadpoolctl import threadpool_limits
 
 from block.block_interface import Block, adata_text
 from dataset_info import dataset_info
-import scanpy as sc
-
+from harmony import harmonize
 
 class Integration(Block):
 
@@ -58,7 +57,14 @@ class Integration(Block):
 
         with parallel_backend("threading", n_jobs=1):
             with threadpool_limits(limits=1, user_api="blas"):
-                sc.external.pp.harmony_integrate(adata, observation)
+                adata.obsm['X_pca_harmony'] = harmonize(
+                  adata.obsm['X_pca'],
+                  adata.obs,
+                  batch_key=observation,
+                  use_gpu=False,
+                  n_jobs=1
+                )
+
         adata.obsm["X_pca"] = adata.obsm["X_pca_harmony"]
 
         message = {

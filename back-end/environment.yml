@@ -29,7 +29,7 @@ dependencies:
       - greenlet==3.0.3
       - h11==0.14.0
       - h5py==3.10.0
-      - harmonypy==0.0.9
+      - harmony-pytorch=0.1.8
       - igraph==0.11.4
       - importlib-metadata==6.8.0
       - importlib-resources==6.1.1

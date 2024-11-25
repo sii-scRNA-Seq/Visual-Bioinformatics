@@ -1,10 +1,8 @@
 from anndata import AnnData
-from joblib import parallel_backend
-from threadpoolctl import threadpool_limits
+from harmony import harmonize
 
 from block.block_interface import Block, adata_text
 from dataset_info import dataset_info
-import scanpy as sc
 
 
 class Integration(Block):
@@ -55,17 +53,14 @@ class Integration(Block):
             if d["key"] == dataset and observation not in d["integration_obs"]:
                 raise Exception("Selected observation does not exist.")
 
-        with parallel_backend("threading", n_jobs=1):
-            with threadpool_limits(limits=1, user_api="blas"):
-                # TODO migrate to harmony-pytorch
-                # adata.obsm['X_pca_harmony'] = harmonize(
-                #   adata.obsm['X_pca'],
-                #   adata.obs,
-                #   batch_key=observation,
-                #   use_gpu=False,
-                #   n_jobs=1
-                # )
-                sc.external.pp.harmony_integrate(adata, observation)
+        adata.obsm['X_pca_harmony'] = harmonize(
+            adata.obsm['X_pca'],
+            adata.obs,
+            batch_key=observation,
+            use_gpu=False,
+            n_jobs=1
+        )
+        adata.obsm['X_pca'] = adata.obsm['X_pca_harmony']
 
         message = {
             "text": adata_text(adata)

@@ -1,9 +1,10 @@
+import json
+from unittest.mock import call, patch
+
+import anndata
+import numpy as np
 import pytest
 from scipy.sparse import csr_matrix
-from unittest.mock import call, patch
-import anndata
-import json
-import numpy as np
 
 from back_end import create_app
 
@@ -793,23 +794,34 @@ def test_integration_EndToEnd(socketio_client):
         "user_id": "bob",
         "blocks": [
             {"block_id": "loaddata", "dataset": "pf_dogga"},
-            {"block_id": "variablegenes", "min_mean": 0, "max_mean": 0, "min_disp": 0},
+
+            {"block_id": "qcfiltering", "sample": "0", "min_n_genes_by_counts": 500, "max_n_genes_by_counts": 1000,
+             "pct_counts_mt": 10},
+            {"block_id": "qcfiltering", "sample": "3", "min_n_genes_by_counts": 500, "max_n_genes_by_counts": 1000,
+             "pct_counts_mt": 10},
+            {"block_id": "qcfiltering", "sample": "5", "min_n_genes_by_counts": 500, "max_n_genes_by_counts": 1000,
+             "pct_counts_mt": 10},
+            {"block_id": "qcfiltering", "sample": "10a", "min_n_genes_by_counts": 500, "max_n_genes_by_counts": 1000,
+             "pct_counts_mt": 10},
+            {"block_id": "qcfiltering", "sample": "10b", "min_n_genes_by_counts": 500, "max_n_genes_by_counts": 1000,
+             "pct_counts_mt": 10},
+
+            {"block_id": "variablegenes", "min_mean": 1, "max_mean": 3, "min_disp": 1},
             {"block_id": "pca"},
             {"block_id": "integration", "observation": "day"}
         ],
     }
 
-    with patch("scanpy.pp.highly_variable_genes"), patch("scanpy.pl.highly_variable_genes"), patch("scanpy.external.pp.harmony_integrate"), patch("anndata.AnnData.obsm"):
-        with patch("block_execution.get_socketio_client", lambda x: socketio_client):
-            with patch("block_execution.disconnect_socketio_client", lambda x: True):
-                with patch("block_execution.emit_synchronous", lambda cl, ch, msg: cl.emit(ch, msg)):
-                    socketio_client.emit("json", message)
-                    received = socketio_client.get_received()
-                    json_received = list(filter(lambda x: x["name"] == "json", received))
-                    assert len(json_received) == 5
-                    assert json.loads(json_received[3]["args"])["blockId"] == "integration"
-                    assert json.loads(json_received[3]["args"])["text"] == "Object with: 10,000 cells and 5,720 genes"
-                    assert json.loads(json_received[4]["args"])["end_connection"] == "end_connection"
+    with patch("block_execution.get_socketio_client", lambda x: socketio_client):
+        with patch("block_execution.disconnect_socketio_client", lambda x: True):
+            with patch("block_execution.emit_synchronous", lambda cl, ch, msg: cl.emit(ch, msg)):
+                socketio_client.emit("json", message)
+                received = socketio_client.get_received()
+                json_received = list(filter(lambda x: x["name"] == "json", received))
+                assert len(json_received) == 10
+                assert json.loads(json_received[8]["args"])["blockId"] == "integration"
+                assert json.loads(json_received[8]["args"])["text"] == "Object with: 3,611 cells and 5,720 genes"
+                assert json.loads(json_received[9]["args"])["end_connection"] == "end_connection"
 
 
 def test_runumap_EndToEnd():
